@@ -7,8 +7,24 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  bool isAuth = false;
+
   @override
   Widget build(BuildContext context) {
-    return Text("Home");
+    return isAuth ? buildAuthScreen() : buildUnAuthScreen();
+  }
+
+  buildAuthScreen() {
+    return Scaffold(Container(
+      child: Column(
+        children: <Widget>[
+          Text(),
+        ],
+      ),
+    ));
+  }
+
+  buildUnAuthScreen() {
+    return Text('Authenticated');
   }
 }
