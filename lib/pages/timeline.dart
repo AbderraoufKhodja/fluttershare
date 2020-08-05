@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttershare/widgets/header.dart';
-import 'package:fluttershare/widgets/progress.dart';
+import 'package:khadamat/widgets/header.dart';
+import 'package:khadamat/widgets/progress.dart';
 
 final userRef = Firestore.instance.collection('users');
 

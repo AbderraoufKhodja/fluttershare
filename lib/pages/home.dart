@@ -1,11 +1,14 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttershare/pages/activity_feed.dart';
-import 'package:fluttershare/pages/profile.dart';
-import 'package:fluttershare/pages/search.dart';
-import 'package:fluttershare/pages/timeline.dart';
-import 'package:fluttershare/pages/upload.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:khadamat/pages/profile.dart';
+import 'package:khadamat/pages/search.dart';
+import 'package:khadamat/pages/upload.dart';
+import 'package:khadamat/pages/timeline.dart';
+
+import 'activity_feed.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
 
