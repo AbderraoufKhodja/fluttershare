@@ -2,8 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/progress.dart';
-
-final userRef = Firestore.instance.collection('users');
+import 'package:khadamat/pages/home.dart';
 
 class Timeline extends StatefulWidget {
   @override
@@ -13,9 +12,6 @@ class Timeline extends StatefulWidget {
 class _TimelineState extends State<Timeline> {
   @override
   void initState() {
-    // createUser();
-    deleteUser();
-    // updateUser();
     super.initState();
   }
 
@@ -24,7 +20,7 @@ class _TimelineState extends State<Timeline> {
     return Scaffold(
       appBar: header(context),
       body: StreamBuilder<QuerySnapshot>(
-          stream: userRef.snapshots(),
+          stream: usersRef.snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) return circularProgress();
             final List<Text> children = snapshot.data.documents
@@ -38,7 +34,7 @@ class _TimelineState extends State<Timeline> {
   }
 
   void createUser() {
-    userRef.document("asdfasdfd").setData({
+    usersRef.document("asdfasdfd").setData({
       "userName": "Jeff",
       "postCount": 0,
       "isAdmin": false,
@@ -46,14 +42,14 @@ class _TimelineState extends State<Timeline> {
   }
 
   void deleteUser() async {
-    final doc = await userRef.document("asdfasdfd").get();
+    final doc = await usersRef.document("asdfasdfd").get();
     if (doc.exists) {
       doc.reference.delete();
     }
   }
 
   void updateUser() async {
-    final doc = await userRef.document("asdfasdfd").get();
+    final doc = await usersRef.document("asdfasdfd").get();
     if (doc.exists) {
       doc.reference.updateData({
         "userName": "Jeff",
