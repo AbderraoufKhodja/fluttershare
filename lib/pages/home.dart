@@ -3,12 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:khadamat/models/user.dart';
+import 'package:khadamat/pages/activity_feed.dart';
 import 'package:khadamat/pages/create_account.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/pages/search.dart';
 import 'package:khadamat/pages/upload.dart';
-
-import 'activity_feed.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final usersRef = Firestore.instance.collection("users");
