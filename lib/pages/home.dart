@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -10,7 +11,10 @@ import 'package:khadamat/pages/search.dart';
 import 'package:khadamat/pages/upload.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
+final StorageReference storageRef = FirebaseStorage.instance.ref();
 final usersRef = Firestore.instance.collection("users");
+final postsRef = Firestore.instance.collection("posts");
+final cardsRef = Firestore.instance.collection("cards");
 final DateTime timeStamp = DateTime.now();
 User currentUser;
 
@@ -89,7 +93,7 @@ class _HomeState extends State<Home> {
             onPressed: logout,
           ),
           ActivityFeed(),
-          Upload(),
+          Upload(currentUser: currentUser),
           Search(),
           Profile(),
         ],
@@ -110,8 +114,9 @@ class _HomeState extends State<Home> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.location_on,
+              Icons.rss_feed,
               size: 40.0,
+              color: Colors.red,
             ),
           ),
           BottomNavigationBarItem(
