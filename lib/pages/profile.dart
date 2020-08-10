@@ -7,6 +7,7 @@ import 'package:khadamat/pages/edit_profile.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/post.dart';
+import 'package:khadamat/widgets/post_tile.dart';
 import 'package:khadamat/widgets/progress.dart';
 
 class Profile extends StatefulWidget {
@@ -20,6 +21,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final String currentUserId = currentUser?.id;
+  String postOrientation = "grid";
   bool isLoading = false;
   int postCount = 0;
   List<Post> posts = [];
@@ -42,6 +44,7 @@ class _ProfileState extends State<Profile> {
         children: <Widget>[
           buildProfileHeader(),
           Divider(height: 0.0),
+          buildTogglePostOrientation(),
           buildProfilePost(),
         ],
       ),
@@ -193,7 +196,22 @@ class _ProfileState extends State<Profile> {
   }
 
   buildProfilePost() {
-    return isLoading ? circularProgress() : Column(children: posts);
+    if (isLoading) return circularProgress();
+    List<GridTile> gridTiles = [];
+    posts.forEach((post) {
+      gridTiles.add(GridTile(child: PostTile(post)));
+    });
+    if (postOrientation == "grid")
+      return GridView.count(
+        crossAxisCount: 3,
+        childAspectRatio: 1.0,
+        mainAxisSpacing: 1.5,
+        crossAxisSpacing: 1.5,
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        children: gridTiles,
+      );
+    else if (postOrientation == "list") return Column(children: posts);
   }
 
   getProfilePosts() async {
@@ -212,6 +230,34 @@ class _ProfileState extends State<Profile> {
       postCount = snapshot.documents.length;
       print(postCount.toString());
       posts = snapshot.documents.map((doc) => Post.fromDocument(doc)).toList();
+    });
+  }
+
+  buildTogglePostOrientation() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        IconButton(
+          onPressed: () => setPostOrientation("grid"),
+          icon: Icon(Icons.grid_on),
+          color: (postOrientation == "grid")
+              ? Theme.of(context).primaryColor
+              : Colors.grey,
+        ),
+        IconButton(
+          onPressed: () => setPostOrientation("list"),
+          icon: Icon(Icons.list),
+          color: (postOrientation == "list")
+              ? Theme.of(context).primaryColor
+              : Colors.grey,
+        ),
+      ],
+    );
+  }
+
+  void setPostOrientation(String postOrientation) {
+    setState(() {
+      this.postOrientation = postOrientation;
     });
   }
 }
