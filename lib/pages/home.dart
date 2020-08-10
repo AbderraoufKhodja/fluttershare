@@ -15,7 +15,7 @@ final StorageReference storageRef = FirebaseStorage.instance.ref();
 final usersRef = Firestore.instance.collection("users");
 final postsRef = Firestore.instance.collection("posts");
 final cardsRef = Firestore.instance.collection("cards");
-final DateTime timeStamp = DateTime.now();
+final DateTime timestamp = DateTime.now();
 User currentUser;
 
 class Home extends StatefulWidget {
@@ -214,7 +214,7 @@ class _HomeState extends State<Home> {
           "email": user.email,
           "displayName": user.displayName,
           "bio": "",
-          "timeStamp": timeStamp,
+          "timestamp": timestamp,
         },
       );
       doc = await usersRef.document(user.id).get();

@@ -1,10 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/edit_profile.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/header.dart';
+import 'package:khadamat/widgets/post.dart';
 import 'package:khadamat/widgets/progress.dart';
 
 class Profile extends StatefulWidget {
@@ -18,6 +20,15 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final String currentUserId = currentUser?.id;
+  bool isLoading = false;
+  int postCount = 0;
+  List<Post> posts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getProfilePosts();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +39,11 @@ class _ProfileState extends State<Profile> {
           hasAction: true,
           action: logout),
       body: ListView(
-        children: <Widget>[buildProfileHeader()],
+        children: <Widget>[
+          buildProfileHeader(),
+          Divider(height: 0.0),
+          buildProfilePost(),
+        ],
       ),
     );
   }
@@ -58,7 +73,7 @@ class _ProfileState extends State<Profile> {
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: <Widget>[
-                            buildCountColumn("posts", 0),
+                            buildCountColumn("posts", postCount),
                             buildCountColumn("followers", 0),
                             buildCountColumn("following", 0),
                           ],
@@ -175,5 +190,28 @@ class _ProfileState extends State<Profile> {
     if (isProfileOwner) {
       return buildButton(text: "Edit Profile", function: editProfile);
     }
+  }
+
+  buildProfilePost() {
+    return isLoading ? circularProgress() : Column(children: posts);
+  }
+
+  getProfilePosts() async {
+    setState(() {
+      isLoading = true;
+      print("isLoadind $isLoading");
+    });
+    QuerySnapshot snapshot = await postsRef
+        .document(widget.profileId)
+        .collection("userPosts")
+        .orderBy("timestamp", descending: true)
+        .getDocuments();
+    setState(() {
+      isLoading = false;
+      print("isLoadind $isLoading");
+      postCount = snapshot.documents.length;
+      print(postCount.toString());
+      posts = snapshot.documents.map((doc) => Post.fromDocument(doc)).toList();
+    });
   }
 }
