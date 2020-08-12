@@ -35,7 +35,7 @@ class _SearchState extends State<Search> {
       backgroundColor: Colors.white,
       title: TextFormField(
         controller: searchController,
-        keyboardType: TextInputType.name,
+//        keyboardType: TextInputType.name,
         decoration: InputDecoration(
           hintText: "Search for a user ...",
           filled: true,

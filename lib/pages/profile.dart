@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/edit_profile.dart';
 import 'package:khadamat/pages/home.dart';
@@ -201,6 +202,29 @@ class _ProfileState extends State<Profile> {
     posts.forEach((post) {
       gridTiles.add(GridTile(child: PostTile(post)));
     });
+    if (posts.isEmpty)
+      return Container(
+        color: Theme.of(context).primaryColor.withOpacity(0.6),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SvgPicture.asset(
+              'assets/images/no_content.svg',
+              height: 160.0,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 10.0),
+              child: Text(
+                'Upload Khidma',
+                style: TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 30.0,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      );
     if (postOrientation == "grid")
       return GridView.count(
         crossAxisCount: 3,
@@ -217,7 +241,7 @@ class _ProfileState extends State<Profile> {
   getProfilePosts() async {
     setState(() {
       isLoading = true;
-      print("isLoadind $isLoading");
+      print("isLoading $isLoading");
     });
     QuerySnapshot snapshot = await postsRef
         .document(widget.profileId)
@@ -226,7 +250,7 @@ class _ProfileState extends State<Profile> {
         .getDocuments();
     setState(() {
       isLoading = false;
-      print("isLoadind $isLoading");
+      print("isLoading $isLoading");
       postCount = snapshot.documents.length;
       print(postCount.toString());
       posts = snapshot.documents.map((doc) => Post.fromDocument(doc)).toList();

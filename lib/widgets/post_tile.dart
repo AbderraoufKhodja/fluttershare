@@ -10,6 +10,7 @@ class PostTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      // TODO: implement show full post to onTap function
       onTap: () => print('showing post'),
       child: cachedNetworkImage(post.mediaUrl),
     );
