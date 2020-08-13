@@ -1,10 +1,10 @@
 import 'dart:async';
-
 import 'package:animator/animator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
+import 'package:khadamat/pages/activity_feed.dart';
 import 'package:khadamat/pages/comments.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/custom_image.dart';
@@ -13,7 +13,7 @@ import 'package:khadamat/widgets/progress.dart';
 class Post extends StatefulWidget {
   final String postId;
   final String ownerId;
-  final String userName;
+  final String username;
   final String location;
   final String description;
   final String mediaUrl;
@@ -22,7 +22,7 @@ class Post extends StatefulWidget {
   Post({
     this.postId,
     this.ownerId,
-    this.userName,
+    this.username,
     this.location,
     this.description,
     this.mediaUrl,
@@ -33,7 +33,7 @@ class Post extends StatefulWidget {
     return Post(
       postId: doc['postId'],
       ownerId: doc['ownerId'],
-      userName: doc['userName'],
+      username: doc['username'],
       location: doc['location'],
       description: doc['description'],
       mediaUrl: doc['mediaUrl'],
@@ -60,7 +60,7 @@ class Post extends StatefulWidget {
   _PostState createState() => _PostState(
         postId: this.postId,
         ownerId: this.ownerId,
-        userName: this.userName,
+        username: this.username,
         location: this.location,
         description: this.description,
         mediaUrl: this.mediaUrl,
@@ -73,7 +73,7 @@ class _PostState extends State<Post> {
   final String currentUserId = currentUser?.id;
   final String postId;
   final String ownerId;
-  final String userName;
+  final String username;
   final String location;
   final String description;
   final String mediaUrl;
@@ -86,7 +86,7 @@ class _PostState extends State<Post> {
   _PostState({
     this.postId,
     this.ownerId,
-    this.userName,
+    this.username,
     this.location,
     this.description,
     this.mediaUrl,
@@ -108,9 +108,9 @@ class _PostState extends State<Post> {
             backgroundColor: Colors.grey,
           ),
           title: GestureDetector(
-            onTap: () => print('showing profile'),
+            onTap: () => showProfile(context, profileId: user.id),
             child: Text(
-              user.userName,
+              user.username,
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
@@ -121,7 +121,7 @@ class _PostState extends State<Post> {
           trailing: IconButton(
             onPressed: () {
               print('deleting post');
-              print(userName);
+              print(username);
             },
             icon: Icon(Icons.more_vert),
           ),
@@ -207,7 +207,7 @@ class _PostState extends State<Post> {
             Container(
               margin: EdgeInsets.only(left: 20.0),
               child: Text(
-                "$userName ",
+                "$username ",
                 style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -243,6 +243,7 @@ class _PostState extends State<Post> {
           .collection('userPosts')
           .document(postId)
           .updateData({"likes.$currentUserId": false});
+      addLikeToActivityFeed();
       setState(() {
         likes[currentUserId] = false;
         isLiked = false;
@@ -254,6 +255,7 @@ class _PostState extends State<Post> {
           .collection('userPosts')
           .document(postId)
           .updateData({"likes.$currentUserId": true});
+      removeLikeToActivityFeed();
       setState(() {
         likes[currentUserId] = true;
         isLiked = true;
@@ -266,6 +268,37 @@ class _PostState extends State<Post> {
         });
       });
     }
+  }
+
+  removeLikeToActivityFeed() {
+    bool _isOwnerPost = (currentUserId == ownerId);
+    if (!_isOwnerPost)
+      activityFeedRef
+          .document(currentUserId)
+          .collection('feedItems')
+          .document(postId)
+          .get()
+          .then((doc) {
+        if (doc.exists) doc.reference.delete();
+      });
+  }
+
+  addLikeToActivityFeed() {
+    bool _isOwnerPost = (currentUserId == ownerId);
+    if (!_isOwnerPost)
+      activityFeedRef
+          .document(currentUserId)
+          .collection('feedItems')
+          .document(postId)
+          .setData({
+        "type": "like",
+        "username": currentUser.username,
+        "userId": currentUser.id,
+        "userProfileImg": currentUser.photoUrl,
+        "postId": postId,
+        "mediaUrl": mediaUrl,
+        "timestamps": timestamp,
+      });
   }
 }
 

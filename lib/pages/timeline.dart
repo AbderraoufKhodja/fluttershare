@@ -24,7 +24,7 @@ class _TimelineState extends State<Timeline> {
           builder: (context, snapshot) {
             if (!snapshot.hasData) return circularProgress();
             final List<Text> children = snapshot.data.documents
-                .map((doc) => Text(doc['userName']))
+                .map((doc) => Text(doc['username']))
                 .toList();
             return ListView(
               children: children,
@@ -35,7 +35,7 @@ class _TimelineState extends State<Timeline> {
 
   void createUser() {
     usersRef.document("asdfasdfd").setData({
-      "userName": "Jeff",
+      "username": "Jeff",
       "postCount": 0,
       "isAdmin": false,
     });
@@ -52,7 +52,7 @@ class _TimelineState extends State<Timeline> {
     final doc = await usersRef.document("asdfasdfd").get();
     if (doc.exists) {
       doc.reference.updateData({
-        "userName": "Jeff",
+        "username": "Jeff",
         "postCount": 0,
         "isAdmin": false,
       });
@@ -61,7 +61,7 @@ class _TimelineState extends State<Timeline> {
 
   // void getUsers() async {
   //   QuerySnapshot usersData =
-  //       await userRef.where("userName", isEqualTo: 'Bernard').getDocuments();
+  //       await userRef.where("username", isEqualTo: 'Bernard').getDocuments();
   //   for (DocumentSnapshot doc in usersData.documents) {
   //     print(doc.data);
   //     print(doc.documentID);

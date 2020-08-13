@@ -7,6 +7,8 @@ import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/progress.dart';
 
+import 'activity_feed.dart';
+
 class Search extends StatefulWidget {
   @override
   _SearchState createState() => _SearchState();
@@ -119,7 +121,7 @@ class UserResult extends StatelessWidget {
       child: Column(
         children: <Widget>[
           GestureDetector(
-            onTap: () => print('tapped'),
+            onTap: () => showProfile(context, profileId: user.id),
             child: ListTile(
               leading: CircleAvatar(
                 backgroundColor: Colors.grey,
@@ -133,7 +135,7 @@ class UserResult extends StatelessWidget {
                 ),
               ),
               subtitle: Text(
-                user.userName,
+                user.username,
                 style: TextStyle(color: Colors.white),
               ),
             ),

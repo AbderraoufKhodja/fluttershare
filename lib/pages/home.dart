@@ -16,6 +16,9 @@ final usersRef = Firestore.instance.collection("users");
 final postsRef = Firestore.instance.collection("posts");
 final cardsRef = Firestore.instance.collection("cards");
 final commentsRef = Firestore.instance.collection("comments");
+final activityFeedRef = Firestore.instance.collection("feeds");
+final followersRef = Firestore.instance.collection("followers");
+final followingRef = Firestore.instance.collection("following");
 final DateTime timestamp = DateTime.now();
 User currentUser;
 
@@ -199,7 +202,7 @@ class _HomeState extends State<Home> {
     if (!doc.exists) {
       // 2) if user do not exist, then we want to take them to the create
       // account page
-      final userName = await Navigator.push(
+      final username = await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => CreateAccount(),
@@ -210,7 +213,7 @@ class _HomeState extends State<Home> {
       usersRef.document(user.id).setData(
         {
           "id": user.id,
-          "userName": userName,
+          "username": username,
           "photoUrl": user.photoUrl,
           "email": user.email,
           "displayName": user.displayName,

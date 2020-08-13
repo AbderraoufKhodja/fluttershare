@@ -11,7 +11,7 @@ class CreateAccount extends StatefulWidget {
 class _CreateAccountState extends State<CreateAccount> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  String userName;
+  String username;
 
   @override
   Widget build(BuildContext parentContext) {
@@ -50,10 +50,10 @@ class _CreateAccountState extends State<CreateAccount> {
                           else
                             return null;
                         },
-                        onSaved: (val) => userName = val,
+                        onSaved: (val) => username = val,
                         decoration: InputDecoration(
                             border: OutlineInputBorder(),
-                            labelText: "Username",
+                            labelText: "username",
                             labelStyle: TextStyle(fontSize: 15.0),
                             hintText: "Must be at least 3 characters"),
                       ),
@@ -92,11 +92,11 @@ class _CreateAccountState extends State<CreateAccount> {
     if (form.validate()) {
       form.save();
       SnackBar snackBar = SnackBar(
-        content: Text("Welcome $userName"),
+        content: Text("Welcome $username"),
       );
       _scaffoldKey.currentState.showSnackBar(snackBar);
       Timer(Duration(seconds: 2), () {
-        Navigator.pop(context, userName);
+        Navigator.pop(context, username);
       });
     }
   }

@@ -16,8 +16,8 @@ class Comments extends StatefulWidget {
   @override
   CommentsState createState() => CommentsState(
       postId: this.postId,
-      postMediaUrl: this.postOwnerId,
-      postOwnerId: this.postMediaUrl);
+      postMediaUrl: this.postMediaUrl,
+      postOwnerId: this.postOwnerId);
 }
 
 class CommentsState extends State<Comments> {
@@ -80,25 +80,41 @@ class CommentsState extends State<Comments> {
   addComment() {
     //TODO: has a bug on the timestamp
     commentsRef.document(postId).collection('comments').add({
-      "userName": currentUser.userName,
+      "username": currentUser.username,
       "comment": commentController.text,
       "timestamp": timestamp,
       "avatarUrl": currentUser.photoUrl,
       "userId": currentUser.id,
     });
+    addCommentFeedActivity();
     commentController.clear();
+  }
+
+  addCommentFeedActivity() {
+    bool _isOwnerPost = (currentUser.id == postOwnerId);
+    if (!_isOwnerPost)
+      activityFeedRef.document(postOwnerId).collection('feedItems').add({
+        "type": "comment",
+        "commentData": commentController.text,
+        "timestamp": timestamp,
+        "postId": postId,
+        "userId": currentUser.id,
+        "username": currentUser.username,
+        "userProfileImg": currentUser.photoUrl,
+        "mediaUrl": postMediaUrl,
+      });
   }
 }
 
 class Comment extends StatelessWidget {
-  final String userName;
+  final String username;
   final String userId;
   final String comment;
   final String avatarUrl;
   final Timestamp timestamp;
 
   Comment(
-      {this.userName,
+      {this.username,
       this.userId,
       this.comment,
       this.avatarUrl,
@@ -122,7 +138,7 @@ class Comment extends StatelessWidget {
 
   factory Comment.fromDocument(DocumentSnapshot doc) {
     return Comment(
-      userName: doc["userName"],
+      username: doc["username"],
       comment: doc["comment"],
       avatarUrl: doc["avatarUrl"],
       timestamp: doc["timestamp"],
