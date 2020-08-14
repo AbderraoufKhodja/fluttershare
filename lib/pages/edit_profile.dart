@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
@@ -58,7 +56,7 @@ class _EditProfileState extends State<EditProfile> {
           controller: displayNameController,
           decoration: InputDecoration(
             hintText: "Update Display Name",
-            errorText: _displayNameValid ? null : "Display name too short",
+            errorText: _displayNameValid ? null : "Display Name too short",
           ),
         )
       ],
@@ -80,11 +78,37 @@ class _EditProfileState extends State<EditProfile> {
           controller: bioController,
           decoration: InputDecoration(
             hintText: "Update Bio",
-            errorText: _bioValid ? null : "Bio name too long",
+            errorText: _bioValid ? null : "Bio too long",
           ),
         )
       ],
     );
+  }
+
+  updateProfileData() {
+    setState(() {
+      displayNameController.text.trim().length < 3 ||
+              displayNameController.text.isEmpty
+          ? _displayNameValid = false
+          : _displayNameValid = true;
+      bioController.text.trim().length > 100
+          ? _bioValid = false
+          : _bioValid = true;
+    });
+
+    if (_displayNameValid && _bioValid) {
+      usersRef.document(widget.currentUserId).updateData({
+        "displayName": displayNameController.text,
+        "bio": bioController.text,
+      });
+      SnackBar snackbar = SnackBar(content: Text("Profile updated!"));
+      _scaffoldKey.currentState.showSnackBar(snackbar);
+    }
+  }
+
+  logout() async {
+    await googleSignIn.signOut();
+    Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
   }
 
   @override
@@ -93,14 +117,6 @@ class _EditProfileState extends State<EditProfile> {
       key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(
-            Icons.clear,
-            size: 30.0,
-            color: Colors.black,
-          ),
-        ),
         title: Text(
           "Edit Profile",
           style: TextStyle(
@@ -109,7 +125,7 @@ class _EditProfileState extends State<EditProfile> {
         ),
         actions: <Widget>[
           IconButton(
-            onPressed: updateProfileData,
+            onPressed: () => Navigator.pop(context),
             icon: Icon(
               Icons.done,
               size: 30.0,
@@ -145,54 +161,33 @@ class _EditProfileState extends State<EditProfile> {
                           ],
                         ),
                       ),
-//                      RaisedButton(
-//                        onPressed: updateProfileData,
-//                        child: Text(
-//                          "Update Profile",
-//                          style: TextStyle(
-//                            color: Theme.of(context).primaryColor,
-//                            fontSize: 20.0,
-//                            fontWeight: FontWeight.bold,
-//                          ),
-//                        ),
-//                      ),
-//                      Padding(
-//                        padding: EdgeInsets.all(16.0),
-//                        child: FlatButton.icon(
-//                          onPressed: () => print('logout'),
-//                          icon: Icon(Icons.cancel, color: Colors.red),
-//                          label: Text(
-//                            "Logout",
-//                            style: TextStyle(color: Colors.red, fontSize: 20.0),
-//                          ),
-//                        ),
-//                      ),
+                      RaisedButton(
+                        onPressed: updateProfileData,
+                        child: Text(
+                          "Update Profile",
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: FlatButton.icon(
+                          onPressed: logout,
+                          icon: Icon(Icons.cancel, color: Colors.red),
+                          label: Text(
+                            "Logout",
+                            style: TextStyle(color: Colors.red, fontSize: 20.0),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
     );
-  }
-
-  updateProfileData() {
-    setState(() {
-      displayNameController.text.trim().length < 3 ||
-              displayNameController.text.isEmpty
-          ? _displayNameValid = false
-          : _displayNameValid = true;
-      bioController.text.trim().length > 200 || bioController.text.isEmpty
-          ? _bioValid = false
-          : _bioValid = true;
-    });
-    if (_displayNameValid && _bioValid) {
-      usersRef.document(widget.currentUserId).updateData({
-        "displayName": displayNameController.text,
-        "bio": bioController.text,
-      });
-      SnackBar snackBar = SnackBar(content: Text("Profile updated!"));
-      _scaffoldKey.currentState.showSnackBar(snackBar);
-      Timer(Duration(seconds: 2), () => Navigator.pop(context));
-    }
   }
 }

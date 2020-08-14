@@ -1,45 +1,42 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:khadamat/models/user.dart';
+import 'package:khadamat/pages/activity_feed.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/progress.dart';
-
-import 'activity_feed.dart';
 
 class Search extends StatefulWidget {
   @override
   _SearchState createState() => _SearchState();
 }
 
-class _SearchState extends State<Search> {
+class _SearchState extends State<Search>
+    with AutomaticKeepAliveClientMixin<Search> {
   TextEditingController searchController = TextEditingController();
   Future<QuerySnapshot> searchResultsFuture;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.8),
-      appBar: buildSearchField(),
-      body:
-          searchResultsFuture == null ? buildNoContent() : buildSearchResults(),
-    );
+  handleSearch(String query) {
+    Future<QuerySnapshot> users = usersRef
+        .where("displayName", isGreaterThanOrEqualTo: query)
+        .getDocuments();
+    setState(() {
+      searchResultsFuture = users;
+    });
   }
 
   clearSearch() {
     searchController.clear();
   }
 
-  buildSearchField() {
+  AppBar buildSearchField() {
     return AppBar(
       backgroundColor: Colors.white,
       title: TextFormField(
         controller: searchController,
-//        keyboardType: TextInputType.name,
         decoration: InputDecoration(
-          hintText: "Search for a user ...",
+          hintText: "Search for a user...",
           filled: true,
           prefixIcon: Icon(
             Icons.account_box,
@@ -55,9 +52,8 @@ class _SearchState extends State<Search> {
     );
   }
 
-  buildNoContent() {
+  Container buildNoContent() {
     final Orientation orientation = MediaQuery.of(context).orientation;
-
     return Container(
       child: Center(
         child: ListView(
@@ -83,20 +79,13 @@ class _SearchState extends State<Search> {
     );
   }
 
-  handleSearch(String query) {
-    Future<QuerySnapshot> user = usersRef
-        .where("displayName", isGreaterThanOrEqualTo: query)
-        .getDocuments();
-    setState(() {
-      searchResultsFuture = user;
-    });
-  }
-
   buildSearchResults() {
     return FutureBuilder(
       future: searchResultsFuture,
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return circularProgress();
+        if (!snapshot.hasData) {
+          return circularProgress();
+        }
         List<UserResult> searchResults = [];
         snapshot.data.documents.forEach((doc) {
           User user = User.fromDocument(doc);
@@ -109,11 +98,27 @@ class _SearchState extends State<Search> {
       },
     );
   }
+
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    return Scaffold(
+      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.8),
+      appBar: buildSearchField(),
+      body:
+          searchResultsFuture == null ? buildNoContent() : buildSearchResults(),
+    );
+  }
 }
 
 class UserResult extends StatelessWidget {
   final User user;
+
   UserResult(this.user);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -129,10 +134,8 @@ class UserResult extends StatelessWidget {
               ),
               title: Text(
                 user.displayName,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
               subtitle: Text(
                 user.username,

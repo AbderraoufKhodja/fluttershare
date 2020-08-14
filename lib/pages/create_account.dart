@@ -9,30 +9,41 @@ class CreateAccount extends StatefulWidget {
 }
 
 class _CreateAccountState extends State<CreateAccount> {
-  final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _formKey = GlobalKey<FormState>();
   String username;
+
+  submit() {
+    final form = _formKey.currentState;
+
+    if (form.validate()) {
+      form.save();
+      SnackBar snackbar = SnackBar(content: Text("Welcome $username!"));
+      _scaffoldKey.currentState.showSnackBar(snackbar);
+      Timer(Duration(seconds: 2), () {
+        Navigator.pop(context, username);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext parentContext) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: header(
-        context,
-        isAppTitle: false,
-        titleText: 'Set up your profile',
-        removeBackButton: true,
-      ),
+      appBar: header(context,
+          titleText: "Set up your profile", removeBackButton: true),
       body: ListView(
         children: <Widget>[
           Container(
             child: Column(
-              children: [
+              children: <Widget>[
                 Padding(
                   padding: EdgeInsets.only(top: 25.0),
-                  child: Text(
-                    'Create a username',
-                    style: TextStyle(fontSize: 25.0),
+                  child: Center(
+                    child: Text(
+                      "Create a username",
+                      style: TextStyle(fontSize: 25.0),
+                    ),
                   ),
                 ),
                 Padding(
@@ -43,19 +54,21 @@ class _CreateAccountState extends State<CreateAccount> {
                       autovalidate: true,
                       child: TextFormField(
                         validator: (val) {
-                          if (val.trim().length < 3 || val.isEmpty)
-                            return "User name too short";
-                          else if (val.trim().length > 20)
-                            return "User name too long";
-                          else
+                          if (val.trim().length < 3 || val.isEmpty) {
+                            return "Username too short";
+                          } else if (val.trim().length > 12) {
+                            return "Username too long";
+                          } else {
                             return null;
+                          }
                         },
                         onSaved: (val) => username = val,
                         decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: "username",
-                            labelStyle: TextStyle(fontSize: 15.0),
-                            hintText: "Must be at least 3 characters"),
+                          border: OutlineInputBorder(),
+                          labelText: "Username",
+                          labelStyle: TextStyle(fontSize: 15.0),
+                          hintText: "Must be at least 3 characters",
+                        ),
                       ),
                     ),
                   ),
@@ -66,8 +79,9 @@ class _CreateAccountState extends State<CreateAccount> {
                     height: 50.0,
                     width: 350.0,
                     decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(7.0)),
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(7.0),
+                    ),
                     child: Center(
                       child: Text(
                         "Submit",
@@ -81,23 +95,9 @@ class _CreateAccountState extends State<CreateAccount> {
                 ),
               ],
             ),
-          ),
+          )
         ],
       ),
     );
-  }
-
-  submit() {
-    final form = _formKey.currentState;
-    if (form.validate()) {
-      form.save();
-      SnackBar snackBar = SnackBar(
-        content: Text("Welcome $username"),
-      );
-      _scaffoldKey.currentState.showSnackBar(snackBar);
-      Timer(Duration(seconds: 2), () {
-        Navigator.pop(context, username);
-      });
-    }
   }
 }
