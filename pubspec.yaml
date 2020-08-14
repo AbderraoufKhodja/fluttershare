@@ -49,6 +49,9 @@ flutter:
     - family: Signatra
       fonts:
         - asset: assets/fonts/Signatra.ttf
+    - family: ReemKufi-Regular
+      fonts:
+        - asset: assets/fonts/ReemKufi-Regular.ttf
   assets:
     - assets/images/google_signin_button.png
     - assets/images/upload.svg

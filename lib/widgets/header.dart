@@ -5,15 +5,20 @@ AppBar header(context,
   return AppBar(
     automaticallyImplyLeading: removeBackButton ? false : true,
     title: Text(
-      isAppTitle ? "khadamat" : titleText,
+      isAppTitle ? "المهَنــي" : titleText,
       style: TextStyle(
-        color: Colors.white,
-        fontFamily: isAppTitle ? "Signatra" : "",
-        fontSize: isAppTitle ? 50.0 : 22.0,
+        color: Colors.black,
+        fontFamily: isAppTitle ? "ReemKufi-Regular" : "",
+        fontSize: isAppTitle ? 40.0 : 22.0,
       ),
       overflow: TextOverflow.ellipsis,
     ),
     centerTitle: true,
     backgroundColor: Theme.of(context).accentColor,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        bottom: Radius.circular(10),
+      ),
+    ),
   );
 }

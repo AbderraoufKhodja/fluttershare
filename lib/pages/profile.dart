@@ -5,6 +5,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/edit_profile.dart';
 import 'package:khadamat/pages/home.dart';
+import 'package:khadamat/pages/upload_card.dart';
+import 'package:khadamat/pages/upload_job_post.dart';
 import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/post.dart';
 import 'package:khadamat/widgets/post_tile.dart';
@@ -114,6 +116,13 @@ class _ProfileState extends State<Profile> {
         context,
         MaterialPageRoute(
             builder: (context) => EditProfile(currentUserId: currentUserId)));
+  }
+
+  createCard() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => UploadCard(currentUser: currentUser)));
   }
 
   Container buildButton({String text, Function function}) {
@@ -392,6 +401,7 @@ class _ProfileState extends State<Profile> {
       body: ListView(
         children: <Widget>[
           buildProfileHeader(),
+          buildButton(text: "create card", function: createCard),
           Divider(),
           buildTogglePostOrientation(),
           Divider(

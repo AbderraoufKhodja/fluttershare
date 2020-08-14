@@ -7,21 +7,26 @@ import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/activity_feed.dart';
 import 'package:khadamat/pages/create_account.dart';
+import 'package:khadamat/pages/job_timeline.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/pages/search.dart';
 import 'package:khadamat/pages/timeline.dart';
 import 'package:khadamat/pages/upload.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:khadamat/pages/upload_job_post.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final StorageReference storageRef = FirebaseStorage.instance.ref();
 final usersRef = Firestore.instance.collection('users');
+final businessCardsRef = Firestore.instance.collection('businessCards');
 final postsRef = Firestore.instance.collection('posts');
+final jobPostsRef = Firestore.instance.collection('jobPosts');
 final commentsRef = Firestore.instance.collection('comments');
 final activityFeedRef = Firestore.instance.collection('feed');
 final followersRef = Firestore.instance.collection('followers');
 final followingRef = Firestore.instance.collection('following');
 final timelineRef = Firestore.instance.collection('timeline');
+final jobTimelineRef = Firestore.instance.collection('jobTimeline');
 final DateTime timestamp = DateTime.now();
 User currentUser;
 
@@ -175,9 +180,10 @@ class _HomeState extends State<Home> {
       key: _scaffoldKey,
       body: PageView(
         children: <Widget>[
-          Timeline(currentUser: currentUser),
+//          Timeline(currentUser: currentUser),
+          JobTimeline(currentUser: currentUser),
           ActivityFeed(),
-          Upload(currentUser: currentUser),
+          UploadJob(currentUser: currentUser),
           Search(),
           Profile(profileId: currentUser?.id),
         ],
@@ -227,9 +233,9 @@ class _HomeState extends State<Home> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
-              'khadamat',
+              'المهني',
               style: TextStyle(
-                fontFamily: "Signatra",
+                fontFamily: "ReemKufi-Regular",
                 fontSize: 90.0,
                 color: Colors.white,
               ),
