@@ -44,7 +44,7 @@ class _UploadCardState extends State<UploadCard>
 
   File file;
   bool isUploading = false;
-  String jobPostId = Uuid().v4();
+  String cardId = Uuid().v4();
 
   handleTakePhoto() async {
     Navigator.pop(context);
@@ -126,7 +126,7 @@ class _UploadCardState extends State<UploadCard>
     final tempDir = await getTemporaryDirectory();
     final path = tempDir.path;
     Im.Image imageFile = Im.decodeImage(file.readAsBytesSync());
-    final compressedImageFile = File('$path/img_$jobPostId.jpg')
+    final compressedImageFile = File('$path/img_$cardId.jpg')
       ..writeAsBytesSync(Im.encodeJpg(imageFile, quality: 85));
     setState(() {
       file = compressedImageFile;
@@ -135,23 +135,36 @@ class _UploadCardState extends State<UploadCard>
 
   Future<String> uploadCardImage(imageFile) async {
     StorageUploadTask uploadCardTask =
-        storageRef.child("post_$jobPostId.jpg").putFile(imageFile);
+        storageRef.child("post_$cardId.jpg").putFile(imageFile);
     StorageTaskSnapshot storageSnap = await uploadCardTask.onComplete;
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     return downloadUrl;
   }
 
-  createJobPostInFirestore(
-      {String mediaUrl,
-      String location,
-      String description,
-      String jobCategory}) {
-    jobPostsRef
+  createBusinessCardInFirestore({
+    String mediaUrl,
+    String location,
+    String description,
+    String jobCategory,
+    String intro,
+    String bio,
+    String professionalExperience,
+    String training,
+    String diploma,
+    String licence,
+    String certification,
+    String experience,
+    String competences,
+    String achievement,
+    String recommendation,
+    String language,
+  }) {
+    businessCardsRef
         .document(widget.currentUser.id)
-        .collection("userJobPosts")
-        .document(jobPostId)
+        .collection("businessCards")
+        .document(cardId)
         .setData({
-      "jobPostId": jobPostId,
+      "cardId": cardId,
       "jobCategory": jobCategory,
       "ownerId": widget.currentUser.id,
       "username": widget.currentUser.username,
@@ -160,6 +173,18 @@ class _UploadCardState extends State<UploadCard>
       "location": location,
       "timestamp": timestamp,
       "likes": {},
+      "intro": intro,
+      "bio": bio,
+      "professionalExperience": professionalExperience,
+      "training": training,
+      "diploma": diploma,
+      "licence": licence,
+      "certification": certification,
+      "experience": experience,
+      "competences": competences,
+      "achievement": achievement,
+      "recommendation": recommendation,
+      "language": language,
     });
   }
 
@@ -169,19 +194,43 @@ class _UploadCardState extends State<UploadCard>
     });
     if (file != null) await compressImage();
     String mediaUrl = file == null ? "" : await uploadCardImage(file);
-    createJobPostInFirestore(
+    createBusinessCardInFirestore(
       mediaUrl: mediaUrl,
       location: locationController.text,
       description: captionController.text,
       jobCategory: categoryController.text,
+      intro: introController.text,
+      bio: bioController.text,
+      professionalExperience: professionalExperienceController.text,
+      training: trainingController.text,
+      diploma: diplomaController.text,
+      licence: licenceController.text,
+      certification: certificationController.text,
+      experience: experienceController.text,
+      competences: competencesController.text,
+      achievement: achievementController.text,
+      recommendation: recommendationController.text,
+      language: languageController.text,
     );
     captionController.clear();
     locationController.clear();
     categoryController.clear();
+    introController.clear();
+    bioController.clear();
+    professionalExperienceController.clear();
+    trainingController.clear();
+    diplomaController.clear();
+    licenceController.clear();
+    certificationController.clear();
+    experienceController.clear();
+    competencesController.clear();
+    achievementController.clear();
+    recommendationController.clear();
+    languageController.clear();
     setState(() {
       file = null;
       isUploading = false;
-      jobPostId = Uuid().v4();
+      cardId = Uuid().v4();
     });
   }
 
@@ -233,39 +282,34 @@ class _UploadCardState extends State<UploadCard>
             ),
           ),
           Divider(),
-          ListTile(
-            leading: Icon(
-              Icons.pin_drop,
-              color: Colors.orange,
-              size: 35.0,
-            ),
-            title: Container(
-              width: 250.0,
-              child: TextField(
-                controller: locationController,
-                decoration: InputDecoration(
-                  hintText: kJobLocation,
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-          ),
-          CardTextField(categoryController: introController, hint: "..."),
-          CardTextField(categoryController: bioController, hint: "..."),
+          CardTextField(controller: locationController, hint: kJobLocation),
           CardTextField(
-              categoryController: professionalExperienceController,
-              hint: "..."),
-          CardTextField(categoryController: trainingController, hint: "..."),
-          CardTextField(categoryController: diplomaController, hint: "..."),
-          CardTextField(categoryController: licenceController, hint: "..."),
+              controller: categoryController, hint: "categoryController"),
+          CardTextField(controller: introController, hint: "introController"),
+          CardTextField(controller: bioController, hint: "bioController"),
           CardTextField(
-              categoryController: certificationController, hint: "..."),
-          CardTextField(categoryController: experienceController, hint: "..."),
-          CardTextField(categoryController: competencesController, hint: "..."),
-          CardTextField(categoryController: achievementController, hint: "..."),
+              controller: professionalExperienceController,
+              hint: "professionalExperienceController"),
           CardTextField(
-              categoryController: recommendationController, hint: "..."),
-          CardTextField(categoryController: languageController, hint: "..."),
+              controller: trainingController, hint: "trainingController"),
+          CardTextField(
+              controller: diplomaController, hint: "diplomaController"),
+          CardTextField(
+              controller: licenceController, hint: "licenceController"),
+          CardTextField(
+              controller: certificationController,
+              hint: "certificationController"),
+          CardTextField(
+              controller: experienceController, hint: "experienceController"),
+          CardTextField(
+              controller: competencesController, hint: "competencesController"),
+          CardTextField(
+              controller: achievementController, hint: "achievementController"),
+          CardTextField(
+              controller: recommendationController,
+              hint: "recommendationController"),
+          CardTextField(
+              controller: languageController, hint: "languageController"),
           Container(
             width: 200.0,
             height: 100.0,
@@ -345,11 +389,11 @@ class _UploadCardState extends State<UploadCard>
 
 class CardTextField extends StatelessWidget {
   CardTextField({
-    @required this.categoryController,
+    @required this.controller,
     @required this.hint,
   });
 
-  final TextEditingController categoryController;
+  final TextEditingController controller;
   final String hint;
 
   @override
@@ -363,9 +407,9 @@ class CardTextField extends StatelessWidget {
       title: Container(
         width: 250.0,
         child: TextField(
-          controller: categoryController,
+          controller: controller,
           decoration: InputDecoration(
-            hintText: kCategoryLocation,
+            hintText: hint,
             border: InputBorder.none,
           ),
         ),

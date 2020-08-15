@@ -6,8 +6,7 @@ import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/edit_profile.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/upload_card.dart';
-import 'package:khadamat/pages/upload_job_post.dart';
-import 'package:khadamat/widgets/header.dart';
+import 'package:khadamat/widgets/business_card.dart';
 import 'package:khadamat/widgets/post.dart';
 import 'package:khadamat/widgets/post_tile.dart';
 import 'package:khadamat/widgets/progress.dart';
@@ -86,6 +85,22 @@ class _ProfileState extends State<Profile> {
       posts = snapshot.documents.map((doc) => Post.fromDocument(doc)).toList();
     });
   }
+
+//  getProfileCard() async {
+//    setState(() {
+//      isLoading = true;
+//    });
+//    QuerySnapshot snapshot = await postsRef
+//        .document(widget.profileId)
+//        .collection('businessCards')
+//        .orderBy('timestamp', descending: true)
+//        .getDocuments();
+//    setState(() {
+//      isLoading = false;
+////      postCount = snapshot.documents.length;
+//      cards = snapshot.documents.map((doc) => BusinessCard.fromDocument(doc)).toList();
+//    });
+//  }
 
   Column buildCountColumn(String label, int count) {
     return Column(
@@ -322,6 +337,89 @@ class _ProfileState extends State<Profile> {
         });
   }
 
+  buildProfileCard() {
+    return FutureBuilder(
+        future: businessCardsRef
+            .document(widget.profileId)
+            .collection("businessCards")
+            .document("539c9ee2-d02e-4ed1-9281-a3bb554e5d49")
+            .get(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return circularProgress();
+          }
+          BusinessCard card = BusinessCard.fromDocument(snapshot.data);
+          return card;
+//          return Padding(
+//            padding: EdgeInsets.all(16.0),
+//            child: Column(
+//              children: <Widget>[
+//                Row(
+//                  children: <Widget>[
+//                    CircleAvatar(
+//                      radius: 40.0,
+//                      backgroundColor: Colors.grey,
+//                      backgroundImage:
+//                          CachedNetworkImageProvider(card.mediaUrl),
+//                    ),
+//                    Expanded(
+//                      flex: 1,
+//                      child: Column(
+//                        children: <Widget>[
+//                          Row(
+//                            mainAxisSize: MainAxisSize.max,
+//                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                            children: <Widget>[
+//                              buildCountColumn("posts", postCount),
+//                              buildCountColumn("followers", followerCount),
+//                              buildCountColumn("following", followingCount),
+//                            ],
+//                          ),
+//                          Row(
+//                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//                            children: <Widget>[
+//                              buildProfileButton(),
+//                            ],
+//                          ),
+//                        ],
+//                      ),
+//                    ),
+//                  ],
+//                ),
+//                Container(
+//                  alignment: Alignment.centerLeft,
+//                  padding: EdgeInsets.only(top: 12.0),
+//                  child: Text(
+//                    card.username,
+//                    style: TextStyle(
+//                      fontWeight: FontWeight.bold,
+//                      fontSize: 16.0,
+//                    ),
+//                  ),
+//                ),
+//                Container(
+//                  alignment: Alignment.centerLeft,
+//                  padding: EdgeInsets.only(top: 4.0),
+//                  child: Text(
+//                    card.jobCategory,
+//                    style: TextStyle(
+//                      fontWeight: FontWeight.bold,
+//                    ),
+//                  ),
+//                ),
+//                Container(
+//                  alignment: Alignment.centerLeft,
+//                  padding: EdgeInsets.only(top: 2.0),
+//                  child: Text(
+//                    card.bio,
+//                  ),
+//                ),
+//              ],
+//            ),
+//          );
+        });
+  }
+
   buildProfilePosts() {
     if (isLoading) {
       return circularProgress();
@@ -397,11 +495,13 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: header(context, titleText: "Profile"),
+      backgroundColor: Colors.grey.withOpacity(0.2),
+//      appBar: header(context, titleText: "Profile"),
       body: ListView(
         children: <Widget>[
           buildProfileHeader(),
-          buildButton(text: "create card", function: createCard),
+//          buildButton(text: "create card", function: createCard):cards,
+          buildProfileCard(),
           Divider(),
           buildTogglePostOrientation(),
           Divider(

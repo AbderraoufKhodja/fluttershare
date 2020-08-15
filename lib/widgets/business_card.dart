@@ -1,27 +1,21 @@
 import 'dart:async';
-
-import 'package:animator/animator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/activity_feed.dart';
 import 'package:khadamat/pages/comments.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/widgets/custom_image.dart';
 import 'package:khadamat/widgets/progress.dart';
 
 class BusinessCard extends StatefulWidget {
-  final String businessCardId;
+  final String cardId;
   final String ownerId;
   final String username;
   final String jobCategory;
   final String address;
   final String description;
-  final String mediaUrl;
+  final String cardPhotoUrl;
   final dynamic likes;
   final String intro;
   final String bio;
@@ -37,13 +31,13 @@ class BusinessCard extends StatefulWidget {
   final String language;
 
   BusinessCard({
-    this.businessCardId,
+    this.cardId,
     this.ownerId,
     this.username,
     this.jobCategory,
     this.address,
     this.description,
-    this.mediaUrl,
+    this.cardPhotoUrl,
     this.likes,
     this.intro,
     this.bio,
@@ -61,13 +55,13 @@ class BusinessCard extends StatefulWidget {
 
   factory BusinessCard.fromDocument(DocumentSnapshot doc) {
     return BusinessCard(
-      businessCardId: doc['businessCardId'],
+      cardId: doc['cardId'],
       ownerId: doc['ownerId'],
       username: doc['username'],
       jobCategory: doc['jobCategory'],
       address: doc['address'],
       description: doc['description'],
-      mediaUrl: doc['mediaUrl'],
+      cardPhotoUrl: doc['cardPhotoUrl'],
       likes: doc['likes'],
       intro: doc['intro'],
       bio: doc['bio'],
@@ -101,13 +95,13 @@ class BusinessCard extends StatefulWidget {
 
   @override
   _BusinessCardState createState() => _BusinessCardState(
-        businessCardId: this.businessCardId,
+        cardId: this.cardId,
         ownerId: this.ownerId,
         username: this.username,
         jobCategory: this.jobCategory,
-        location: this.address,
+        address: this.address,
         description: this.description,
-        mediaUrl: this.mediaUrl,
+        cardPhotoUrl: this.cardPhotoUrl,
         likes: this.likes,
         intro: this.intro,
         bio: this.bio,
@@ -127,13 +121,13 @@ class BusinessCard extends StatefulWidget {
 
 class _BusinessCardState extends State<BusinessCard> {
   final String currentUserId = currentUser?.id;
-  final String businessCardId;
+  final String cardId;
   final String ownerId;
   final String username;
   final String jobCategory;
-  final String location;
+  final String address;
   final String description;
-  final String mediaUrl;
+  final String cardPhotoUrl;
   final String intro;
   final String bio;
   final String professionalExperience;
@@ -153,7 +147,7 @@ class _BusinessCardState extends State<BusinessCard> {
   Map likes;
 
   _BusinessCardState({
-    this.businessCardId,
+    this.cardId,
     this.ownerId,
     this.username,
     this.jobCategory,
@@ -169,9 +163,9 @@ class _BusinessCardState extends State<BusinessCard> {
     this.achievement,
     this.recommendation,
     this.language,
-    this.location,
+    this.address,
     this.description,
-    this.mediaUrl,
+    this.cardPhotoUrl,
     this.likes,
     this.likeCount,
   });
@@ -205,8 +199,8 @@ class _BusinessCardState extends State<BusinessCard> {
     // delete businessCard itself
     businessCardsRef
         .document(ownerId)
-        .collection('userBusinessCards')
-        .document(businessCardId)
+        .collection('BusinessCards')
+        .document(cardId)
         .get()
         .then((doc) {
       if (doc.exists) {
@@ -214,12 +208,12 @@ class _BusinessCardState extends State<BusinessCard> {
       }
     });
     // delete uploaded image for the ost
-    storageRef.child("businessCard_$businessCardId.jpg").delete();
+    storageRef.child("businessCard_$cardId.jpg").delete();
     // then delete all activity feed notifications
     QuerySnapshot activityFeedSnapshot = await activityFeedRef
         .document(ownerId)
         .collection("feedItems")
-        .where('businessCardId', isEqualTo: businessCardId)
+        .where('businessCardId', isEqualTo: cardId)
         .getDocuments();
     activityFeedSnapshot.documents.forEach((doc) {
       if (doc.exists) {
@@ -228,7 +222,7 @@ class _BusinessCardState extends State<BusinessCard> {
     });
     // then delete all comments
     QuerySnapshot commentsSnapshot = await commentsRef
-        .document(businessCardId)
+        .document(cardId)
         .collection('comments')
         .getDocuments();
     commentsSnapshot.documents.forEach((doc) {
@@ -244,8 +238,8 @@ class _BusinessCardState extends State<BusinessCard> {
     if (_isLiked) {
       businessCardsRef
           .document(ownerId)
-          .collection('userBusinessCards')
-          .document(businessCardId)
+          .collection('BusinessCards')
+          .document(cardId)
           .updateData({'likes.$currentUserId': false});
       removeLikeFromActivityFeed();
       setState(() {
@@ -256,8 +250,8 @@ class _BusinessCardState extends State<BusinessCard> {
     } else if (!_isLiked) {
       businessCardsRef
           .document(ownerId)
-          .collection('userBusinessCards')
-          .document(businessCardId)
+          .collection('BusinessCards')
+          .document(cardId)
           .updateData({'likes.$currentUserId': true});
       addLikeToActivityFeed();
       setState(() {
@@ -281,15 +275,15 @@ class _BusinessCardState extends State<BusinessCard> {
       activityFeedRef
           .document(ownerId)
           .collection("feedItems")
-          .document(businessCardId)
+          .document(cardId)
           .setData({
         "type": "like",
         "userId": currentUser.id,
         "username": currentUser.username,
         "jobCategory": jobCategory,
         "userProfileImg": currentUser.photoUrl,
-        "businessCardId": businessCardId,
-        "mediaUrl": mediaUrl,
+        "cardId": cardId,
+        "cardPhotoUrl": cardPhotoUrl,
         "timestamp": timestamp,
       });
     }
@@ -301,7 +295,7 @@ class _BusinessCardState extends State<BusinessCard> {
       activityFeedRef
           .document(ownerId)
           .collection("feedItems")
-          .document(businessCardId)
+          .document(cardId)
           .get()
           .then((doc) {
         if (doc.exists) {
@@ -313,56 +307,45 @@ class _BusinessCardState extends State<BusinessCard> {
 
   buildBusinessCardHeader() {
     return FutureBuilder(
-      future: usersRef.document(ownerId).get(),
+      future: businessCardsRef
+          .document(ownerId)
+          .collection("businessCards")
+          .document("539c9ee2-d02e-4ed1-9281-a3bb554e5d49")
+          .get(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return circularProgress();
         }
-        User user = User.fromDocument(snapshot.data);
+        BusinessCard card = BusinessCard.fromDocument(snapshot.data);
         bool isBusinessCardOwner = currentUserId == ownerId;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
-              leading: CircleAvatar(
-                backgroundImage: CachedNetworkImageProvider(user.photoUrl),
-                backgroundColor: Colors.grey,
-              ),
-              title: GestureDetector(
-                onTap: () => showProfile(context, profileId: user.id),
-                child: Text(
-                  user.username,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
+              dense: false,
+              leading: GestureDetector(
+                onTap: () => showProfile(context, profileId: card.cardId),
+                child: CircleAvatar(
+                  radius: 40.0,
+                  backgroundImage:
+                      CachedNetworkImageProvider(card.cardPhotoUrl),
+                  backgroundColor: Colors.grey,
                 ),
               ),
-              subtitle: Text(location),
+              title: Text(
+                card.username,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle: Text(card.jobCategory),
               trailing: isBusinessCardOwner
                   ? IconButton(
                       onPressed: () => handleDeleteBusinessCard(context),
                       icon: Icon(Icons.more_vert),
                     )
                   : Text(''),
-            ),
-            Container(
-              child: Text(
-                "$jobCategory",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Text(
-              "Description: ",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(
-              description,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 3,
             ),
             Padding(padding: EdgeInsets.only(top: 5.0, left: 5.0)),
           ],
@@ -371,17 +354,20 @@ class _BusinessCardState extends State<BusinessCard> {
     );
   }
 
-  buildBusinessCardImage() {
-    return GridView.count(
-      reverse: true,
-      crossAxisCount: 3,
-      childAspectRatio: 1.0,
-      mainAxisSpacing: 1.5,
-      crossAxisSpacing: 1.5,
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+  buildBusinessContentImage() {
+    return Column(
       children: [
-        cachedNetworkImage(mediaUrl),
+        Container(
+          padding: EdgeInsets.all(10.0),
+          child: Text(
+            description,
+            textDirection: TextDirection.rtl,
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -405,9 +391,9 @@ class _BusinessCardState extends State<BusinessCard> {
             GestureDetector(
               onTap: () => showComments(
                 context,
-                businessCardId: businessCardId,
+                cardId: cardId,
                 ownerId: ownerId,
-                mediaUrl: mediaUrl,
+                cardPhotoUrl: cardPhotoUrl,
               ),
               child: Icon(
                 Icons.chat,
@@ -437,7 +423,6 @@ class _BusinessCardState extends State<BusinessCard> {
 
     return Container(
       margin: EdgeInsets.all(20.0),
-      padding: EdgeInsets.all(15.0),
       decoration: BoxDecoration(
         color: Colors.white70,
         borderRadius: BorderRadius.circular(15.0),
@@ -445,7 +430,7 @@ class _BusinessCardState extends State<BusinessCard> {
       child: Column(
         children: <Widget>[
           buildBusinessCardHeader(),
-          buildBusinessCardImage(),
+          buildBusinessContentImage(),
           buildBusinessCardFooter(),
         ],
       ),
@@ -454,7 +439,7 @@ class _BusinessCardState extends State<BusinessCard> {
 }
 
 showComments(BuildContext context,
-    {String businessCardId, String ownerId, String mediaUrl}) {
+    {String cardId, String ownerId, String cardPhotoUrl}) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
     //TODO: refactor showComment to support the BusinessCard class
     return Comments(

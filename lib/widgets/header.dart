@@ -14,10 +14,10 @@ AppBar header(context,
       overflow: TextOverflow.ellipsis,
     ),
     centerTitle: true,
-    backgroundColor: Theme.of(context).accentColor,
+    backgroundColor: Colors.transparent,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(
-        bottom: Radius.circular(10),
+        bottom: Radius.circular(90),
       ),
     ),
   );
