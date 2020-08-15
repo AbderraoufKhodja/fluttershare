@@ -10,10 +10,8 @@ import 'package:khadamat/pages/create_account.dart';
 import 'package:khadamat/pages/job_timeline.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/pages/search.dart';
-import 'package:khadamat/pages/timeline.dart';
-import 'package:khadamat/pages/upload.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:khadamat/pages/upload_job_post.dart';
+import 'package:khadamat/pages/upload_job.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final StorageReference storageRef = FirebaseStorage.instance.ref();
@@ -192,6 +190,7 @@ class _HomeState extends State<Home> {
         physics: NeverScrollableScrollPhysics(),
       ),
       bottomNavigationBar: CupertinoTabBar(
+          backgroundColor: Colors.white,
           currentIndex: pageIndex,
           onTap: onTap,
           activeColor: Theme.of(context).primaryColor,
@@ -233,7 +232,7 @@ class _HomeState extends State<Home> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
-              'المهني',
+              'المهَنــي',
               style: TextStyle(
                 fontFamily: "ReemKufi-Regular",
                 fontSize: 90.0,

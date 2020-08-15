@@ -1,20 +1,19 @@
 import 'dart:async';
-
-import 'package:animator/animator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/activity_feed.dart';
 import 'package:khadamat/pages/comments.dart';
 import 'package:khadamat/pages/home.dart';
+import 'package:khadamat/widgets/custom_button.dart';
 import 'package:khadamat/widgets/custom_image.dart';
+import 'package:khadamat/widgets/custom_list_tile.dart';
 import 'package:khadamat/widgets/progress.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
-class JobPost extends StatefulWidget {
+class Job extends StatefulWidget {
   final String jobPostId;
   final String jobCategory;
   final String ownerId;
@@ -22,9 +21,12 @@ class JobPost extends StatefulWidget {
   final String location;
   final String description;
   final String mediaUrl;
+  final String price;
+  final String schedule;
+  final Timestamp timestamp;
   final dynamic likes;
 
-  JobPost({
+  Job({
     this.jobPostId,
     this.jobCategory,
     this.ownerId,
@@ -33,10 +35,13 @@ class JobPost extends StatefulWidget {
     this.description,
     this.mediaUrl,
     this.likes,
+    this.price,
+    this.schedule,
+    this.timestamp,
   });
 
-  factory JobPost.fromDocument(DocumentSnapshot doc) {
-    return JobPost(
+  factory Job.fromDocument(DocumentSnapshot doc) {
+    return Job(
       jobPostId: doc['jobPostId'],
       jobCategory: doc['jobCategory'],
       ownerId: doc['ownerId'],
@@ -45,6 +50,9 @@ class JobPost extends StatefulWidget {
       description: doc['description'],
       mediaUrl: doc['mediaUrl'],
       likes: doc['likes'],
+      price: doc['price'],
+      schedule: doc['schedule'],
+      timestamp: doc['timestamp'],
     );
   }
 
@@ -64,7 +72,7 @@ class JobPost extends StatefulWidget {
   }
 
   @override
-  _JobPostState createState() => _JobPostState(
+  _JobState createState() => _JobState(
         jobPostId: this.jobPostId,
         jobCategory: this.jobCategory,
         ownerId: this.ownerId,
@@ -73,11 +81,14 @@ class JobPost extends StatefulWidget {
         description: this.description,
         mediaUrl: this.mediaUrl,
         likes: this.likes,
+        price: this.price,
+        schedule: this.schedule,
+        timestamp: this.timestamp,
         likeCount: getLikeCount(this.likes),
       );
 }
 
-class _JobPostState extends State<JobPost> {
+class _JobState extends State<Job> {
   final String currentUserId = currentUser?.id;
   final String jobCategory;
   final String jobPostId;
@@ -86,12 +97,15 @@ class _JobPostState extends State<JobPost> {
   final String location;
   final String description;
   final String mediaUrl;
+  final String price;
+  final String schedule;
+  final Timestamp timestamp;
   bool showHeart = false;
   bool isLiked;
   int likeCount;
   Map likes;
 
-  _JobPostState({
+  _JobState({
     this.jobPostId,
     this.jobCategory,
     this.ownerId,
@@ -101,6 +115,9 @@ class _JobPostState extends State<JobPost> {
     this.mediaUrl,
     this.likes,
     this.likeCount,
+    this.price,
+    this.schedule,
+    this.timestamp,
   });
 
   handleDeleteJobPost(BuildContext parentContext) {
@@ -251,6 +268,7 @@ class _JobPostState extends State<JobPost> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
+              contentPadding: EdgeInsets.zero,
               leading: CircleAvatar(
                 backgroundImage: CachedNetworkImageProvider(user.photoUrl),
                 backgroundColor: Colors.grey,
@@ -265,31 +283,16 @@ class _JobPostState extends State<JobPost> {
                   ),
                 ),
               ),
-              subtitle: Text(location),
+              subtitle: Text(timeago.format(timestamp.toDate())),
               trailing: isJobPostOwner
                   ? IconButton(
                       onPressed: () => handleDeleteJobPost(context),
                       icon: Icon(Icons.more_vert),
                     )
-                  : Text(''),
-            ),
-            Container(
-              child: Text(
-                "$jobCategory",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Text(
-              "Description: ",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(
-              description,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 3,
+                  : IconButton(
+                      onPressed: () => print("job marked (saved)"),
+                      icon: Icon(Icons.bookmark_border),
+                    ),
             ),
             Padding(padding: EdgeInsets.only(top: 5.0, left: 5.0)),
           ],
@@ -299,58 +302,91 @@ class _JobPostState extends State<JobPost> {
   }
 
   buildJobPostImage() {
-    return GridView.count(
-      reverse: true,
-      crossAxisCount: 3,
-      childAspectRatio: 1.0,
-      mainAxisSpacing: 1.5,
-      crossAxisSpacing: 1.5,
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      children: [
-        cachedNetworkImage(mediaUrl),
-      ],
+    return IntrinsicHeight(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            flex: 1,
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomListTile(
+                  description: jobCategory,
+                  icon: Icon(
+                    Icons.work,
+                    color: Colors.blueGrey,
+                  ),
+                ),
+                CustomListTile(
+                  description: description,
+                  icon: Icon(
+                    Icons.description,
+                    color: Colors.blueGrey,
+                  ),
+                ),
+                CustomListTile(
+                  description: location,
+                  icon: Icon(
+                    Icons.my_location,
+                    color: Colors.blueGrey,
+                  ),
+                ),
+                CustomListTile(
+                  description: schedule,
+                  icon: Icon(
+                    Icons.schedule,
+                    color: Colors.blueGrey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          VerticalDivider(
+            color: Colors.black,
+          ),
+          mediaUrl.isEmpty
+              ? Text("")
+              : Container(
+                  height: 100.0,
+                  width: 100.0,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: cachedNetworkImage(mediaUrl),
+                ),
+        ],
+      ),
     );
   }
 
   buildJobPostFooter() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            Padding(padding: EdgeInsets.only(top: 40.0, left: 5.0)),
-            GestureDetector(
-              onTap: handleLikeJobPost,
-              child: Icon(
-                isLiked ? Icons.favorite : Icons.favorite_border,
-                size: 28.0,
-                color: Colors.pink,
-              ),
-            ),
-            Padding(padding: EdgeInsets.only(right: 5.0)),
-            GestureDetector(
-              onTap: () => showComments(
-                context,
-                jobPostId: jobPostId,
-                ownerId: ownerId,
-                mediaUrl: mediaUrl,
-              ),
-              child: Icon(
-                Icons.chat,
-                size: 28.0,
-                color: Colors.blue[900],
-              ),
-            ),
-          ],
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: CustomButton(
+            text: "Message",
+            function: () => print("Message"),
+          ),
         ),
-        Container(
-          margin: EdgeInsets.only(left: 10.0),
-          child: Text(
-            "$likeCount likes",
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
+        Expanded(
+          child: CustomButton(
+            text: "Apply",
+            function: () => print("Apply"),
+          ),
+        ),
+        Expanded(
+          child: Container(
+            alignment: Alignment.centerRight,
+            margin: EdgeInsets.only(right: 10.0),
+            child: Text(
+              "$price DA",
+              style: TextStyle(
+                color: Colors.green,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
@@ -363,13 +399,14 @@ class _JobPostState extends State<JobPost> {
     isLiked = (likes[currentUserId] == true);
 
     return Container(
-      margin: EdgeInsets.all(20.0),
-      padding: EdgeInsets.all(15.0),
+      margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+      padding: EdgeInsets.symmetric(horizontal: 10.0),
       decoration: BoxDecoration(
         color: Colors.white70,
         borderRadius: BorderRadius.circular(15.0),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           buildJobPostHeader(),
           buildJobPostImage(),

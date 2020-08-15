@@ -4,6 +4,8 @@ AppBar header(context,
     {bool isAppTitle = false, String titleText, removeBackButton = false}) {
   return AppBar(
     automaticallyImplyLeading: removeBackButton ? false : true,
+    shadowColor: Colors.white,
+    elevation: 0,
     title: Text(
       isAppTitle ? "المهَنــي" : titleText,
       style: TextStyle(

@@ -28,8 +28,12 @@ class _UploadJobState extends State<UploadJob>
   TextEditingController captionController = TextEditingController();
   TextEditingController locationController = TextEditingController();
   TextEditingController categoryController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
+  TextEditingController scheduleController = TextEditingController();
+
   File file;
   bool isUploading = false;
+
   String jobPostId = Uuid().v4();
 
   handleTakePhoto() async {
@@ -127,11 +131,14 @@ class _UploadJobState extends State<UploadJob>
     return downloadUrl;
   }
 
-  createJobPostInFirestore(
-      {String mediaUrl,
-      String location,
-      String description,
-      String jobCategory}) {
+  createJobPostInFirestore({
+    String mediaUrl,
+    String location,
+    String description,
+    String jobCategory,
+    String price,
+    String schedule,
+  }) {
     jobPostsRef
         .document(widget.currentUser.id)
         .collection("userJobPosts")
@@ -146,6 +153,9 @@ class _UploadJobState extends State<UploadJob>
       "location": location,
       "timestamp": timestamp,
       "likes": {},
+      "price": price,
+      "schedule": schedule,
+      "isOpen": true,
     });
   }
 
@@ -160,10 +170,14 @@ class _UploadJobState extends State<UploadJob>
       location: locationController.text,
       description: captionController.text,
       jobCategory: categoryController.text,
+      price: priceController.text,
+      schedule: scheduleController.text,
     );
     captionController.clear();
     locationController.clear();
     categoryController.clear();
+    priceController.clear();
+    scheduleController.clear();
     setState(() {
       file = null;
       isUploading = false;
@@ -173,20 +187,22 @@ class _UploadJobState extends State<UploadJob>
 
   Scaffold buildUploadJobForm() {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white70,
-//        leading: IconButton(
-//            icon: Icon(Icons.arrow_back, color: Colors.black),
-//            onPressed: clearImage),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => null),
         title: Text(
-          "Caption JobPost",
+          "Job form",
           style: TextStyle(color: Colors.black),
         ),
         actions: [
           FlatButton(
             onPressed: isUploading ? null : () => handleSubmit(),
             child: Text(
-              "JobPost",
+              "Post",
               style: TextStyle(
                 color: Colors.blueAccent,
                 fontWeight: FontWeight.bold,
@@ -198,14 +214,16 @@ class _UploadJobState extends State<UploadJob>
       ),
       body: ListView(
         children: <Widget>[
+          Divider(),
           isUploading ? linearProgress() : Text(""),
           Padding(
             padding: EdgeInsets.only(top: 10.0),
           ),
           ListTile(
-            leading: CircleAvatar(
-              backgroundImage:
-                  CachedNetworkImageProvider(widget.currentUser.photoUrl),
+            leading: Icon(
+              Icons.work,
+              color: Colors.grey,
+              size: 35.0,
             ),
             title: Container(
               width: 250.0,
@@ -222,7 +240,7 @@ class _UploadJobState extends State<UploadJob>
           ListTile(
             leading: Icon(
               Icons.pin_drop,
-              color: Colors.orange,
+              color: Colors.grey,
               size: 35.0,
             ),
             title: Container(
@@ -235,11 +253,26 @@ class _UploadJobState extends State<UploadJob>
                 ),
               ),
             ),
+            trailing: RaisedButton.icon(
+              label: Text(
+                "Location",
+                style: TextStyle(color: Colors.white),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              color: Colors.blue,
+              onPressed: getUserLocation,
+              icon: Icon(
+                Icons.my_location,
+                color: Colors.white,
+              ),
+            ),
           ),
           ListTile(
             leading: Icon(
               Icons.category,
-              color: Colors.orange,
+              color: Colors.grey,
               size: 35.0,
             ),
             title: Container(
@@ -253,23 +286,41 @@ class _UploadJobState extends State<UploadJob>
               ),
             ),
           ),
-          Container(
-            width: 200.0,
-            height: 100.0,
-            alignment: Alignment.center,
-            child: RaisedButton.icon(
-              label: Text(
-                "Use Current Location",
-                style: TextStyle(color: Colors.white),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
-              color: Colors.blue,
-              onPressed: getUserLocation,
-              icon: Icon(
-                Icons.my_location,
-                color: Colors.white,
+//          Container(
+//            width: 200.0,
+//            height: 100.0,
+//            alignment: Alignment.center,
+//            child: RaisedButton.icon(
+//              label: Text(
+//                "Use Current Location",
+//                style: TextStyle(color: Colors.white),
+//              ),
+//              shape: RoundedRectangleBorder(
+//                borderRadius: BorderRadius.circular(30.0),
+//              ),
+//              color: Colors.blue,
+//              onPressed: getUserLocation,
+//              icon: Icon(
+//                Icons.my_location,
+//                color: Colors.white,
+//              ),
+//            ),
+//          ),
+          ListTile(
+            leading: Icon(
+              Icons.attach_money,
+              color: Colors.grey,
+              size: 35.0,
+            ),
+            title: Container(
+              width: 250.0,
+              child: TextField(
+                keyboardType: TextInputType.number,
+                controller: priceController,
+                decoration: InputDecoration(
+                  hintText: kCategoryLocation,
+                  border: InputBorder.none,
+                ),
               ),
             ),
           ),
