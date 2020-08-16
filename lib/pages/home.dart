@@ -12,6 +12,7 @@ import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/pages/search.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:khadamat/pages/upload_job.dart';
+import 'package:outline_material_icons/outline_material_icons.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final StorageReference storageRef = FirebaseStorage.instance.ref();
@@ -190,22 +191,35 @@ class _HomeState extends State<Home> {
         physics: NeverScrollableScrollPhysics(),
       ),
       bottomNavigationBar: CupertinoTabBar(
-          backgroundColor: Colors.white,
-          currentIndex: pageIndex,
-          onTap: onTap,
-          activeColor: Theme.of(context).primaryColor,
-          items: [
-            BottomNavigationBarItem(icon: Icon(Icons.whatshot)),
-            BottomNavigationBarItem(icon: Icon(Icons.notifications_active)),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.photo_camera,
-                size: 35.0,
-              ),
-            ),
-            BottomNavigationBarItem(icon: Icon(Icons.search)),
-            BottomNavigationBarItem(icon: Icon(Icons.account_circle)),
-          ]),
+        border: Border(top: BorderSide.none),
+        backgroundColor: Colors.grey.withOpacity(0.1),
+        inactiveColor: Colors.grey,
+        currentIndex: pageIndex,
+        onTap: onTap,
+        activeColor: Colors.black,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(OMIcons.whatshot),
+            activeIcon: Icon(Icons.whatshot, size: 40.0),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(OMIcons.notificationsActive),
+            activeIcon: Icon(Icons.notifications_active, size: 40.0),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(OMIcons.photoCamera),
+            activeIcon: Icon(Icons.photo_camera, size: 40.0),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(OMIcons.search),
+            activeIcon: Icon(Icons.search, size: 40.0),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(OMIcons.accountCircle),
+            activeIcon: Icon(Icons.account_circle, size: 40.0),
+          ),
+        ],
+      ),
     );
     // return RaisedButton(
     //   child: Text('Logout'),

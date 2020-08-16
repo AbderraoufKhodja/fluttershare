@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:khadamat/models/job.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/search.dart';
 import 'package:khadamat/widgets/header.dart';
-import 'package:khadamat/widgets/job.dart';
+import 'package:khadamat/widgets/job_card.dart';
 import 'package:khadamat/widgets/progress.dart';
 
 final usersRef = Firestore.instance.collection('users');
@@ -20,7 +21,7 @@ class JobTimeline extends StatefulWidget {
 
 class _JobTimelineState extends State<JobTimeline> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  List<Job> jobPosts;
+  List<JobCard> jobPosts = [];
   List<String> followingList = [];
 
   @override
@@ -36,10 +37,11 @@ class _JobTimelineState extends State<JobTimeline> {
         .collection('userJobPosts')
         .orderBy('timestamp', descending: true)
         .getDocuments();
-    List<Job> jobPosts =
-        snapshot.documents.map((doc) => Job.fromDocument(doc)).toList();
+    List<JobCard> jobs = snapshot.documents
+        .map((doc) => JobCard(Job.fromDocument(doc)))
+        .toList();
     setState(() {
-      this.jobPosts = jobPosts;
+      this.jobPosts = jobs;
     });
   }
 

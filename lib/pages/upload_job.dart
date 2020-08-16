@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -33,7 +32,6 @@ class _UploadJobState extends State<UploadJob>
 
   File file;
   bool isUploading = false;
-
   String jobPostId = Uuid().v4();
 
   handleTakePhoto() async {
@@ -152,10 +150,13 @@ class _UploadJobState extends State<UploadJob>
       "description": description,
       "location": location,
       "timestamp": timestamp,
-      "likes": {},
       "price": price,
       "schedule": schedule,
-      "isOpen": true,
+      "marks": {},
+      "isVacant": true,
+      "isOnGoing": false,
+      "isCompleted": false,
+      "hiredId": {},
     });
   }
 
