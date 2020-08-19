@@ -21,7 +21,7 @@ class JobTimeline extends StatefulWidget {
 
 class _JobTimelineState extends State<JobTimeline> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  List<JobCard> jobPosts = [];
+  List<JobCard> jobs;
   List<String> followingList = [];
 
   @override
@@ -32,16 +32,17 @@ class _JobTimelineState extends State<JobTimeline> {
   }
 
   getJobTimeline() async {
-    QuerySnapshot snapshot = await jobPostsRef
+    QuerySnapshot snapshot = await jobTimelineRef
         .document(widget.currentUser.id)
-        .collection('userJobPosts')
+        .collection('timelineJobs')
         .orderBy('timestamp', descending: true)
         .getDocuments();
+//    QuerySnapshot snapshot = await jobsRef.getDocuments();
     List<JobCard> jobs = snapshot.documents
         .map((doc) => JobCard(Job.fromDocument(doc)))
         .toList();
     setState(() {
-      this.jobPosts = jobs;
+      this.jobs = jobs;
     });
   }
 
@@ -56,12 +57,12 @@ class _JobTimelineState extends State<JobTimeline> {
   }
 
   buildJobTimeline() {
-    if (jobPosts == null) {
+    if (jobs == null) {
       return circularProgress();
-    } else if (jobPosts.isEmpty) {
+    } else if (jobs.isEmpty) {
       return buildUsersToFollow();
     } else {
-      return ListView(children: jobPosts);
+      return ListView(children: jobs);
     }
   }
 

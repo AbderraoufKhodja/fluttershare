@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class CustomListTile extends StatelessWidget {
   CustomListTile({
     @required this.description,
-    this.icon,
+    @required this.icon,
+    this.maxLines = 1,
   });
 
   final Icon icon;
   final String description;
+  final maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,7 @@ class CustomListTile extends StatelessWidget {
             child: Text(
               description,
               overflow: TextOverflow.ellipsis,
-              maxLines: 1,
+              maxLines: maxLines,
             ),
           ),
         ],

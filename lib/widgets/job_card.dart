@@ -7,6 +7,7 @@ import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/activity_feed.dart';
 import 'package:khadamat/pages/comments.dart';
 import 'package:khadamat/pages/home.dart';
+import 'package:khadamat/pages/job_screen.dart';
 import 'package:khadamat/widgets/custom_button.dart';
 import 'package:khadamat/widgets/custom_image.dart';
 import 'package:khadamat/widgets/custom_list_tile.dart';
@@ -18,18 +19,28 @@ class JobCard extends StatefulWidget {
   JobCard(this.job);
 
   @override
-  _JobCardState createState() => _JobCardState();
+  _JobCardState createState() => _JobCardState(job: this.job);
 }
 
 class _JobCardState extends State<JobCard> {
+  final Job job;
+
+  _JobCardState({this.job});
+
   final String currentUserId = currentUser?.id;
   bool isLoading;
-  bool isMarked;
-  Map marks;
+  bool isApplied;
+  int applicationsCount;
+  @override
+  void initState() {
+    super.initState();
+    applicationsCount = job.getApplicationsCount();
+  }
 
   @override
   Widget build(BuildContext context) {
-    isMarked = (widget.job.marks[currentUserId] == true);
+    isApplied = (job.applications[currentUserId] == true);
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
       padding: EdgeInsets.symmetric(horizontal: 10.0),
@@ -40,26 +51,26 @@ class _JobCardState extends State<JobCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          buildJobPostHeader(),
-          buildJobPostImage(),
-          buildJobPostFooter(),
+          buildJobHeader(),
+          buildJobContent(),
+          buildJobFooter(),
         ],
       ),
     );
   }
 
-  // Note: To delete jobPost, ownerId and currentUserId must be equal, so they can be used interchangeably
-  handleDeleteJobPost(BuildContext parentContext) {
+  // Note: To delete job, ownerId and currentUserId must be equal, so they can be used interchangeably
+  handleDeleteJob(BuildContext parentContext) {
     return showDialog(
         context: parentContext,
         builder: (context) {
           return SimpleDialog(
-            title: Text("Remove this jobPost?"),
+            title: Text("Remove this job?"),
             children: <Widget>[
               SimpleDialogOption(
                   onPressed: () {
                     Navigator.pop(context);
-                    widget.job.deleteJobPost();
+                    job.deleteJob();
                   },
                   child: Text(
                     'Delete',
@@ -73,61 +84,51 @@ class _JobCardState extends State<JobCard> {
         });
   }
 
-  handleMarkJobPost(Map marks) {
-    bool _isMarked = marks[currentUserId] == true;
-    if (_isMarked) {
-      setState(() {
-        isMarked = false;
-        marks[currentUserId] = false;
-      });
-    } else if (!_isMarked) {
-      setState(() {
-        isMarked = true;
-        marks[currentUserId] = true;
-      });
-    }
-  }
-
-  buildJobPostHeader() {
-    bool isJobPostOwner = currentUserId == widget.job.ownerId;
+  buildJobHeader() {
+    bool isJobOwner = currentUserId == job.ownerId;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(widget.job.mediaUrl),
+            backgroundImage: CachedNetworkImageProvider(job.mediaUrl),
             backgroundColor: Colors.grey,
           ),
           title: GestureDetector(
-            onTap: () => showProfile(context, profileId: widget.job.ownerId),
+            onTap: () => showProfile(context, profileId: job.ownerId),
             child: Text(
-              widget.job.username,
+              job.username,
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          subtitle: Text(timeago.format(widget.job.timestamp.toDate())),
-          trailing: isJobPostOwner
-              ? IconButton(
-                  onPressed: () => widget.job.handleDeleteJobPost(context),
-                  icon: Icon(Icons.more_vert),
-                )
-              : IconButton(
-                  onPressed: () => print("job marked (saved)"),
-                  icon: isMarked
-                      ? Icon(Icons.bookmark_border)
-                      : Icon(Icons.bookmark),
-                ),
+          subtitle: Text(timeago.format(job.timestamp.toDate())),
+          trailing: Column(
+            children: [
+              Text(applicationsCount.toString()),
+              isJobOwner
+                  ? IconButton(
+                      onPressed: () => handleDeleteJob(context),
+                      icon: Icon(Icons.more_vert),
+                    )
+                  : IconButton(
+                      onPressed: () => print("job applied (saved)"),
+                      icon: isApplied
+                          ? Icon(Icons.bookmark_border)
+                          : Icon(Icons.bookmark),
+                    ),
+            ],
+          ),
         ),
         Padding(padding: EdgeInsets.only(top: 5.0, left: 5.0)),
       ],
     );
   }
 
-  buildJobPostImage() {
+  buildJobContent() {
     return IntrinsicHeight(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -139,28 +140,29 @@ class _JobCardState extends State<JobCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomListTile(
-                  description: widget.job.jobCategory,
+                  description: job.jobCategory,
                   icon: Icon(
                     Icons.work,
                     color: Colors.blueGrey,
                   ),
                 ),
                 CustomListTile(
-                  description: widget.job.description,
+                  description: job.description,
                   icon: Icon(
                     Icons.description,
                     color: Colors.blueGrey,
                   ),
+                  maxLines: 2,
                 ),
                 CustomListTile(
-                  description: widget.job.location,
+                  description: job.location,
                   icon: Icon(
                     Icons.my_location,
                     color: Colors.blueGrey,
                   ),
                 ),
                 CustomListTile(
-                  description: widget.job.schedule,
+                  description: job.schedule,
                   icon: Icon(
                     Icons.schedule,
                     color: Colors.blueGrey,
@@ -172,7 +174,7 @@ class _JobCardState extends State<JobCard> {
           VerticalDivider(
             color: Colors.black,
           ),
-          widget.job.mediaUrl.isEmpty
+          job.mediaUrl.isEmpty
               ? Text("")
               : Container(
                   height: 100.0,
@@ -180,27 +182,27 @@ class _JobCardState extends State<JobCard> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5.0),
                   ),
-                  child: cachedNetworkImage(widget.job.mediaUrl),
+                  child: cachedNetworkImage(job.mediaUrl),
                 ),
         ],
       ),
     );
   }
 
-  buildJobPostFooter() {
+  buildJobFooter() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+//        Expanded(
+//          child: CustomButton(
+//            text: "Message",
+//            function: () => print("Message"),
+//          ),
+//        ),
         Expanded(
           child: CustomButton(
-            text: "Message",
-            function: () => print("Message"),
-          ),
-        ),
-        Expanded(
-          child: CustomButton(
-            text: "Apply",
-            function: () => print("Apply"),
+            text: "Details",
+            function: showDetails,
           ),
         ),
         Expanded(
@@ -208,7 +210,7 @@ class _JobCardState extends State<JobCard> {
             alignment: Alignment.centerRight,
             margin: EdgeInsets.only(right: 10.0),
             child: Text(
-              "${widget.job.price} DA",
+              "${job.price} DA",
               style: TextStyle(
                 color: Colors.green,
                 fontWeight: FontWeight.bold,
@@ -221,14 +223,20 @@ class _JobCardState extends State<JobCard> {
   }
 }
 
-showComments(BuildContext context,
-    {String jobPostId, String ownerId, String mediaUrl}) {
+logConsoleFirebase() async {
+//  QuerySnapshot snapshot = await jobsRef.where("userJobs",isGreaterThanOrEqualTo: ).getDocuments();
+//  List<JobCard> jobs =
+//      snapshot.documents.map((doc) => JobCard(Job.fromDocument(doc))).toList();
+//  print(snapshot.documents.first.data);
+}
+showDetails(BuildContext context,
+// TODO: fix this
+    {String jobId,
+    String ownerId,
+    String mediaUrl}) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
-    //TODO: refactor showComment to support the JobPost class
-    return Comments(
-//      jobPostId: jobPostId,
-//      jobPostOwnerId: ownerId,
-//      jobPostMediaUrl: mediaUrl,
+    return JobScreen(
+//      job: job,
         );
   }));
 }

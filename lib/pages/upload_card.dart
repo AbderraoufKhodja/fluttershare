@@ -71,7 +71,7 @@ class _UploadCardState extends State<UploadCard>
       context: parentContext,
       builder: (context) {
         return SimpleDialog(
-          title: Text("Create JobPost"),
+          title: Text("Create Job"),
           children: <Widget>[
             SimpleDialogOption(
                 child: Text("Photo with Camera"), onPressed: handleTakePhoto),
@@ -242,14 +242,14 @@ class _UploadCardState extends State<UploadCard>
 //            icon: Icon(Icons.arrow_back, color: Colors.black),
 //            onPressed: clearImage),
         title: Text(
-          "Caption JobPost",
+          "Caption Job",
           style: TextStyle(color: Colors.black),
         ),
         actions: [
           FlatButton(
             onPressed: isUploading ? null : () => handleSubmit(),
             child: Text(
-              "JobPost",
+              "Job",
               style: TextStyle(
                 color: Colors.blueAccent,
                 fontWeight: FontWeight.bold,

@@ -5,7 +5,7 @@ import 'package:khadamat/pages/comments.dart';
 import 'package:khadamat/pages/home.dart';
 
 class Job {
-  final String jobPostId;
+  final String jobId;
   final String jobCategory;
   final String ownerId;
   final String username;
@@ -15,84 +15,69 @@ class Job {
   final String price;
   final String schedule;
   final Timestamp timestamp;
+  final dynamic applications;
   final bool isCompleted;
   final bool isVacant;
   final bool isOnGoing;
-  final dynamic marks;
-  final dynamic worker;
   final bool hasAccepted;
 
   Job({
-    this.jobPostId,
+    this.jobId,
     this.jobCategory,
     this.ownerId,
     this.username,
     this.location,
     this.description,
     this.mediaUrl,
-    this.marks,
     this.price,
     this.schedule,
     this.timestamp,
+    this.applications,
     this.isVacant,
     this.isOnGoing,
     this.isCompleted,
-    this.worker,
     this.hasAccepted,
   });
 
   factory Job.fromDocument(DocumentSnapshot doc) {
     return Job(
-      jobPostId: doc['jobPostId'],
+      jobId: doc['jobId'],
       jobCategory: doc['jobCategory'],
       ownerId: doc['ownerId'],
       username: doc['username'],
       location: doc['location'],
       description: doc['description'],
       mediaUrl: doc['mediaUrl'],
-      marks: doc['marks'],
       price: doc['price'],
       schedule: doc['schedule'],
       timestamp: doc['timestamp'],
+      applications: doc['applications'],
       isVacant: doc['isVacant'],
       isOnGoing: doc['isOnGoing'],
       isCompleted: doc['isCompleted'],
-      worker: doc["worker"],
       hasAccepted: doc["hasAccepted"],
     );
   }
-
-  handleDeleteJobPost(BuildContext parentContext) {
-    return showDialog(
-        context: parentContext,
-        builder: (context) {
-          return SimpleDialog(
-            title: Text("Remove this jobPost?"),
-            children: <Widget>[
-              SimpleDialogOption(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    deleteJobPost();
-                  },
-                  child: Text(
-                    'Delete',
-                    style: TextStyle(color: Colors.red),
-                  )),
-              SimpleDialogOption(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Cancel')),
-            ],
-          );
-        });
+  int getApplicationsCount() {
+    // if no likes, return 0
+    if (applications == null) {
+      return 0;
+    }
+    int count = 0;
+    // if the key is explicitly set to true, add a like
+    applications.values.forEach((val) {
+      if (val == true) count += 1;
+    });
+    return count;
   }
 
-  // Note: To delete jobPost, ownerId and currentUser.id must be equal, so they can be used interchangeably
-  deleteJobPost() async {
-    // delete jobPost itself
-    jobPostsRef
+  // Note: To delete job, ownerId and currentUser.id must be equal, so they can be used interchangeably
+  deleteJob() async {
+    // delete job itself
+    jobsRef
         .document(ownerId)
-        .collection('userJobPosts')
-        .document(jobPostId)
+        .collection('userJobs')
+        .document(jobId)
         .get()
         .then((doc) {
       if (doc.exists) {
@@ -100,12 +85,12 @@ class Job {
       }
     });
     // delete uploaded image for the ost
-    storageRef.child("jobPost_$jobPostId.jpg").delete();
+    storageRef.child("job_$jobId.jpg").delete();
     // then delete all activity feed notifications
     QuerySnapshot activityFeedSnapshot = await activityFeedRef
         .document(ownerId)
         .collection("feedItems")
-        .where('jobPostId', isEqualTo: jobPostId)
+        .where('jobId', isEqualTo: jobId)
         .getDocuments();
     activityFeedSnapshot.documents.forEach((doc) {
       if (doc.exists) {
@@ -113,10 +98,8 @@ class Job {
       }
     });
     // then delete all comments
-    QuerySnapshot commentsSnapshot = await commentsRef
-        .document(jobPostId)
-        .collection('comments')
-        .getDocuments();
+    QuerySnapshot commentsSnapshot =
+        await commentsRef.document(jobId).collection('comments').getDocuments();
     commentsSnapshot.documents.forEach((doc) {
       if (doc.exists) {
         doc.reference.delete();
@@ -124,58 +107,58 @@ class Job {
     });
   }
 
-  handleMarkJobPost() {
-    bool _isMarked = marks[currentUser.id] == true;
+  handleApplyJob() {
+    bool _isMarked = applications[currentUser.id] == true;
     if (_isMarked) {
-      jobPostsRef
+      jobsRef
           .document(ownerId)
-          .collection('userJobPosts')
-          .document(jobPostId)
-          .updateData({'marks.$currentUser.id': false});
-      removeMarkFromActivityFeed();
+          .collection('userJobs')
+          .document(jobId)
+          .updateData({'applications.${currentUser.id}': false});
+      removeApplyFromActivityFeed();
     } else if (!_isMarked) {
-      jobPostsRef
+      jobsRef
           .document(ownerId)
-          .collection('userJobPosts')
-          .document(jobPostId)
-          .updateData({'marks.$currentUser.id': true});
-      addMarkToActivityFeed();
+          .collection('userJobs')
+          .document(jobId)
+          .updateData({'applications.${currentUser.id}': true});
+      addApplyToActivityFeed();
     }
   }
 
-  addMarkToActivityFeed() {
-    // add a notification to the jobPostOwner's activity feed only if comment made by OTHER user (to avoid getting notification for our own mark)
-    bool isNotJobPostOwner = currentUser.id != ownerId;
-    if (isNotJobPostOwner) {
+  addApplyToActivityFeed() {
+    // add a notification to the jobOwner's activity feed only if comment made by OTHER user (to avoid getting notification for our own mark)
+    bool isNotJobOwner = currentUser.id != ownerId;
+    if (isNotJobOwner) {
       activityFeedRef
           .document(ownerId)
           .collection("feedItems")
-          .document(jobPostId)
+          .document(jobId)
           .setData({
-        "type": "mark",
+        "type": "apply",
         "username": currentUser.username,
         "jobCategory": jobCategory,
         "userId": currentUser.id,
         "userProfileImg": currentUser.photoUrl,
-        "jobPostId": jobPostId,
+        "jobId": jobId,
         "mediaUrl": mediaUrl,
         "timestamp": timestamp,
+        "applications": applications,
         "isVacant": isVacant,
         "isOnGoing": isOnGoing,
         "isCompleted": isCompleted,
-        "worker": worker,
         "hasAccepted": hasAccepted,
       });
     }
   }
 
-  removeMarkFromActivityFeed() {
-    bool isNotJobPostOwner = currentUser.id != ownerId;
-    if (isNotJobPostOwner) {
+  removeApplyFromActivityFeed() {
+    bool isNotJobOwner = currentUser.id != ownerId;
+    if (isNotJobOwner) {
       activityFeedRef
           .document(ownerId)
           .collection("feedItems")
-          .document(jobPostId)
+          .document(jobId)
           .get()
           .then((doc) {
         if (doc.exists) {
@@ -184,16 +167,4 @@ class Job {
       });
     }
   }
-}
-
-showComments(BuildContext context,
-    {String jobPostId, String ownerId, String mediaUrl}) {
-  Navigator.push(context, MaterialPageRoute(builder: (context) {
-    //TODO: refactor showComment to support the JobPost class
-    return Comments(
-//      jobPostId: jobPostId,
-//      jobPostOwnerId: ownerId,
-//      jobPostMediaUrl: mediaUrl,
-        );
-  }));
 }

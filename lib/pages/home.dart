@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/activity_feed.dart';
 import 'package:khadamat/pages/create_account.dart';
+import 'package:khadamat/pages/job_activity_feed.dart';
 import 'package:khadamat/pages/job_timeline.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/pages/search.dart';
@@ -19,10 +20,10 @@ final StorageReference storageRef = FirebaseStorage.instance.ref();
 final usersRef = Firestore.instance.collection('users');
 final businessCardsRef = Firestore.instance.collection('businessCards');
 final postsRef = Firestore.instance.collection('posts');
-final jobPostsRef = Firestore.instance.collection('jobPosts');
+final jobsRef = Firestore.instance.collection('jobs');
 final commentsRef = Firestore.instance.collection('comments');
 final activityFeedRef = Firestore.instance.collection('feed');
-final followersRef = Firestore.instance.collection('followers');
+final hiresRef = Firestore.instance.collection('hires');
 final followingRef = Firestore.instance.collection('following');
 final timelineRef = Firestore.instance.collection('timeline');
 final jobTimelineRef = Firestore.instance.collection('jobTimeline');
@@ -37,7 +38,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  bool isAuth = false;
+  bool isAuth = true;
   PageController pageController;
   int pageIndex = 0;
 
@@ -134,7 +135,7 @@ class _HomeState extends State<Home> {
         "timestamp": timestamp
       });
       // make new user their own follower (to include their posts in their timeline)
-      await followersRef
+      await hiresRef
           .document(user.id)
           .collection('userFollowers')
           .document(user.id)
@@ -181,7 +182,8 @@ class _HomeState extends State<Home> {
         children: <Widget>[
 //          Timeline(currentUser: currentUser),
           JobTimeline(currentUser: currentUser),
-          ActivityFeed(),
+//          ActivityFeed(),
+          JobActivityFeed(),
           UploadJob(currentUser: currentUser),
           Search(),
           Profile(profileId: currentUser?.id),

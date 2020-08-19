@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -13,8 +15,9 @@ import 'package:khadamat/widgets/progress.dart';
 
 class Profile extends StatefulWidget {
   final String profileId;
+  final String jobId;
 
-  Profile({this.profileId});
+  Profile({this.profileId, this.jobId});
 
   @override
   _ProfileState createState() => _ProfileState();
@@ -26,7 +29,7 @@ class _ProfileState extends State<Profile> {
   bool isFollowing = false;
   bool isLoading = false;
   int postCount = 0;
-  int followerCount = 0;
+  int hireCount = 0;
   int followingCount = 0;
   List<Post> posts = [];
 
@@ -34,29 +37,32 @@ class _ProfileState extends State<Profile> {
   void initState() {
     super.initState();
     getProfilePosts();
-    getFollowers();
+    getHires();
     getFollowing();
     checkIfFollowing();
   }
 
   checkIfFollowing() async {
-    DocumentSnapshot doc = await followersRef
+    DocumentSnapshot doc = await hiresRef
         .document(widget.profileId)
-        .collection('userFollowers')
+        .collection('userHires')
         .document(currentUserId)
+        .collection("Jobs")
+        .document(widget.jobId)
         .get();
     setState(() {
+      //TODO test this
       isFollowing = doc.exists;
     });
   }
 
-  getFollowers() async {
-    QuerySnapshot snapshot = await followersRef
+  getHires() async {
+    QuerySnapshot snapshot = await hiresRef
         .document(widget.profileId)
-        .collection('userFollowers')
+        .collection('userHires')
         .getDocuments();
     setState(() {
-      followerCount = snapshot.documents.length;
+      hireCount = snapshot.documents.length;
     });
   }
 
@@ -178,12 +184,12 @@ class _ProfileState extends State<Profile> {
       );
     } else if (isFollowing) {
       return buildButton(
-        text: "Unfollow",
+        text: "Post a job",
         function: handleUnfollowUser,
       );
     } else if (!isFollowing) {
       return buildButton(
-        text: "Follow",
+        text: "Accept",
         function: handleFollowUser,
       );
     }
@@ -193,10 +199,10 @@ class _ProfileState extends State<Profile> {
     setState(() {
       isFollowing = false;
     });
-    // remove follower
-    followersRef
+    // remove hire
+    hiresRef
         .document(widget.profileId)
-        .collection('userFollowers')
+        .collection('userHires')
         .document(currentUserId)
         .get()
         .then((doc) {
@@ -232,25 +238,48 @@ class _ProfileState extends State<Profile> {
     setState(() {
       isFollowing = true;
     });
-    // Make auth user follower of THAT user (update THEIR followers collection)
-    followersRef
+    // Make auth user hire of THAT user (update THEIR hires collection)
+    hiresRef
         .document(widget.profileId)
-        .collection('userFollowers')
+        .collection('userHires')
         .document(currentUserId)
         .setData({});
+
+    jobsRef
+        .document(currentUserId)
+        .collection("userJobs")
+        .document(widget.jobId)
+        .collection("application")
+        .document(widget.profileId)
+        .setData({
+      "accepted": true,
+    });
     // Put THAT user on YOUR following collection (update your following collection)
-    followingRef
-        .document(currentUserId)
-        .collection('userFollowing')
-        .document(widget.profileId)
-        .setData({});
-    // add activity feed item for that user to notify about new follower (us)
+//    followingRef
+//        .document(currentUserId)
+//        .collection('userFollowing')
+//        .document(widget.profileId)
+//        .setData({});
+    // add activity feed item for that user to notify about new hire (us)
     activityFeedRef
         .document(widget.profileId)
         .collection('feedItems')
         .document(currentUserId)
         .setData({
-      "type": "follow",
+      "type": "accepted",
+      "ownerId": widget.profileId,
+      "username": currentUser.username,
+      "userId": currentUserId,
+      "userProfileImg": currentUser.photoUrl,
+      "timestamp": timestamp,
+    });
+
+    activityFeedRef
+        .document(currentUserId)
+        .collection('feedItems')
+        .document(widget.profileId)
+        .setData({
+      "type": "accept",
       "ownerId": widget.profileId,
       "username": currentUser.username,
       "userId": currentUserId,
@@ -288,7 +317,7 @@ class _ProfileState extends State<Profile> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
                               buildCountColumn("posts", postCount),
-                              buildCountColumn("followers", followerCount),
+                              buildCountColumn("hires", hireCount),
                               buildCountColumn("following", followingCount),
                             ],
                           ),
@@ -371,7 +400,7 @@ class _ProfileState extends State<Profile> {
 //                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
 //                            children: <Widget>[
 //                              buildCountColumn("posts", postCount),
-//                              buildCountColumn("followers", followerCount),
+//                              buildCountColumn("hires", hireCount),
 //                              buildCountColumn("following", followingCount),
 //                            ],
 //                          ),

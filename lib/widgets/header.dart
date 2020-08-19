@@ -1,8 +1,28 @@
 import 'package:flutter/material.dart';
 
 AppBar header(context,
-    {bool isAppTitle = false, String titleText, removeBackButton = false}) {
+    {bool isAppTitle = false,
+    String titleText,
+    removeBackButton = false,
+    hasAction = false,
+    Function action,
+    actionLabel = "press"}) {
   return AppBar(
+    actions: [
+      hasAction
+          ? FlatButton(
+              onPressed: action,
+              child: Text(
+                actionLabel,
+                style: TextStyle(
+                  color: Colors.blueAccent,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20.0,
+                ),
+              ),
+            )
+          : Text("")
+    ],
     automaticallyImplyLeading: removeBackButton ? false : true,
     shadowColor: Colors.white,
     elevation: 0,

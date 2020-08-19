@@ -32,7 +32,7 @@ class _UploadJobState extends State<UploadJob>
 
   File file;
   bool isUploading = false;
-  String jobPostId = Uuid().v4();
+  String jobId = Uuid().v4();
 
   handleTakePhoto() async {
     Navigator.pop(context);
@@ -59,7 +59,7 @@ class _UploadJobState extends State<UploadJob>
       context: parentContext,
       builder: (context) {
         return SimpleDialog(
-          title: Text("Create JobPost"),
+          title: Text("Create Job"),
           children: <Widget>[
             SimpleDialogOption(
                 child: Text("Photo with Camera"), onPressed: handleTakePhoto),
@@ -114,7 +114,7 @@ class _UploadJobState extends State<UploadJob>
     final tempDir = await getTemporaryDirectory();
     final path = tempDir.path;
     Im.Image imageFile = Im.decodeImage(file.readAsBytesSync());
-    final compressedImageFile = File('$path/img_$jobPostId.jpg')
+    final compressedImageFile = File('$path/img_$jobId.jpg')
       ..writeAsBytesSync(Im.encodeJpg(imageFile, quality: 85));
     setState(() {
       file = compressedImageFile;
@@ -123,13 +123,13 @@ class _UploadJobState extends State<UploadJob>
 
   Future<String> uploadJobImage(imageFile) async {
     StorageUploadTask uploadJobTask =
-        storageRef.child("post_$jobPostId.jpg").putFile(imageFile);
+        storageRef.child("post_$jobId.jpg").putFile(imageFile);
     StorageTaskSnapshot storageSnap = await uploadJobTask.onComplete;
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     return downloadUrl;
   }
 
-  createJobPostInFirestore({
+  createJobInFirestore({
     String mediaUrl,
     String location,
     String description,
@@ -137,27 +137,29 @@ class _UploadJobState extends State<UploadJob>
     String price,
     String schedule,
   }) {
-    jobPostsRef
-        .document(widget.currentUser.id)
-        .collection("userJobPosts")
-        .document(jobPostId)
-        .setData({
-      "jobPostId": jobPostId,
-      "jobCategory": jobCategory,
-      "ownerId": widget.currentUser.id,
-      "username": widget.currentUser.username,
-      "mediaUrl": mediaUrl,
-      "description": description,
-      "location": location,
-      "timestamp": timestamp,
-      "price": price,
-      "schedule": schedule,
-      "marks": {},
-      "isVacant": true,
-      "isOnGoing": false,
-      "isCompleted": false,
-      "hiredId": {},
-    });
+    jobsRef.document(widget.currentUser.id).setData(
+      {
+        "userJobs": {
+          jobId: {
+            "jobId": jobId,
+            "jobCategory": jobCategory,
+            "ownerId": widget.currentUser.id,
+            "username": widget.currentUser.username,
+            "mediaUrl": mediaUrl,
+            "description": description,
+            "location": location,
+            "timestamp": timestamp,
+            "price": price,
+            "schedule": schedule,
+            "application": {},
+            "isVacant": true,
+            "isOnGoing": false,
+            "isCompleted": false,
+            "hiredId": {},
+          },
+        },
+      },
+    );
   }
 
   handleSubmit() async {
@@ -166,7 +168,7 @@ class _UploadJobState extends State<UploadJob>
     });
     if (file != null) await compressImage();
     String mediaUrl = file == null ? "" : await uploadJobImage(file);
-    createJobPostInFirestore(
+    createJobInFirestore(
       mediaUrl: mediaUrl,
       location: locationController.text,
       description: captionController.text,
@@ -182,7 +184,7 @@ class _UploadJobState extends State<UploadJob>
     setState(() {
       file = null;
       isUploading = false;
-      jobPostId = Uuid().v4();
+      jobId = Uuid().v4();
     });
   }
 
@@ -229,6 +231,7 @@ class _UploadJobState extends State<UploadJob>
             title: Container(
               width: 250.0,
               child: TextField(
+                autofocus: true,
                 controller: captionController,
                 decoration: InputDecoration(
                   hintText: kJobDescription,
