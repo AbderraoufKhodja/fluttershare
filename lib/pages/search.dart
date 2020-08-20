@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:khadamat/models/user.dart';
-import 'package:khadamat/pages/activity_feed.dart';
+import 'file:///E:/Users/zjnu/AndroidStudioProjects/fluttershare/lib/pages/original%20fluttershare/activity_feed.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/progress.dart';
 
@@ -129,7 +129,7 @@ class UserResult extends StatelessWidget {
             onTap: () => showProfile(context, profileId: user.id),
             child: ListTile(
               leading: CircleAvatar(
-                backgroundColor: Colors.grey,
+                backgroundColor: Theme.of(context).primaryColor,
                 backgroundImage: CachedNetworkImageProvider(user.photoUrl),
               ),
               title: Text(

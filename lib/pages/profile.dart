@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -122,7 +120,7 @@ class _ProfileState extends State<Profile> {
           child: Text(
             label,
             style: TextStyle(
-              color: Colors.grey,
+              color: Theme.of(context).primaryColor,
               fontSize: 15.0,
               fontWeight: FontWeight.w400,
             ),
@@ -165,7 +163,7 @@ class _ProfileState extends State<Profile> {
           decoration: BoxDecoration(
             color: isFollowing ? Colors.white : Colors.blue,
             border: Border.all(
-              color: isFollowing ? Colors.grey : Colors.blue,
+              color: isFollowing ? Theme.of(context).primaryColor : Colors.blue,
             ),
             borderRadius: BorderRadius.circular(5.0),
           ),
@@ -304,7 +302,7 @@ class _ProfileState extends State<Profile> {
                   children: <Widget>[
                     CircleAvatar(
                       radius: 40.0,
-                      backgroundColor: Colors.grey,
+                      backgroundColor: Theme.of(context).primaryColor,
                       backgroundImage:
                           CachedNetworkImageProvider(user.photoUrl),
                     ),
@@ -387,7 +385,7 @@ class _ProfileState extends State<Profile> {
 //                  children: <Widget>[
 //                    CircleAvatar(
 //                      radius: 40.0,
-//                      backgroundColor: Colors.grey,
+//                      backgroundColor: Theme.of(context).primaryColor,
 //                      backgroundImage:
 //                          CachedNetworkImageProvider(card.mediaUrl),
 //                    ),
@@ -508,14 +506,14 @@ class _ProfileState extends State<Profile> {
           icon: Icon(Icons.grid_on),
           color: postOrientation == 'grid'
               ? Theme.of(context).primaryColor
-              : Colors.grey,
+              : Theme.of(context).primaryColor,
         ),
         IconButton(
           onPressed: () => setPostOrientation("list"),
           icon: Icon(Icons.list),
           color: postOrientation == 'list'
               ? Theme.of(context).primaryColor
-              : Colors.grey,
+              : Theme.of(context).primaryColor,
         ),
       ],
     );
@@ -524,7 +522,7 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.withOpacity(0.2),
+      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
 //      appBar: header(context, titleText: "Profile"),
       body: ListView(
         children: <Widget>[

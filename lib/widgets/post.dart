@@ -5,7 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
-import 'package:khadamat/pages/activity_feed.dart';
+import 'file:///E:/Users/zjnu/AndroidStudioProjects/fluttershare/lib/pages/original%20fluttershare/activity_feed.dart';
 import 'package:khadamat/pages/comments.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/custom_image.dart';
@@ -106,7 +106,7 @@ class _PostState extends State<Post> {
         return ListTile(
           leading: CircleAvatar(
             backgroundImage: CachedNetworkImageProvider(user.photoUrl),
-            backgroundColor: Colors.grey,
+            backgroundColor: Theme.of(context).primaryColor,
           ),
           title: GestureDetector(
             onTap: () => showProfile(context, profileId: user.id),

@@ -337,7 +337,7 @@ class _UploadCardState extends State<UploadCard>
                     iconSize: 100.0,
                     icon: Icon(
                       Icons.add_a_photo,
-                      color: Colors.grey,
+                      color: Theme.of(context).primaryColor,
                     ),
                     onPressed: () => selectImage(context),
                   )

@@ -8,8 +8,6 @@ import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/job_card.dart';
 import 'package:khadamat/widgets/progress.dart';
 
-final usersRef = Firestore.instance.collection('users');
-
 class JobTimeline extends StatefulWidget {
   final User currentUser;
 
@@ -32,18 +30,19 @@ class _JobTimelineState extends State<JobTimeline> {
   }
 
   getJobTimeline() async {
-    QuerySnapshot snapshot = await jobTimelineRef
-        .document(widget.currentUser.id)
-        .collection('timelineJobs')
-        .orderBy('timestamp', descending: true)
-        .getDocuments();
-//    QuerySnapshot snapshot = await jobsRef.getDocuments();
-    List<JobCard> jobs = snapshot.documents
-        .map((doc) => JobCard(Job.fromDocument(doc)))
-        .toList();
-    setState(() {
-      this.jobs = jobs;
-    });
+//    QuerySnapshot snapshot = await jobTimelineRef
+//        .document(widget.currentUser.id)
+//        .collection('timelineJobs')
+//        .orderBy('timestamp', descending: true)
+//        .getDocuments();
+//    List<JobCard> jobs = snapshot.documents
+//        .map((doc) => JobCard(Job.fromDocument(doc)))
+//        .toList();
+//    setState(() {
+//      this.jobs = jobs;
+//    });
+    QuerySnapshot snapshot = await jobTimelineRef.getDocuments();
+    print(snapshot.documents);
   }
 
   getFollowing() async {
@@ -128,9 +127,11 @@ class _JobTimelineState extends State<JobTimeline> {
   Widget build(context) {
     return Scaffold(
         key: _scaffoldKey,
-        backgroundColor: Colors.grey.withOpacity(0.2),
+        backgroundColor: Theme.of(context).primaryColor,
         appBar: header(context, isAppTitle: true),
         body: RefreshIndicator(
-            onRefresh: () => getJobTimeline(), child: buildJobTimeline()));
+          onRefresh: () => getJobTimeline(),
+          child: buildJobTimeline(),
+        ));
   }
 }

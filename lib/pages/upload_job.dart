@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:khadamat/categories.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/home.dart';
@@ -26,7 +28,8 @@ class _UploadJobState extends State<UploadJob>
     with AutomaticKeepAliveClientMixin<UploadJob> {
   TextEditingController captionController = TextEditingController();
   TextEditingController locationController = TextEditingController();
-  TextEditingController categoryController = TextEditingController();
+  String category = categoryList[0].keys.first;
+  var subCategory;
   TextEditingController priceController = TextEditingController();
   TextEditingController scheduleController = TextEditingController();
 
@@ -137,27 +140,49 @@ class _UploadJobState extends State<UploadJob>
     String price,
     String schedule,
   }) {
-    jobsRef.document(widget.currentUser.id).setData(
+    jobsRef.document(jobCategory)
+//        .collection(subCategory)
+//        .document(jobId)
+        .setData(
       {
-        "userJobs": {
-          jobId: {
-            "jobId": jobId,
-            "jobCategory": jobCategory,
-            "ownerId": widget.currentUser.id,
-            "username": widget.currentUser.username,
-            "mediaUrl": mediaUrl,
-            "description": description,
-            "location": location,
-            "timestamp": timestamp,
-            "price": price,
-            "schedule": schedule,
-            "application": {},
-            "isVacant": true,
-            "isOnGoing": false,
-            "isCompleted": false,
-            "hiredId": {},
-          },
-        },
+        "jobId": jobId,
+        "jobCategory": jobCategory,
+        "ownerId": widget.currentUser.id,
+        "username": widget.currentUser.username,
+        "mediaUrl": mediaUrl,
+        "description": description,
+        "location": location,
+        "timestamp": timestamp,
+        "price": price,
+        "schedule": schedule,
+        "applications": {},
+        "isVacant": true,
+        "isOnGoing": false,
+        "isCompleted": false,
+        "hiredId": {},
+      },
+    );
+    // TODO get back to widget.currentUser.id
+    String id;
+    if (currentUser.id == "114724315703014253470") id = "105303619841718040097";
+    if (currentUser.id == "105303619841718040097") id = "114724315703014253470";
+    timelineRef.document(id).collection("timelineJobs").document(jobId).setData(
+      {
+        "jobId": jobId,
+        "jobCategory": jobCategory,
+        "ownerId": widget.currentUser.id,
+        "username": widget.currentUser.username,
+        "mediaUrl": mediaUrl,
+        "description": description,
+        "location": location,
+        "timestamp": timestamp,
+        "price": price,
+        "schedule": schedule,
+        "applications": {},
+        "isVacant": true,
+        "isOnGoing": false,
+        "isCompleted": false,
+        "hiredId": {},
       },
     );
   }
@@ -172,13 +197,12 @@ class _UploadJobState extends State<UploadJob>
       mediaUrl: mediaUrl,
       location: locationController.text,
       description: captionController.text,
-      jobCategory: categoryController.text,
+      jobCategory: category,
       price: priceController.text,
       schedule: scheduleController.text,
     );
     captionController.clear();
     locationController.clear();
-    categoryController.clear();
     priceController.clear();
     scheduleController.clear();
     setState(() {
@@ -225,13 +249,12 @@ class _UploadJobState extends State<UploadJob>
           ListTile(
             leading: Icon(
               Icons.work,
-              color: Colors.grey,
+              color: Theme.of(context).primaryColor,
               size: 35.0,
             ),
             title: Container(
               width: 250.0,
               child: TextField(
-                autofocus: true,
                 controller: captionController,
                 decoration: InputDecoration(
                   hintText: kJobDescription,
@@ -244,7 +267,7 @@ class _UploadJobState extends State<UploadJob>
           ListTile(
             leading: Icon(
               Icons.pin_drop,
-              color: Colors.grey,
+              color: Theme.of(context).primaryColor,
               size: 35.0,
             ),
             title: Container(
@@ -276,44 +299,92 @@ class _UploadJobState extends State<UploadJob>
           ListTile(
             leading: Icon(
               Icons.category,
-              color: Colors.grey,
+              color: Theme.of(context).primaryColor,
               size: 35.0,
             ),
-            title: Container(
-              width: 250.0,
-              child: TextField(
-                controller: categoryController,
-                decoration: InputDecoration(
-                  hintText: kCategoryLocation,
-                  border: InputBorder.none,
+            title: DropdownButton<String>(
+                value: this.category,
+                icon: Container(
+                  child: Icon(Icons.arrow_downward),
                 ),
-              ),
-            ),
+                iconSize: 24,
+                elevation: 16,
+                isExpanded: true,
+                style: TextStyle(color: Colors.blueAccent),
+                iconDisabledColor: Colors.black,
+                iconEnabledColor: Colors.grey,
+                underline: Container(
+                  height: 2,
+                  color: Colors.blueAccent,
+                ),
+                onChanged: (String val) {
+                  setState(() {
+                    this.category = val;
+                    categoryList.forEach((element) {
+//Todo synchronize the two dropdown
+                    });
+                  });
+                },
+                items: categoryList
+                    .map<DropdownMenuItem<String>>(
+                        (Map<String, List<String>> category) =>
+                            DropdownMenuItem<String>(
+                              value: category.keys.first,
+                              child: Text(
+                                category.keys.first,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ))
+                    .toList()),
           ),
-//          Container(
-//            width: 200.0,
-//            height: 100.0,
-//            alignment: Alignment.center,
-//            child: RaisedButton.icon(
-//              label: Text(
-//                "Use Current Location",
-//                style: TextStyle(color: Colors.white),
-//              ),
-//              shape: RoundedRectangleBorder(
-//                borderRadius: BorderRadius.circular(30.0),
-//              ),
-//              color: Colors.blue,
-//              onPressed: getUserLocation,
-//              icon: Icon(
-//                Icons.my_location,
-//                color: Colors.white,
-//              ),
-//            ),
-//          ),
+          ListTile(
+            leading: Text(
+              "Subcategory",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                textBaseline: TextBaseline.alphabetic,
+              ),
+              textAlign: TextAlign.start,
+            ),
+            title: DropdownButton<String>(
+                value: this.category,
+                icon: Container(
+                  child: Icon(Icons.arrow_downward),
+                ),
+                iconSize: 24,
+                elevation: 16,
+                isExpanded: true,
+                style: TextStyle(color: Colors.blueAccent),
+                iconDisabledColor: Colors.black,
+                iconEnabledColor: Colors.grey,
+                underline: Container(
+                  height: 2,
+                  color: Colors.blueAccent,
+                ),
+                onChanged: (String val) {
+                  setState(() {
+                    this.category = val;
+                  });
+                },
+                items: categoryList
+                    .map<DropdownMenuItem<String>>(
+                        (Map<String, List<String>> category) =>
+                            DropdownMenuItem<String>(
+                              value: category.keys.first,
+                              child: Text(
+                                category.keys.first,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ))
+                    .toList()),
+          ),
           ListTile(
             leading: Icon(
               Icons.attach_money,
-              color: Colors.grey,
+              color: Theme.of(context).primaryColor,
               size: 35.0,
             ),
             title: Container(
@@ -322,7 +393,7 @@ class _UploadJobState extends State<UploadJob>
                 keyboardType: TextInputType.number,
                 controller: priceController,
                 decoration: InputDecoration(
-                  hintText: kCategoryLocation,
+                  hintText: kCategory,
                   border: InputBorder.none,
                 ),
               ),
@@ -335,7 +406,7 @@ class _UploadJobState extends State<UploadJob>
                     iconSize: 100.0,
                     icon: Icon(
                       Icons.add_a_photo,
-                      color: Colors.grey,
+                      color: Theme.of(context).primaryColor,
                     ),
                     onPressed: () => selectImage(context),
                   )

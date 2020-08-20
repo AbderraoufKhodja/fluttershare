@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/job.dart';
-import 'package:khadamat/pages/activity_feed.dart';
+import 'file:///E:/Users/zjnu/AndroidStudioProjects/fluttershare/lib/pages/original%20fluttershare/activity_feed.dart';
 import 'package:khadamat/pages/comments.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/job_screen.dart';
@@ -31,6 +31,7 @@ class _JobCardState extends State<JobCard> {
   bool isLoading;
   bool isApplied;
   int applicationsCount;
+
   @override
   void initState() {
     super.initState();
@@ -92,8 +93,8 @@ class _JobCardState extends State<JobCard> {
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(job.mediaUrl),
-            backgroundColor: Colors.grey,
+            backgroundImage: CachedNetworkImageProvider(currentUser.photoUrl),
+            backgroundColor: Theme.of(context).primaryColor,
           ),
           title: GestureDetector(
             onTap: () => showProfile(context, profileId: job.ownerId),
@@ -105,21 +106,18 @@ class _JobCardState extends State<JobCard> {
               ),
             ),
           ),
-          subtitle: Text(timeago.format(job.timestamp.toDate())),
+          subtitle: Text("${timeago.format(job.timestamp.toDate())}"
+              " | ${applicationsCount.toString()} applied"),
           trailing: Column(
             children: [
-              Text(applicationsCount.toString()),
               isJobOwner
                   ? IconButton(
                       onPressed: () => handleDeleteJob(context),
                       icon: Icon(Icons.more_vert),
                     )
-                  : IconButton(
-                      onPressed: () => print("job applied (saved)"),
-                      icon: isApplied
-                          ? Icon(Icons.bookmark_border)
-                          : Icon(Icons.bookmark),
-                    ),
+                  : isApplied
+                      ? Icon(Icons.bookmark)
+                      : Icon(Icons.bookmark_border),
             ],
           ),
         ),
@@ -201,8 +199,14 @@ class _JobCardState extends State<JobCard> {
 //        ),
         Expanded(
           child: CustomButton(
-            text: "Details",
-            function: showDetails,
+            text: "Apply",
+            function: () {
+              job.handleApplyJob();
+
+              setState(() {
+                isApplied = !isApplied;
+              });
+            },
           ),
         ),
         Expanded(

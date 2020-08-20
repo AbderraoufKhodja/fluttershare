@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:khadamat/pages/activity_feed.dart';
+import 'file:///E:/Users/zjnu/AndroidStudioProjects/fluttershare/lib/pages/original%20fluttershare/activity_feed.dart';
 import 'package:khadamat/pages/comments.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/progress.dart';
@@ -329,7 +329,7 @@ class _BusinessCardState extends State<BusinessCard> {
                   radius: 40.0,
                   backgroundImage:
                       CachedNetworkImageProvider(card.cardPhotoUrl),
-                  backgroundColor: Colors.grey,
+                  backgroundColor: Theme.of(context).primaryColor,
                 ),
               ),
               title: Text(

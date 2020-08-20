@@ -50,7 +50,7 @@ class _EditProfileState extends State<EditProfile> {
             padding: EdgeInsets.only(top: 12.0),
             child: Text(
               "Display Name",
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: Theme.of(context).primaryColor),
             )),
         TextField(
           controller: displayNameController,
@@ -71,7 +71,7 @@ class _EditProfileState extends State<EditProfile> {
           padding: EdgeInsets.only(top: 12.0),
           child: Text(
             "Bio",
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(color: Theme.of(context).primaryColor),
           ),
         ),
         TextField(

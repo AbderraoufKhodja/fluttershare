@@ -5,7 +5,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
-import 'package:khadamat/pages/activity_feed.dart';
 import 'package:khadamat/pages/create_account.dart';
 import 'package:khadamat/pages/job_activity_feed.dart';
 import 'package:khadamat/pages/job_timeline.dart';
@@ -26,7 +25,7 @@ final activityFeedRef = Firestore.instance.collection('feed');
 final hiresRef = Firestore.instance.collection('hires');
 final followingRef = Firestore.instance.collection('following');
 final timelineRef = Firestore.instance.collection('timeline');
-final jobTimelineRef = Firestore.instance.collection('jobTimeline');
+final jobTimelineRef = Firestore.instance.collection('timeline');
 final DateTime timestamp = DateTime.now();
 User currentUser;
 
@@ -38,7 +37,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  bool isAuth = true;
+  bool isAuth = false;
   PageController pageController;
   int pageIndex = 0;
 
@@ -170,7 +169,7 @@ class _HomeState extends State<Home> {
   onTap(int pageIndex) {
     pageController.animateToPage(
       pageIndex,
-      duration: Duration(milliseconds: 300),
+      duration: Duration(milliseconds: 100),
       curve: Curves.easeInOut,
     );
   }
@@ -194,8 +193,8 @@ class _HomeState extends State<Home> {
       ),
       bottomNavigationBar: CupertinoTabBar(
         border: Border(top: BorderSide.none),
-        backgroundColor: Colors.grey.withOpacity(0.1),
-        inactiveColor: Colors.grey,
+        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+        inactiveColor: Theme.of(context).primaryColor,
         currentIndex: pageIndex,
         onTap: onTap,
         activeColor: Colors.black,
