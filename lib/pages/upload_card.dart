@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:khadamat/categories.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/home.dart';
@@ -12,7 +13,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as Im;
-import 'package:uuid/uuid.dart';
 
 class UploadCard extends StatefulWidget {
   final User currentUser;
@@ -27,7 +27,8 @@ class _UploadCardState extends State<UploadCard>
     with AutomaticKeepAliveClientMixin<UploadCard> {
   TextEditingController captionController = TextEditingController();
   TextEditingController locationController = TextEditingController();
-  TextEditingController categoryController = TextEditingController();
+  String category;
+  String subCategory;
   TextEditingController introController = TextEditingController();
   TextEditingController bioController = TextEditingController();
   TextEditingController professionalExperienceController =
@@ -44,7 +45,7 @@ class _UploadCardState extends State<UploadCard>
 
   File file;
   bool isUploading = false;
-  String cardId = Uuid().v4();
+  int calIndex = 0;
 
   handleTakePhoto() async {
     Navigator.pop(context);
@@ -126,7 +127,7 @@ class _UploadCardState extends State<UploadCard>
     final tempDir = await getTemporaryDirectory();
     final path = tempDir.path;
     Im.Image imageFile = Im.decodeImage(file.readAsBytesSync());
-    final compressedImageFile = File('$path/img_$cardId.jpg')
+    final compressedImageFile = File('$path/img_${currentUser.id}.jpg')
       ..writeAsBytesSync(Im.encodeJpg(imageFile, quality: 85));
     setState(() {
       file = compressedImageFile;
@@ -135,7 +136,7 @@ class _UploadCardState extends State<UploadCard>
 
   Future<String> uploadCardImage(imageFile) async {
     StorageUploadTask uploadCardTask =
-        storageRef.child("post_$cardId.jpg").putFile(imageFile);
+        storageRef.child("card_${currentUser.id}.jpg").putFile(imageFile);
     StorageTaskSnapshot storageSnap = await uploadCardTask.onComplete;
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     return downloadUrl;
@@ -146,6 +147,7 @@ class _UploadCardState extends State<UploadCard>
     String location,
     String description,
     String jobCategory,
+    String jobSubCategory,
     String intro,
     String bio,
     String professionalExperience,
@@ -159,20 +161,17 @@ class _UploadCardState extends State<UploadCard>
     String recommendation,
     String language,
   }) {
-    businessCardsRef
-        .document(widget.currentUser.id)
-        .collection("businessCards")
-        .document(cardId)
-        .setData({
-      "cardId": cardId,
+    cardsRef.document(widget.currentUser.id).setData({
+      "cardId": widget.currentUser.id,
       "jobCategory": jobCategory,
+      "jobSubCategory": jobSubCategory,
       "ownerId": widget.currentUser.id,
       "username": widget.currentUser.username,
       "mediaUrl": mediaUrl,
       "description": description,
       "location": location,
       "timestamp": timestamp,
-      "likes": {},
+      "claps": {},
       "intro": intro,
       "bio": bio,
       "professionalExperience": professionalExperience,
@@ -186,6 +185,12 @@ class _UploadCardState extends State<UploadCard>
       "recommendation": recommendation,
       "language": language,
     });
+    usersRef
+        .document(currentUser.id)
+        .updateData({"hasCard": true}).then((value) => Navigator.pop(context));
+    setState(() {
+      currentUser.hasCard = true;
+    });
   }
 
   handleSubmit() async {
@@ -198,7 +203,8 @@ class _UploadCardState extends State<UploadCard>
       mediaUrl: mediaUrl,
       location: locationController.text,
       description: captionController.text,
-      jobCategory: categoryController.text,
+      jobCategory: category,
+      jobSubCategory: subCategory,
       intro: introController.text,
       bio: bioController.text,
       professionalExperience: professionalExperienceController.text,
@@ -214,7 +220,6 @@ class _UploadCardState extends State<UploadCard>
     );
     captionController.clear();
     locationController.clear();
-    categoryController.clear();
     introController.clear();
     bioController.clear();
     professionalExperienceController.clear();
@@ -227,10 +232,10 @@ class _UploadCardState extends State<UploadCard>
     achievementController.clear();
     recommendationController.clear();
     languageController.clear();
+
     setState(() {
       file = null;
       isUploading = false;
-      cardId = Uuid().v4();
     });
   }
 
@@ -283,8 +288,88 @@ class _UploadCardState extends State<UploadCard>
           ),
           Divider(),
           CardTextField(controller: locationController, hint: kJobLocation),
-          CardTextField(
-              controller: categoryController, hint: "categoryController"),
+          ListTile(
+            leading: Text(
+              "Category",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                textBaseline: TextBaseline.alphabetic,
+              ),
+            ),
+            title: DropdownButton<String>(
+                value: this.category,
+                icon: Container(
+                  child: Icon(Icons.arrow_downward),
+                ),
+                iconSize: 24,
+                elevation: 16,
+                isExpanded: true,
+                style: TextStyle(color: Colors.blueAccent),
+                iconDisabledColor: Colors.black,
+                iconEnabledColor: Colors.grey,
+                underline: Container(
+                  height: 2,
+                  color: Colors.blueAccent,
+                ),
+                onChanged: (String val) {
+                  setState(() {
+                    this.category = val;
+                    calIndex = categoryList.indexOf(val);
+                  });
+                },
+                items: categoryList
+                    .map((category) => DropdownMenuItem<String>(
+                          value: category,
+                          child: Text(
+                            category,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ))
+                    .toList()),
+          ),
+          ListTile(
+            leading: Text(
+              "Subcategory",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                textBaseline: TextBaseline.alphabetic,
+              ),
+              textAlign: TextAlign.start,
+            ),
+            title: DropdownButton<String>(
+                value: this.subCategory,
+                icon: Container(
+                  child: Icon(Icons.arrow_downward),
+                ),
+                iconSize: 24,
+                elevation: 16,
+                isExpanded: true,
+                style: TextStyle(color: Colors.blueAccent),
+                iconDisabledColor: Colors.black,
+                iconEnabledColor: Colors.grey,
+                underline: Container(
+                  height: 2,
+                  color: Colors.blueAccent,
+                ),
+                onChanged: (String val) {
+                  setState(() {
+                    this.subCategory = val;
+                  });
+                },
+                items: subCategoryList[calIndex]
+                    .map((subCategory) => DropdownMenuItem(
+                          value: subCategory,
+                          child: Text(
+                            subCategory,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ))
+                    .toList()),
+          ),
           CardTextField(controller: introController, hint: "introController"),
           CardTextField(controller: bioController, hint: "bioController"),
           CardTextField(

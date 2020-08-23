@@ -1,7 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:khadamat/constants.dart';
+import 'package:khadamat/models/job.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/edit_profile.dart';
 import 'package:khadamat/pages/home.dart';
@@ -13,9 +16,9 @@ import 'package:khadamat/widgets/progress.dart';
 
 class Profile extends StatefulWidget {
   final String profileId;
-  final String jobId;
+  final Job job;
 
-  Profile({this.profileId, this.jobId});
+  Profile({this.profileId, this.job});
 
   @override
   _ProfileState createState() => _ProfileState();
@@ -24,33 +27,68 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   final String currentUserId = currentUser?.id;
   String postOrientation = "grid";
-  bool isFollowing = false;
+  bool isHired = false;
   bool isLoading = false;
   int postCount = 0;
   int hireCount = 0;
   int followingCount = 0;
   List<Post> posts = [];
 
+  get isApplicationResponse => widget.job != null;
+
   @override
   void initState() {
     super.initState();
     getProfilePosts();
     getHires();
-    getFollowing();
-    checkIfFollowing();
+    getHired();
+    checkIfHired();
   }
 
-  checkIfFollowing() async {
-    DocumentSnapshot doc = await hiresRef
+  @override
+  Widget build(BuildContext context) {
+    print("isApplicationResponse: $isApplicationResponse");
+    return Scaffold(
+      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
+//      appBar: header(context, titleText: "Profile"),
+      body: ListView(
+        children: <Widget>[
+          buildProfileHeader(),
+          buildProfileCard(),
+          Divider(),
+          buildTogglePostOrientation(),
+          Divider(
+            height: 0.0,
+          ),
+          buildProfilePosts(),
+        ],
+      ),
+      appBar: isApplicationResponse
+          ? AppBar(
+              actions: [
+                Expanded(
+                    child: buildButton(
+                        text: kReject, function: handleRejectApplication)),
+                Expanded(
+                    child: buildButton(
+                  text: kAccept,
+                  function: handleAcceptApplication,
+                )),
+              ],
+            )
+          : null,
+    );
+  }
+
+  checkIfHired() async {
+    DocumentSnapshot doc = await jobsRef
         .document(widget.profileId)
-        .collection('userHires')
-        .document(currentUserId)
-        .collection("Jobs")
-        .document(widget.jobId)
+        .collection("userJobs")
+        .document("widget.job.jobId")
         .get();
+    print("checkIfHired${doc.exists}");
     setState(() {
-      //TODO test this
-      isFollowing = doc.exists;
+      isHired = doc.exists;
     });
   }
 
@@ -64,8 +102,8 @@ class _ProfileState extends State<Profile> {
     });
   }
 
-  getFollowing() async {
-    QuerySnapshot snapshot = await followingRef
+  getHired() async {
+    QuerySnapshot snapshot = await hiresRef
         .document(widget.profileId)
         .collection('userFollowing')
         .getDocuments();
@@ -89,22 +127,6 @@ class _ProfileState extends State<Profile> {
       posts = snapshot.documents.map((doc) => Post.fromDocument(doc)).toList();
     });
   }
-
-//  getProfileCard() async {
-//    setState(() {
-//      isLoading = true;
-//    });
-//    QuerySnapshot snapshot = await postsRef
-//        .document(widget.profileId)
-//        .collection('businessCards')
-//        .orderBy('timestamp', descending: true)
-//        .getDocuments();
-//    setState(() {
-//      isLoading = false;
-////      postCount = snapshot.documents.length;
-//      cards = snapshot.documents.map((doc) => BusinessCard.fromDocument(doc)).toList();
-//    });
-//  }
 
   Column buildCountColumn(String label, int count) {
     return Column(
@@ -155,15 +177,15 @@ class _ProfileState extends State<Profile> {
           child: Text(
             text,
             style: TextStyle(
-              color: isFollowing ? Colors.black : Colors.white,
+              color: isHired ? Colors.black : Colors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: isFollowing ? Colors.white : Colors.blue,
+            color: isHired ? Colors.white : Colors.blue,
             border: Border.all(
-              color: isFollowing ? Theme.of(context).primaryColor : Colors.blue,
+              color: isHired ? Theme.of(context).primaryColor : Colors.blue,
             ),
             borderRadius: BorderRadius.circular(5.0),
           ),
@@ -180,22 +202,23 @@ class _ProfileState extends State<Profile> {
         text: "Edit Profile",
         function: editProfile,
       );
-    } else if (isFollowing) {
+    } else if (!isHired) {
       return buildButton(
-        text: "Post a job",
-        function: handleUnfollowUser,
-      );
-    } else if (!isFollowing) {
-      return buildButton(
-        text: "Accept",
-        function: handleFollowUser,
+        text: "Hire",
+        function: handleHireUser,
       );
     }
+//    else if (isApplicationResponse) {
+//      return buildButton(
+//        text: "Post a job",
+//        function: handleUnfollowUser,
+//      );
+//    }
   }
 
   handleUnfollowUser() {
     setState(() {
-      isFollowing = false;
+      isHired = false;
     });
     // remove hire
     hiresRef
@@ -232,9 +255,11 @@ class _ProfileState extends State<Profile> {
     });
   }
 
-  handleFollowUser() {
+  handleHireUser() {
+    // TODO implement hire function
+
     setState(() {
-      isFollowing = true;
+      isHired = true;
     });
     // Make auth user hire of THAT user (update THEIR hires collection)
     hiresRef
@@ -246,7 +271,7 @@ class _ProfileState extends State<Profile> {
     jobsRef
         .document(currentUserId)
         .collection("userJobs")
-        .document(widget.jobId)
+        .document(widget.job.jobId)
         .collection("application")
         .document(widget.profileId)
         .setData({
@@ -366,84 +391,19 @@ class _ProfileState extends State<Profile> {
 
   buildProfileCard() {
     return FutureBuilder(
-        future: businessCardsRef
-            .document(widget.profileId)
-            .collection("businessCards")
-            .document("539c9ee2-d02e-4ed1-9281-a3bb554e5d49")
-            .get(),
+        future: cardsRef.document(widget.profileId).get(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return circularProgress();
           }
-          BusinessCard card = BusinessCard.fromDocument(snapshot.data);
-          return card;
-//          return Padding(
-//            padding: EdgeInsets.all(16.0),
-//            child: Column(
-//              children: <Widget>[
-//                Row(
-//                  children: <Widget>[
-//                    CircleAvatar(
-//                      radius: 40.0,
-//                      backgroundColor: Theme.of(context).primaryColor,
-//                      backgroundImage:
-//                          CachedNetworkImageProvider(card.mediaUrl),
-//                    ),
-//                    Expanded(
-//                      flex: 1,
-//                      child: Column(
-//                        children: <Widget>[
-//                          Row(
-//                            mainAxisSize: MainAxisSize.max,
-//                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                            children: <Widget>[
-//                              buildCountColumn("posts", postCount),
-//                              buildCountColumn("hires", hireCount),
-//                              buildCountColumn("following", followingCount),
-//                            ],
-//                          ),
-//                          Row(
-//                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                            children: <Widget>[
-//                              buildProfileButton(),
-//                            ],
-//                          ),
-//                        ],
-//                      ),
-//                    ),
-//                  ],
-//                ),
-//                Container(
-//                  alignment: Alignment.centerLeft,
-//                  padding: EdgeInsets.only(top: 12.0),
-//                  child: Text(
-//                    card.username,
-//                    style: TextStyle(
-//                      fontWeight: FontWeight.bold,
-//                      fontSize: 16.0,
-//                    ),
-//                  ),
-//                ),
-//                Container(
-//                  alignment: Alignment.centerLeft,
-//                  padding: EdgeInsets.only(top: 4.0),
-//                  child: Text(
-//                    card.jobCategory,
-//                    style: TextStyle(
-//                      fontWeight: FontWeight.bold,
-//                    ),
-//                  ),
-//                ),
-//                Container(
-//                  alignment: Alignment.centerLeft,
-//                  padding: EdgeInsets.only(top: 2.0),
-//                  child: Text(
-//                    card.bio,
-//                  ),
-//                ),
-//              ],
-//            ),
-//          );
+          print(snapshot.data);
+          DocumentSnapshot doc = snapshot.data;
+          if (doc.exists) {
+            BusinessCard card = BusinessCard.fromDocument(doc);
+            return card;
+          } else {
+            return Text("");
+          }
         });
   }
 
@@ -519,24 +479,30 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
-//      appBar: header(context, titleText: "Profile"),
-      body: ListView(
-        children: <Widget>[
-          buildProfileHeader(),
-//          buildButton(text: "create card", function: createCard):cards,
-          buildProfileCard(),
-          Divider(),
-          buildTogglePostOrientation(),
-          Divider(
-            height: 0.0,
-          ),
-          buildProfilePosts(),
-        ],
-      ),
-    );
+  handleRejectApplication() {
+    jobsRef.document(widget.job.jobId).updateData({
+      'applications.${currentUser.id}': FieldValue.delete()
+    }).then((value) => widget.job.applications.remove(currentUser.id));
+    widget.job.addRejectToActivityFeed(applicantId: widget.profileId);
   }
+
+  handleAcceptApplication() {
+    jobsRef
+        .document(widget.job.jobId)
+        .updateData({'applications.${currentUser.id}': true}).then(
+            (value) => widget.job.applications.remove(currentUser.id));
+    widget.job.addAcceptToActivityFeed(applicantId: widget.profileId);
+  }
+}
+
+showProfile(BuildContext context, {@required String profileId, Job job}) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => Profile(
+        profileId: profileId,
+        job: job,
+      ),
+    ),
+  );
 }

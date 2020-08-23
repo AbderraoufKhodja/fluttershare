@@ -28,14 +28,17 @@ class _UploadJobState extends State<UploadJob>
     with AutomaticKeepAliveClientMixin<UploadJob> {
   TextEditingController captionController = TextEditingController();
   TextEditingController locationController = TextEditingController();
-  String category = categoryList[0].keys.first;
-  var subCategory;
+  // Todo initialize cat and subcat for firebase call
+  String category;
+  String subCategory;
   TextEditingController priceController = TextEditingController();
   TextEditingController scheduleController = TextEditingController();
 
   File file;
   bool isUploading = false;
   String jobId = Uuid().v4();
+
+  int calIndex = 0;
 
   handleTakePhoto() async {
     Navigator.pop(context);
@@ -137,18 +140,17 @@ class _UploadJobState extends State<UploadJob>
     String location,
     String description,
     String jobCategory,
+    String jobSubCategory,
     String price,
     String schedule,
   }) {
-    jobsRef.document(jobCategory)
-//        .collection(subCategory)
-//        .document(jobId)
-        .setData(
+    jobsRef.document(jobId).setData(
       {
         "jobId": jobId,
         "jobCategory": jobCategory,
+        "jobSubCategory": jobSubCategory,
         "ownerId": widget.currentUser.id,
-        "username": widget.currentUser.username,
+        "ownerName": widget.currentUser.username,
         "mediaUrl": mediaUrl,
         "description": description,
         "location": location,
@@ -164,27 +166,27 @@ class _UploadJobState extends State<UploadJob>
     );
     // TODO get back to widget.currentUser.id
     String id;
-    if (currentUser.id == "114724315703014253470") id = "105303619841718040097";
-    if (currentUser.id == "105303619841718040097") id = "114724315703014253470";
-    timelineRef.document(id).collection("timelineJobs").document(jobId).setData(
-      {
-        "jobId": jobId,
-        "jobCategory": jobCategory,
-        "ownerId": widget.currentUser.id,
-        "username": widget.currentUser.username,
-        "mediaUrl": mediaUrl,
-        "description": description,
-        "location": location,
-        "timestamp": timestamp,
-        "price": price,
-        "schedule": schedule,
-        "applications": {},
-        "isVacant": true,
-        "isOnGoing": false,
-        "isCompleted": false,
-        "hiredId": {},
-      },
-    );
+//    if (currentUser.id == "114724315703014253470") id = "105303619841718040097";
+//    if (currentUser.id == "105303619841718040097") id = "114724315703014253470";
+//    timelineRef.document(id).collection("timelineJobs").document(jobId).setData(
+//      {
+//        "jobId": jobId,
+//        "jobCategory": jobCategory,
+//        "ownerId": widget.currentUser.id,
+//        "username": widget.currentUser.username,
+//        "mediaUrl": mediaUrl,
+//        "description": description,
+//        "location": location,
+//        "timestamp": timestamp,
+//        "price": price,
+//        "schedule": schedule,
+//        "applications": {},
+//        "isVacant": true,
+//        "isOnGoing": false,
+//        "isCompleted": false,
+//        "hiredId": {},
+//      },
+//    );
   }
 
   handleSubmit() async {
@@ -198,6 +200,7 @@ class _UploadJobState extends State<UploadJob>
       location: locationController.text,
       description: captionController.text,
       jobCategory: category,
+      jobSubCategory: subCategory,
       price: priceController.text,
       schedule: scheduleController.text,
     );
@@ -297,10 +300,13 @@ class _UploadJobState extends State<UploadJob>
             ),
           ),
           ListTile(
-            leading: Icon(
-              Icons.category,
-              color: Theme.of(context).primaryColor,
-              size: 35.0,
+            leading: Text(
+              "Category",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                textBaseline: TextBaseline.alphabetic,
+              ),
             ),
             title: DropdownButton<String>(
                 value: this.category,
@@ -320,22 +326,18 @@ class _UploadJobState extends State<UploadJob>
                 onChanged: (String val) {
                   setState(() {
                     this.category = val;
-                    categoryList.forEach((element) {
-//Todo synchronize the two dropdown
-                    });
+                    calIndex = categoryList.indexOf(val);
                   });
                 },
                 items: categoryList
-                    .map<DropdownMenuItem<String>>(
-                        (Map<String, List<String>> category) =>
-                            DropdownMenuItem<String>(
-                              value: category.keys.first,
-                              child: Text(
-                                category.keys.first,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                            ))
+                    .map((category) => DropdownMenuItem<String>(
+                          value: category,
+                          child: Text(
+                            category,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ))
                     .toList()),
           ),
           ListTile(
@@ -349,7 +351,7 @@ class _UploadJobState extends State<UploadJob>
               textAlign: TextAlign.start,
             ),
             title: DropdownButton<String>(
-                value: this.category,
+                value: this.subCategory,
                 icon: Container(
                   child: Icon(Icons.arrow_downward),
                 ),
@@ -365,20 +367,18 @@ class _UploadJobState extends State<UploadJob>
                 ),
                 onChanged: (String val) {
                   setState(() {
-                    this.category = val;
+                    this.subCategory = val;
                   });
                 },
-                items: categoryList
-                    .map<DropdownMenuItem<String>>(
-                        (Map<String, List<String>> category) =>
-                            DropdownMenuItem<String>(
-                              value: category.keys.first,
-                              child: Text(
-                                category.keys.first,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                            ))
+                items: subCategoryList[calIndex]
+                    .map((subCategory) => DropdownMenuItem(
+                          value: subCategory,
+                          child: Text(
+                            subCategory,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ))
                     .toList()),
           ),
           ListTile(

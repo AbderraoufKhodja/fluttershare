@@ -4,6 +4,7 @@ import 'package:khadamat/models/job.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/search.dart';
+import 'package:khadamat/widgets/business_card.dart';
 import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/job_card.dart';
 import 'package:khadamat/widgets/progress.dart';
@@ -22,36 +23,41 @@ class _JobTimelineState extends State<JobTimeline> {
   List<JobCard> jobs;
   List<String> followingList = [];
 
+  List<BusinessCard> cards = [];
+
   @override
   void initState() {
     super.initState();
     getJobTimeline();
-    getFollowing();
+//    getCardSuggestions();
   }
 
   getJobTimeline() async {
-//    QuerySnapshot snapshot = await jobTimelineRef
-//        .document(widget.currentUser.id)
-//        .collection('timelineJobs')
-//        .orderBy('timestamp', descending: true)
-//        .getDocuments();
-//    List<JobCard> jobs = snapshot.documents
-//        .map((doc) => JobCard(Job.fromDocument(doc)))
-//        .toList();
-//    setState(() {
-//      this.jobs = jobs;
-//    });
-    QuerySnapshot snapshot = await jobTimelineRef.getDocuments();
-    print(snapshot.documents);
+    QuerySnapshot snapshot = await jobsRef
+        .where("jobSubCategory", isEqualTo: currentUser.jobSubCategory)
+        .where("isVacant", isEqualTo: true)
+        .orderBy("timestamp", descending: true)
+        .getDocuments();
+    List<JobCard> jobs = snapshot.documents
+        .map((doc) => JobCard(Job.fromDocument(doc)))
+        .toList();
+    setState(() {
+      this.jobs = jobs;
+    });
+    print(currentUser.jobSubCategory);
   }
 
-  getFollowing() async {
-    QuerySnapshot snapshot = await followingRef
-        .document(currentUser.id)
-        .collection('userFollowing')
+  getCardSuggestions() async {
+    QuerySnapshot snapshot = await cardsRef
+        .where("jobSubCategory", isEqualTo: currentUser.jobSubCategory)
+        .where("isVacant", isEqualTo: false)
+        .orderBy("timestamp", descending: true)
         .getDocuments();
+    List<JobCard> jobs = snapshot.documents
+        .map((doc) => JobCard(Job.fromDocument(doc)))
+        .toList();
     setState(() {
-      followingList = snapshot.documents.map((doc) => doc.documentID).toList();
+      this.jobs = jobs;
     });
   }
 
@@ -62,6 +68,16 @@ class _JobTimelineState extends State<JobTimeline> {
       return buildUsersToFollow();
     } else {
       return ListView(children: jobs);
+    }
+  }
+
+  buildCardTimeline() {
+    if (jobs == null) {
+      return circularProgress();
+    } else if (jobs.isEmpty) {
+      return buildUsersToFollow();
+    } else {
+      return ListView(children: cards);
     }
   }
 

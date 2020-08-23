@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:khadamat/constants.dart';
 import 'file:///E:/Users/zjnu/AndroidStudioProjects/fluttershare/lib/pages/original%20fluttershare/activity_feed.dart';
 import 'package:khadamat/pages/comments.dart';
 import 'package:khadamat/pages/home.dart';
@@ -16,7 +17,7 @@ class BusinessCard extends StatefulWidget {
   final String address;
   final String description;
   final String cardPhotoUrl;
-  final dynamic likes;
+  final Map claps;
   final String intro;
   final String bio;
   final String professionalExperience;
@@ -38,7 +39,7 @@ class BusinessCard extends StatefulWidget {
     this.address,
     this.description,
     this.cardPhotoUrl,
-    this.likes,
+    this.claps,
     this.intro,
     this.bio,
     this.professionalExperience,
@@ -62,7 +63,7 @@ class BusinessCard extends StatefulWidget {
       address: doc['address'],
       description: doc['description'],
       cardPhotoUrl: doc['cardPhotoUrl'],
-      likes: doc['likes'],
+      claps: doc['claps'],
       intro: doc['intro'],
       bio: doc['bio'],
       professionalExperience: doc['professionalExperience'],
@@ -78,14 +79,14 @@ class BusinessCard extends StatefulWidget {
     );
   }
 
-  int getLikeCount(likes) {
-    // if no likes, return 0
-    if (likes == null) {
+  int getClapCount(claps) {
+    // if no claps, return 0
+    if (claps == null) {
       return 0;
     }
     int count = 0;
-    // if the key is explicitly set to true, add a like
-    likes.values.forEach((val) {
+    // if the key is explicitly set to true, add a clap
+    claps.values.forEach((val) {
       if (val == true) {
         count += 1;
       }
@@ -102,7 +103,7 @@ class BusinessCard extends StatefulWidget {
         address: this.address,
         description: this.description,
         cardPhotoUrl: this.cardPhotoUrl,
-        likes: this.likes,
+        claps: this.claps,
         intro: this.intro,
         bio: this.bio,
         professionalExperience: this.professionalExperience,
@@ -115,7 +116,7 @@ class BusinessCard extends StatefulWidget {
         achievement: this.achievement,
         recommendation: this.recommendation,
         language: this.language,
-        likeCount: getLikeCount(this.likes),
+        clapCount: getClapCount(this.claps),
       );
 }
 
@@ -142,9 +143,9 @@ class _BusinessCardState extends State<BusinessCard> {
   final String language;
 
   bool showHeart = false;
-  bool isLiked;
-  int likeCount;
-  Map likes;
+  bool isClapped;
+  int clapCount;
+  Map claps;
 
   _BusinessCardState({
     this.cardId,
@@ -166,8 +167,8 @@ class _BusinessCardState extends State<BusinessCard> {
     this.address,
     this.description,
     this.cardPhotoUrl,
-    this.likes,
-    this.likeCount,
+    this.claps,
+    this.clapCount,
   });
 
   handleDeleteBusinessCard(BuildContext parentContext) {
@@ -197,23 +198,18 @@ class _BusinessCardState extends State<BusinessCard> {
   // Note: To delete businessCard, ownerId and currentUserId must be equal, so they can be used interchangeably
   deleteBusinessCard() async {
     // delete businessCard itself
-    businessCardsRef
-        .document(ownerId)
-        .collection('BusinessCards')
-        .document(cardId)
-        .get()
-        .then((doc) {
+    cardsRef.document(ownerId).get().then((doc) {
       if (doc.exists) {
         doc.reference.delete();
       }
     });
-    // delete uploaded image for the ost
-    storageRef.child("businessCard_$cardId.jpg").delete();
+    // delete uploaded image for the card
+    storageRef.child("card_$ownerId.jpg").delete();
     // then delete all activity feed notifications
     QuerySnapshot activityFeedSnapshot = await activityFeedRef
         .document(ownerId)
         .collection("feedItems")
-        .where('businessCardId', isEqualTo: cardId)
+        .where('type', isEqualTo: "claps")
         .getDocuments();
     activityFeedSnapshot.documents.forEach((doc) {
       if (doc.exists) {
@@ -222,8 +218,8 @@ class _BusinessCardState extends State<BusinessCard> {
     });
     // then delete all comments
     QuerySnapshot commentsSnapshot = await commentsRef
-        .document(cardId)
-        .collection('comments')
+        .document(currentUserId)
+        .collection('reviews')
         .getDocuments();
     commentsSnapshot.documents.forEach((doc) {
       if (doc.exists) {
@@ -232,52 +228,28 @@ class _BusinessCardState extends State<BusinessCard> {
     });
   }
 
-  handleLikeBusinessCard() {
-    bool _isLiked = likes[currentUserId] == true;
-
-    if (_isLiked) {
-      businessCardsRef
-          .document(ownerId)
-          .collection('BusinessCards')
-          .document(cardId)
-          .updateData({'likes.$currentUserId': false});
-      removeLikeFromActivityFeed();
+  handleClapBusinessCard() {
+    cardsRef.document(ownerId).updateData({'claps.$currentUserId': true});
+    addClapToActivityFeed();
+    setState(() {
+      clapCount += 1;
+      isClapped = true;
+      claps[currentUserId] = true;
+      showHeart = true;
+    });
+    Timer(Duration(milliseconds: 500), () {
       setState(() {
-        likeCount -= 1;
-        isLiked = false;
-        likes[currentUserId] = false;
+        showHeart = false;
       });
-    } else if (!_isLiked) {
-      businessCardsRef
-          .document(ownerId)
-          .collection('BusinessCards')
-          .document(cardId)
-          .updateData({'likes.$currentUserId': true});
-      addLikeToActivityFeed();
-      setState(() {
-        likeCount += 1;
-        isLiked = true;
-        likes[currentUserId] = true;
-        showHeart = true;
-      });
-      Timer(Duration(milliseconds: 500), () {
-        setState(() {
-          showHeart = false;
-        });
-      });
-    }
+    });
   }
 
-  addLikeToActivityFeed() {
-    // add a notification to the businessCardOwner's activity feed only if comment made by OTHER user (to avoid getting notification for our own like)
+  addClapToActivityFeed() {
+    // add a notification to the businessCardOwner's activity feed only if comment made by OTHER user (to avoid getting notification for our own clap)
     bool isNotBusinessCardOwner = currentUserId != ownerId;
     if (isNotBusinessCardOwner) {
-      activityFeedRef
-          .document(ownerId)
-          .collection("feedItems")
-          .document(cardId)
-          .setData({
-        "type": "like",
+      activityFeedRef.document(ownerId).setData({
+        "type": "clap",
         "userId": currentUser.id,
         "username": currentUser.username,
         "jobCategory": jobCategory,
@@ -289,15 +261,10 @@ class _BusinessCardState extends State<BusinessCard> {
     }
   }
 
-  removeLikeFromActivityFeed() {
+  removeClapFromActivityFeed() {
     bool isNotBusinessCardOwner = currentUserId != ownerId;
     if (isNotBusinessCardOwner) {
-      activityFeedRef
-          .document(ownerId)
-          .collection("feedItems")
-          .document(cardId)
-          .get()
-          .then((doc) {
+      activityFeedRef.document(ownerId).get().then((doc) {
         if (doc.exists) {
           doc.reference.delete();
         }
@@ -307,11 +274,7 @@ class _BusinessCardState extends State<BusinessCard> {
 
   buildBusinessCardHeader() {
     return FutureBuilder(
-      future: businessCardsRef
-          .document(ownerId)
-          .collection("businessCards")
-          .document("539c9ee2-d02e-4ed1-9281-a3bb554e5d49")
-          .get(),
+      future: cardsRef.document(ownerId).get(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return circularProgress();
@@ -327,8 +290,9 @@ class _BusinessCardState extends State<BusinessCard> {
                 onTap: () => showProfile(context, profileId: card.cardId),
                 child: CircleAvatar(
                   radius: 40.0,
-                  backgroundImage:
-                      CachedNetworkImageProvider(card.cardPhotoUrl),
+                  backgroundImage: card.cardPhotoUrl != null
+                      ? CachedNetworkImageProvider(card.cardPhotoUrl)
+                      : CachedNetworkImageProvider(kBlankProfileUrl),
                   backgroundColor: Theme.of(context).primaryColor,
                 ),
               ),
@@ -380,9 +344,9 @@ class _BusinessCardState extends State<BusinessCard> {
           children: <Widget>[
             Padding(padding: EdgeInsets.only(top: 40.0, left: 5.0)),
             GestureDetector(
-              onTap: handleLikeBusinessCard,
+              onTap: handleClapBusinessCard,
               child: Icon(
-                isLiked ? Icons.favorite : Icons.favorite_border,
+                isClapped ? Icons.favorite : Icons.favorite_border,
                 size: 28.0,
                 color: Colors.pink,
               ),
@@ -406,7 +370,7 @@ class _BusinessCardState extends State<BusinessCard> {
         Container(
           margin: EdgeInsets.only(left: 10.0),
           child: Text(
-            "$likeCount likes",
+            "$clapCount claps",
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -419,7 +383,7 @@ class _BusinessCardState extends State<BusinessCard> {
 
   @override
   Widget build(BuildContext context) {
-    isLiked = (likes[currentUserId] == true);
+    isClapped = (claps[currentUserId] == true);
 
     return Container(
       margin: EdgeInsets.all(20.0),

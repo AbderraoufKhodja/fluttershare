@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:khadamat/pages/comments.dart';
 import 'package:khadamat/pages/home.dart';
 
 class Job {
@@ -15,7 +13,7 @@ class Job {
   final String price;
   final String schedule;
   final Timestamp timestamp;
-  final dynamic applications;
+  final Map applications;
   final bool isCompleted;
   final bool isVacant;
   final bool isOnGoing;
@@ -66,7 +64,7 @@ class Job {
     int count = 0;
     // if the key is explicitly set to true, add a like
     applications.values.forEach((val) {
-      if (val == true) count += 1;
+      count += 1;
     });
     return count;
   }
@@ -74,12 +72,7 @@ class Job {
   // Note: To delete job, ownerId and currentUser.id must be equal, so they can be used interchangeably
   deleteJob() async {
     // delete job itself
-    jobsRef
-        .document(ownerId)
-        .collection('userJobs')
-        .document(jobId)
-        .get()
-        .then((doc) {
+    jobsRef.document(jobId).get().then((doc) {
       if (doc.exists) {
         doc.reference.delete();
       }
@@ -108,26 +101,61 @@ class Job {
   }
 
   handleApplyJob() {
-    bool _isMarked = applications[currentUser.id] == true;
-    if (_isMarked) {
-      jobsRef
-          .document(ownerId)
-          .collection('userJobs')
-          .document(jobId)
-          .updateData({'applications.${currentUser.id}': false});
+    bool _isApplied = applications.containsKey(currentUser.id) &&
+        applications[currentUser.id] == null;
+    if (_isApplied) {
+      jobsRef.document(jobId).updateData({
+        'applications.${currentUser.id}': FieldValue.delete()
+      }).then((value) => applications.remove(currentUser.id));
       removeApplyFromActivityFeed();
-    } else if (!_isMarked) {
+    } else if (!_isApplied) {
       jobsRef
-          .document(ownerId)
-          .collection('userJobs')
           .document(jobId)
-          .updateData({'applications.${currentUser.id}': true});
+          .updateData({'applications.${currentUser.id}': null}).then(
+              (value) => applications[currentUser.id] = null);
       addApplyToActivityFeed();
     }
   }
 
   addApplyToActivityFeed() {
-    // add a notification to the jobOwner's activity feed only if comment made by OTHER user (to avoid getting notification for our own mark)
+    // add a notification to the jobOwner's activity feed only if message made by OTHER user (to avoid getting notification for our own mark)
+    activityFeedRef
+        .document(ownerId)
+        .collection("feedItems")
+        .document(jobId)
+        .setData({
+      "type": "apply",
+      "jobId": jobId,
+      "ownerName": username,
+      "applicantId": currentUser.id,
+      "applicantName": currentUser.username,
+      "jobCategory": jobCategory,
+      "userProfileImg": currentUser.photoUrl,
+      "mediaUrl": mediaUrl,
+      "timestamp": timestamp,
+      "applications": applications,
+    });
+    activityFeedRef
+        .document(currentUser.id)
+        .collection("feedItems")
+        .document(jobId)
+        .setData({
+      "type": "apply",
+      "jobId": jobId,
+      "applicantName":
+          currentUser.username, // Apply is only done by currentUser
+      "applicantId": currentUser.id,
+      "ownerName": username,
+      "jobCategory": jobCategory,
+      "userProfileImg": currentUser.photoUrl,
+      "mediaUrl": mediaUrl,
+      "timestamp": timestamp,
+      "applications": applications,
+    });
+  }
+
+  addMessageActivityFeed() {
+    // add a notification to the jobOwner's activity feed only if message made by OTHER user (to avoid getting notification for our own mark)
     bool isNotJobOwner = currentUser.id != ownerId;
     if (isNotJobOwner) {
       activityFeedRef
@@ -136,7 +164,7 @@ class Job {
           .document(jobId)
           .setData({
         "type": "apply",
-        "username": currentUser.username,
+        "ownerName": currentUser.username,
         "jobCategory": jobCategory,
         "userId": currentUser.id,
         "userProfileImg": currentUser.photoUrl,
@@ -144,27 +172,113 @@ class Job {
         "mediaUrl": mediaUrl,
         "timestamp": timestamp,
         "applications": applications,
-        "isVacant": isVacant,
-        "isOnGoing": isOnGoing,
-        "isCompleted": isCompleted,
-        "hasAccepted": hasAccepted,
       });
     }
   }
 
   removeApplyFromActivityFeed() {
-    bool isNotJobOwner = currentUser.id != ownerId;
-    if (isNotJobOwner) {
-      activityFeedRef
-          .document(ownerId)
-          .collection("feedItems")
-          .document(jobId)
-          .get()
-          .then((doc) {
-        if (doc.exists) {
-          doc.reference.delete();
-        }
-      });
-    }
+    activityFeedRef
+        .document(ownerId)
+        .collection("feedItems")
+        .document(jobId)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+    activityFeedRef
+        .document(currentUser.id)
+        .collection("feedItems")
+        .document(jobId)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+  }
+
+  handleEditJob() {
+    //TODO implement
+  }
+  // an owner action
+  addAcceptToActivityFeed({@required String applicantId}) {
+    activityFeedRef
+        .document(ownerId)
+        .collection("feedItems")
+        .document(jobId)
+        .setData({
+      "type": "accept",
+      "ownerName": username,
+      "applicantId": applicantId,
+      "jobCategory": jobCategory,
+      "jobOwnerId": currentUser.id,
+      "userProfileImg": currentUser.photoUrl,
+      "jobId": jobId,
+      "mediaUrl": mediaUrl,
+      "timestamp": timestamp,
+      "applications": applications,
+    });
+    activityFeedRef
+        .document(applicantId)
+        .collection("feedItems")
+        .document(jobId)
+        .setData({
+      "type": "accept",
+      "jobId": jobId,
+      "ownerName": username,
+      "jobOwnerId": currentUser.id,
+      "applicantId": applicantId,
+      "userProfileImg": currentUser.photoUrl,
+      "jobCategory": jobCategory,
+      "mediaUrl": mediaUrl,
+      "timestamp": timestamp,
+      "applications": applications,
+    });
+    hiresRef
+        .document(applicantId)
+        .collection("usersJobs")
+        .document(jobId)
+        .setData({
+      "completed": null,
+      "jobOwnerId": currentUser.id,
+    });
+  }
+
+  addRejectToActivityFeed({@required String applicantId}) {
+    activityFeedRef
+        .document(ownerId)
+        .collection("feedItems")
+        .document(jobId)
+        .setData({
+      "type": "reject",
+      "ownerName": username,
+      "ownerId": ownerId,
+      "applicantId": applicantId,
+      "jobCategory": jobCategory,
+      "userProfileImg": currentUser.photoUrl,
+      "jobId": jobId,
+      "mediaUrl": mediaUrl,
+      "timestamp": timestamp,
+      "applications": applications,
+    });
+
+    activityFeedRef
+        .document(applicantId)
+        .collection("feedItems")
+        .document(jobId)
+        .setData({
+      "type": "reject",
+      "ownerName": username,
+      "ownerId": ownerId,
+      "applicantId": applicantId,
+      "jobCategory": jobCategory,
+      "userProfileImg": currentUser.photoUrl,
+      "jobId": jobId,
+      "mediaUrl": mediaUrl,
+      "timestamp": timestamp,
+      "applications": applications,
+    });
   }
 }

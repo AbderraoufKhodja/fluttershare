@@ -17,11 +17,12 @@ import 'package:outline_material_icons/outline_material_icons.dart';
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final StorageReference storageRef = FirebaseStorage.instance.ref();
 final usersRef = Firestore.instance.collection('users');
-final businessCardsRef = Firestore.instance.collection('businessCards');
+final cardsRef = Firestore.instance.collection('cards');
 final postsRef = Firestore.instance.collection('posts');
 final jobsRef = Firestore.instance.collection('jobs');
 final commentsRef = Firestore.instance.collection('comments');
-final activityFeedRef = Firestore.instance.collection('feed');
+final reviewsRef = Firestore.instance.collection('reviews');
+final activityFeedRef = Firestore.instance.collection('feeds');
 final hiresRef = Firestore.instance.collection('hires');
 final followingRef = Firestore.instance.collection('following');
 final timelineRef = Firestore.instance.collection('timeline');
@@ -40,6 +41,10 @@ class _HomeState extends State<Home> {
   bool isAuth = false;
   PageController pageController;
   int pageIndex = 0;
+
+  String jobCategory;
+  String jobSubCategory;
+  String jobTitle;
 
   @override
   void initState() {
@@ -131,7 +136,11 @@ class _HomeState extends State<Home> {
         "email": user.email,
         "displayName": user.displayName,
         "bio": "",
-        "timestamp": timestamp
+        "timestamp": timestamp,
+        "hasCard": false,
+        "jobCategory": jobCategory,
+        "jobSubCategory": jobSubCategory,
+        "jobTitle": jobTitle,
       });
       // make new user their own follower (to include their posts in their timeline)
       await hiresRef

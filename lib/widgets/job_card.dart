@@ -1,17 +1,15 @@
-import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
-import 'file:///E:/Users/zjnu/AndroidStudioProjects/fluttershare/lib/pages/original%20fluttershare/activity_feed.dart';
-import 'package:khadamat/pages/comments.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/job_screen.dart';
+import 'package:khadamat/pages/profile.dart';
+import 'package:khadamat/pages/upload_card.dart';
 import 'package:khadamat/widgets/custom_button.dart';
 import 'package:khadamat/widgets/custom_image.dart';
 import 'package:khadamat/widgets/custom_list_tile.dart';
-import 'package:khadamat/widgets/progress.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class JobCard extends StatefulWidget {
@@ -28,6 +26,7 @@ class _JobCardState extends State<JobCard> {
   _JobCardState({this.job});
 
   final String currentUserId = currentUser?.id;
+  bool isJobOwner;
   bool isLoading;
   bool isApplied;
   int applicationsCount;
@@ -36,12 +35,13 @@ class _JobCardState extends State<JobCard> {
   void initState() {
     super.initState();
     applicationsCount = job.getApplicationsCount();
+    isJobOwner = currentUser.id == job.ownerId;
+    isApplied = (job.applications[currentUserId] == null &&
+        job.applications.containsKey(currentUserId));
   }
 
   @override
   Widget build(BuildContext context) {
-    isApplied = (job.applications[currentUserId] == true);
-
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
       padding: EdgeInsets.symmetric(horizontal: 10.0),
@@ -86,14 +86,13 @@ class _JobCardState extends State<JobCard> {
   }
 
   buildJobHeader() {
-    bool isJobOwner = currentUserId == job.ownerId;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ListTile(
           contentPadding: EdgeInsets.zero,
           leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(currentUser.photoUrl),
+            backgroundImage: CachedNetworkImageProvider(kBlankProfileUrl),
             backgroundColor: Theme.of(context).primaryColor,
           ),
           title: GestureDetector(
@@ -197,18 +196,28 @@ class _JobCardState extends State<JobCard> {
 //            function: () => print("Message"),
 //          ),
 //        ),
-        Expanded(
-          child: CustomButton(
-            text: "Apply",
-            function: () {
-              job.handleApplyJob();
-
-              setState(() {
-                isApplied = !isApplied;
-              });
-            },
-          ),
-        ),
+        isJobOwner
+            ? Expanded(
+                child: CustomButton(
+                  text: kEditJob,
+                  function: handleEditJobForm,
+                ),
+              )
+            : Expanded(
+                child: CustomButton(
+                  text: isApplied ? kUnapply : kApply,
+                  function: () async {
+                    if (!currentUser.hasCard) showCreateCard(context);
+                    if (currentUser.hasCard) {
+                      job.handleApplyJob();
+                      setState(() {
+                        applicationsCount += isApplied ? -1 : 1;
+                        isApplied = !isApplied;
+                      });
+                    }
+                  },
+                ),
+              ),
         Expanded(
           child: Container(
             alignment: Alignment.centerRight,
@@ -225,14 +234,41 @@ class _JobCardState extends State<JobCard> {
       ],
     );
   }
+
+  handleEditJobForm() {
+    print("job.handleEditJob()");
+    job.handleEditJob();
+  }
+
+  showCreateCard(BuildContext parentContext) async {
+    return showDialog(
+        context: parentContext,
+        builder: (context) {
+          return SimpleDialog(
+            title: Text(kHasNoCard),
+            children: <Widget>[
+              SimpleDialogOption(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                UploadCard(currentUser: currentUser)));
+                  },
+                  child: Text(
+                    kCreateCard,
+                    style: TextStyle(color: Colors.red),
+                  )),
+              SimpleDialogOption(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(kReject)),
+            ],
+          );
+        });
+  }
 }
 
-logConsoleFirebase() async {
-//  QuerySnapshot snapshot = await jobsRef.where("userJobs",isGreaterThanOrEqualTo: ).getDocuments();
-//  List<JobCard> jobs =
-//      snapshot.documents.map((doc) => JobCard(Job.fromDocument(doc))).toList();
-//  print(snapshot.documents.first.data);
-}
 showDetails(BuildContext context,
 // TODO: fix this
     {String jobId,
