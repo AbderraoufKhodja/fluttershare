@@ -8,6 +8,7 @@ import 'package:khadamat/models/job.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/edit_profile.dart';
 import 'package:khadamat/pages/home.dart';
+import 'package:khadamat/pages/message_screen.dart';
 import 'package:khadamat/pages/upload_card.dart';
 import 'package:khadamat/widgets/business_card.dart';
 import 'package:khadamat/widgets/post.dart';
@@ -17,8 +18,9 @@ import 'package:khadamat/widgets/progress.dart';
 class Profile extends StatefulWidget {
   final String profileId;
   final Job job;
+  final String profileName;
 
-  Profile({this.profileId, this.job});
+  Profile({this.profileId, this.job, this.profileName});
 
   @override
   _ProfileState createState() => _ProfileState();
@@ -68,11 +70,18 @@ class _ProfileState extends State<Profile> {
               actions: [
                 Expanded(
                     child: buildButton(
-                        text: kReject, function: handleRejectApplication)),
+                  text: kReject,
+                  fillColor: Colors.red,
+                  function: handleRejectApplication,
+                )),
                 Expanded(
                     child: buildButton(
                   text: kAccept,
-                  function: handleAcceptApplication,
+                  fillColor: Colors.green,
+                  function: () {
+                    handleAcceptApplication();
+                    showMessageScreen(context);
+                  },
                 )),
               ],
             )
@@ -86,7 +95,6 @@ class _ProfileState extends State<Profile> {
         .collection("userJobs")
         .document("widget.job.jobId")
         .get();
-    print("checkIfHired${doc.exists}");
     setState(() {
       isHired = doc.exists;
     });
@@ -166,13 +174,14 @@ class _ProfileState extends State<Profile> {
             builder: (context) => UploadCard(currentUser: currentUser)));
   }
 
-  Container buildButton({String text, Function function}) {
+  Container buildButton(
+      {String text, Color fillColor = Colors.blue, Function function}) {
     return Container(
       padding: EdgeInsets.only(top: 2.0),
       child: FlatButton(
         onPressed: function,
         child: Container(
-          width: 250.0,
+          width: 200.0,
           height: 27.0,
           child: Text(
             text,
@@ -183,9 +192,9 @@ class _ProfileState extends State<Profile> {
           ),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: isHired ? Colors.white : Colors.blue,
+            color: fillColor,
             border: Border.all(
-              color: isHired ? Theme.of(context).primaryColor : Colors.blue,
+              color: fillColor,
             ),
             borderRadius: BorderRadius.circular(5.0),
           ),
@@ -290,11 +299,11 @@ class _ProfileState extends State<Profile> {
         .document(currentUserId)
         .setData({
       "type": "accepted",
-      "ownerId": widget.profileId,
+      "jobOwnerId": widget.profileId,
       "username": currentUser.username,
       "userId": currentUserId,
       "userProfileImg": currentUser.photoUrl,
-      "timestamp": timestamp,
+      "timestamp": currentTimestamp,
     });
 
     activityFeedRef
@@ -303,11 +312,11 @@ class _ProfileState extends State<Profile> {
         .document(widget.profileId)
         .setData({
       "type": "accept",
-      "ownerId": widget.profileId,
+      "jobOwnerId": widget.profileId,
       "username": currentUser.username,
       "userId": currentUserId,
       "userProfileImg": currentUser.photoUrl,
-      "timestamp": timestamp,
+      "timestamp": currentTimestamp,
     });
   }
 
@@ -402,7 +411,7 @@ class _ProfileState extends State<Profile> {
             BusinessCard card = BusinessCard.fromDocument(doc);
             return card;
           } else {
-            return Text("");
+            return buildButton(text: "Create card", function: createCard);
           }
         });
   }
@@ -486,21 +495,26 @@ class _ProfileState extends State<Profile> {
     widget.job.addRejectToActivityFeed(applicantId: widget.profileId);
   }
 
-  handleAcceptApplication() {
-    jobsRef
+  handleAcceptApplication() async {
+    await jobsRef
         .document(widget.job.jobId)
         .updateData({'applications.${currentUser.id}': true}).then(
-            (value) => widget.job.applications.remove(currentUser.id));
-    widget.job.addAcceptToActivityFeed(applicantId: widget.profileId);
+            (value) => widget.job.applications[currentUserId] = true);
+    widget.job.addAcceptToActivityFeed(
+        applicantId: widget.profileId,
+        applicantName: widget.profileName,
+        jobOwnerId: widget.job.jobOwnerId);
   }
 }
 
-showProfile(BuildContext context, {@required String profileId, Job job}) {
+showProfile(BuildContext context,
+    {@required String profileId, @required String profileName, Job job}) {
   Navigator.push(
     context,
     MaterialPageRoute(
       builder: (context) => Profile(
         profileId: profileId,
+        profileName: profileName,
         job: job,
       ),
     ),

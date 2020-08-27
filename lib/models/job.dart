@@ -4,9 +4,11 @@ import 'package:khadamat/pages/home.dart';
 
 class Job {
   final String jobId;
-  final String jobCategory;
-  final String ownerId;
-  final String username;
+  final String jobTitle;
+  final String category;
+  final String subCategory;
+  final String jobOwnerId;
+  final String jobOwnerName;
   final String location;
   final String description;
   final String mediaUrl;
@@ -17,13 +19,14 @@ class Job {
   final bool isCompleted;
   final bool isVacant;
   final bool isOnGoing;
-  final bool hasAccepted;
 
   Job({
     this.jobId,
-    this.jobCategory,
-    this.ownerId,
-    this.username,
+    this.jobTitle,
+    this.category,
+    this.subCategory,
+    this.jobOwnerId,
+    this.jobOwnerName,
     this.location,
     this.description,
     this.mediaUrl,
@@ -34,15 +37,16 @@ class Job {
     this.isVacant,
     this.isOnGoing,
     this.isCompleted,
-    this.hasAccepted,
   });
 
   factory Job.fromDocument(DocumentSnapshot doc) {
     return Job(
       jobId: doc['jobId'],
-      jobCategory: doc['jobCategory'],
-      ownerId: doc['ownerId'],
-      username: doc['username'],
+      jobTitle: doc['jobTitle'],
+      category: doc['category'],
+      subCategory: doc['subCategory'],
+      jobOwnerId: doc['jobOwnerId'],
+      jobOwnerName: doc['jobOwnerName'],
       location: doc['location'],
       description: doc['description'],
       mediaUrl: doc['mediaUrl'],
@@ -53,7 +57,6 @@ class Job {
       isVacant: doc['isVacant'],
       isOnGoing: doc['isOnGoing'],
       isCompleted: doc['isCompleted'],
-      hasAccepted: doc["hasAccepted"],
     );
   }
   int getApplicationsCount() {
@@ -69,7 +72,7 @@ class Job {
     return count;
   }
 
-  // Note: To delete job, ownerId and currentUser.id must be equal, so they can be used interchangeably
+  // Note: To delete job, jobOwnerId and currentUser.id must be equal, so they can be used interchangeably
   deleteJob() async {
     // delete job itself
     jobsRef.document(jobId).get().then((doc) {
@@ -81,7 +84,7 @@ class Job {
     storageRef.child("job_$jobId.jpg").delete();
     // then delete all activity feed notifications
     QuerySnapshot activityFeedSnapshot = await activityFeedRef
-        .document(ownerId)
+        .document(jobOwnerId)
         .collection("feedItems")
         .where('jobId', isEqualTo: jobId)
         .getDocuments();
@@ -120,19 +123,19 @@ class Job {
   addApplyToActivityFeed() {
     // add a notification to the jobOwner's activity feed only if message made by OTHER user (to avoid getting notification for our own mark)
     activityFeedRef
-        .document(ownerId)
+        .document(jobOwnerId)
         .collection("feedItems")
         .document(jobId)
         .setData({
       "type": "apply",
       "jobId": jobId,
-      "ownerName": username,
+      "jobTitle": jobTitle,
+      "jobOwnerName": jobOwnerName,
+      "jobOwnerId": jobOwnerId,
       "applicantId": currentUser.id,
       "applicantName": currentUser.username,
-      "jobCategory": jobCategory,
       "userProfileImg": currentUser.photoUrl,
-      "mediaUrl": mediaUrl,
-      "timestamp": timestamp,
+      "timestamp": currentTimestamp,
       "applications": applications,
     });
     activityFeedRef
@@ -142,43 +145,43 @@ class Job {
         .setData({
       "type": "apply",
       "jobId": jobId,
-      "applicantName":
-          currentUser.username, // Apply is only done by currentUser
+      "jobTitle": jobTitle,
+      "applicantName": currentUser.username,
       "applicantId": currentUser.id,
-      "ownerName": username,
-      "jobCategory": jobCategory,
-      "userProfileImg": currentUser.photoUrl,
-      "mediaUrl": mediaUrl,
-      "timestamp": timestamp,
+      "jobOwnerName": jobOwnerName,
+      "jobOwnerId": jobOwnerId,
+      "timestamp": currentTimestamp,
       "applications": applications,
     });
   }
 
-  addMessageActivityFeed() {
-    // add a notification to the jobOwner's activity feed only if message made by OTHER user (to avoid getting notification for our own mark)
-    bool isNotJobOwner = currentUser.id != ownerId;
-    if (isNotJobOwner) {
-      activityFeedRef
-          .document(ownerId)
-          .collection("feedItems")
-          .document(jobId)
-          .setData({
-        "type": "apply",
-        "ownerName": currentUser.username,
-        "jobCategory": jobCategory,
-        "userId": currentUser.id,
-        "userProfileImg": currentUser.photoUrl,
-        "jobId": jobId,
-        "mediaUrl": mediaUrl,
-        "timestamp": timestamp,
-        "applications": applications,
-      });
-    }
-  }
+//  addMessageActivityFeed() {
+//    // add a notification to the jobOwner's activity feed only if message made by OTHER user (to avoid getting notification for our own mark)
+//    bool isNotJobOwner = currentUser.id != jobOwnerId;
+//    if (isNotJobOwner) {
+//      activityFeedRef
+//          .document(jobOwnerId)
+//          .collection("feedItems")
+//          .document(jobId)
+//          .setData({
+//        "type": "apply",
+//        "jobId": jobId,
+//        "jobTitle": jobTitle,
+//        "jobOwnerName": currentUser.username,
+//        "category": category,
+//        "subCategory": category,
+//        "userId": currentUser.id,
+//        "userProfileImg": currentUser.photoUrl,
+//        "mediaUrl": mediaUrl,
+//        "timestamp": currentTimestamp,
+//        "applications": applications,
+//      });
+//    }
+//  }
 
   removeApplyFromActivityFeed() {
     activityFeedRef
-        .document(ownerId)
+        .document(jobOwnerId)
         .collection("feedItems")
         .document(jobId)
         .get()
@@ -202,65 +205,72 @@ class Job {
   handleEditJob() {
     //TODO implement
   }
-  // an owner action
-  addAcceptToActivityFeed({@required String applicantId}) {
-    activityFeedRef
-        .document(ownerId)
-        .collection("feedItems")
-        .document(jobId)
-        .setData({
-      "type": "accept",
-      "ownerName": username,
-      "applicantId": applicantId,
-      "jobCategory": jobCategory,
-      "jobOwnerId": currentUser.id,
-      "userProfileImg": currentUser.photoUrl,
-      "jobId": jobId,
-      "mediaUrl": mediaUrl,
-      "timestamp": timestamp,
-      "applications": applications,
-    });
-    activityFeedRef
+  // an jobOwner action
+  // TODO: handle futures for acceptation confirmation.
+  addAcceptToActivityFeed(
+      {@required String applicantId,
+      @required String applicantName,
+      String jobOwnerId}) async {
+    notifyOwnerAccept(jobOwnerId, applicantName, applicantId);
+
+    notifyApplicantAccept(applicantId, jobOwnerId, applicantName);
+
+    handleOpenChat(applicantId: applicantId, applicantName: applicantName);
+  }
+
+  Future<void> notifyApplicantAccept(
+      String applicantId, String jobOwnerId, String applicantName) {
+    return activityFeedRef
         .document(applicantId)
         .collection("feedItems")
         .document(jobId)
         .setData({
       "type": "accept",
       "jobId": jobId,
-      "ownerName": username,
-      "jobOwnerId": currentUser.id,
+      "jobTitle": jobTitle,
+      "jobOwnerName": jobOwnerName,
+      "jobOwnerId": jobOwnerId,
+      "applicantName": applicantName,
       "applicantId": applicantId,
-      "userProfileImg": currentUser.photoUrl,
-      "jobCategory": jobCategory,
-      "mediaUrl": mediaUrl,
-      "timestamp": timestamp,
+      "timestamp": currentTimestamp,
       "applications": applications,
-    });
-    hiresRef
-        .document(applicantId)
-        .collection("usersJobs")
-        .document(jobId)
-        .setData({
-      "completed": null,
-      "jobOwnerId": currentUser.id,
     });
   }
 
-  addRejectToActivityFeed({@required String applicantId}) {
+  Future<void> notifyOwnerAccept(
+      String jobOwnerId, String applicantName, String applicantId) {
+    return activityFeedRef
+        .document(jobOwnerId)
+        .collection("feedItems")
+        .document(jobId)
+        .setData({
+      "type": "accept",
+      "jobId": jobId,
+      "jobTitle": jobTitle,
+      "jobOwnerName": jobOwnerName,
+      "jobOwnerId": jobOwnerId,
+      "applicantName": applicantName,
+      "applicantId": applicantId,
+      "timestamp": currentTimestamp,
+      "applications": applications,
+    });
+  }
+
+  addRejectToActivityFeed(
+      {@required String applicantId, @required String applicantName}) {
     activityFeedRef
-        .document(ownerId)
+        .document(jobOwnerId)
         .collection("feedItems")
         .document(jobId)
         .setData({
       "type": "reject",
-      "ownerName": username,
-      "ownerId": ownerId,
-      "applicantId": applicantId,
-      "jobCategory": jobCategory,
-      "userProfileImg": currentUser.photoUrl,
       "jobId": jobId,
-      "mediaUrl": mediaUrl,
-      "timestamp": timestamp,
+      "jobTitle": jobTitle,
+      "jobOwnerName": jobOwnerName,
+      "jobOwnerId": jobOwnerId,
+      "applicantName": applicantName,
+      "applicantId": applicantId,
+      "timestamp": currentTimestamp,
       "applications": applications,
     });
 
@@ -270,15 +280,55 @@ class Job {
         .document(jobId)
         .setData({
       "type": "reject",
-      "ownerName": username,
-      "ownerId": ownerId,
-      "applicantId": applicantId,
-      "jobCategory": jobCategory,
-      "userProfileImg": currentUser.photoUrl,
       "jobId": jobId,
-      "mediaUrl": mediaUrl,
-      "timestamp": timestamp,
+      "jobTitle": jobTitle,
+      "jobOwnerName": jobOwnerName,
+      "jobOwnerId": jobOwnerId,
+      "applicantId": applicantId,
+      "applicantName": applicantName,
+      "timestamp": currentTimestamp,
       "applications": applications,
+    });
+  }
+
+  handleOpenChat({String applicantId, String applicantName}) {
+    // Create a messaging reference in firestore
+    messagesRef
+        .document(jobId)
+        .collection("messages")
+        .document()
+        .setData({"type": "open"});
+    // Create a userJobs reference in firestore to store a reference to point to
+    // the message ids for the applicant that can be used to list the messages.
+    usersRef
+        .document(applicantId)
+        .collection("userJobs")
+        .document(jobId)
+        .setData({
+      "jobId": jobId,
+      "jobOwnerId": jobOwnerId,
+      "jobOwnerName": jobOwnerName,
+      "applicantId": applicantId,
+      "applicantName": applicantName,
+      "jobTitle": category,
+      "applications": applications,
+      "timestamp": currentTimestamp,
+    });
+    // Create a userJobs reference in firestore to store a reference to point to
+    // the message ids for the job jobOwner that can be used to list the messages.
+    usersRef
+        .document(jobOwnerId)
+        .collection("userJobs")
+        .document(jobId)
+        .setData({
+      "jobId": jobId,
+      "jobOwnerId": jobOwnerId,
+      "jobOwnerName": jobOwnerName,
+      "applicantId": applicantId,
+      "applicantName": applicantName,
+      "jobTitle": category,
+      "applications": applications,
+      "timestamp": currentTimestamp,
     });
   }
 }

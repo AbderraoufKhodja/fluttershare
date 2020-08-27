@@ -166,7 +166,9 @@ class ActivityFeedItem extends StatelessWidget {
             backgroundImage: CachedNetworkImageProvider(userProfileImg),
           ),
           subtitle: Text(
-            timeago.format(timestamp.toDate()),
+            timestamp != null
+                ? timeago.format(timestamp.toDate())
+                : "a moment ago",
             overflow: TextOverflow.ellipsis,
           ),
           trailing: mediaPreview,

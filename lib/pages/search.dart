@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:khadamat/models/user.dart';
-import 'file:///E:/Users/zjnu/AndroidStudioProjects/fluttershare/lib/pages/original%20fluttershare/activity_feed.dart';
 import 'package:khadamat/pages/home.dart';
+import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/widgets/progress.dart';
 
 class Search extends StatefulWidget {

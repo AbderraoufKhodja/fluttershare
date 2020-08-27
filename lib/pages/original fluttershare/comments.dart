@@ -62,7 +62,7 @@ class CommentsState extends State<Comments> {
     commentsRef.document(postId).collection("comments").add({
       "username": currentUser.username,
       "comment": commentController.text,
-      "timestamp": timestamp,
+      "timestamp": currentTimestamp,
       "avatarUrl": currentUser.photoUrl,
       "userId": currentUser.id,
     });
@@ -71,7 +71,7 @@ class CommentsState extends State<Comments> {
       activityFeedRef.document(postOwnerId).collection('feedItems').add({
         "type": "comment",
         "commentData": commentController.text,
-        "timestamp": timestamp,
+        "timestamp": currentTimestamp,
         "postId": postId,
         "userId": currentUser.id,
         "username": currentUser.username,
@@ -141,7 +141,9 @@ class Comment extends StatelessWidget {
           leading: CircleAvatar(
             backgroundImage: CachedNetworkImageProvider(avatarUrl),
           ),
-          subtitle: Text(timeago.format(timestamp.toDate())),
+          subtitle: Text(timestamp != null
+              ? timeago.format(timestamp.toDate())
+              : "a moment ago"),
         ),
         Divider(),
       ],

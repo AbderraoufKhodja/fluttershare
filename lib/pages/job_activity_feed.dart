@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/job_screen.dart';
+import 'package:khadamat/pages/message_screen.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/progress.dart';
@@ -34,7 +36,11 @@ class _JobActivityFeedState extends State<JobActivityFeed> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
-      appBar: header(context, titleText: "Activity Feed"),
+      appBar: header(context,
+          titleText: "Activity Feed",
+          hasAction: true,
+          actionLabel: "messages",
+          action: () => showMessageScreen(context)),
       body: Container(
           child: FutureBuilder(
         future: getActivityFeed(),
@@ -55,42 +61,45 @@ Widget mediaPreview;
 String activityItemText;
 
 class ActivityFeedItem extends StatelessWidget {
-  final String ownerName;
-  final String applicantId;
-  final String ownerId;
   final String type; // 'apply', 'accept', 'reject', 'hire', 'message'
-  final String mediaUrl;
   final String jobId;
+  final String jobTitle;
+  final String jobOwnerName;
+  final String jobOwnerId;
+  final String applicantName;
+  final String applicantId;
   final String userProfileImg;
   final String commentData;
   final Timestamp timestamp;
 
-  ActivityFeedItem(
-      {this.ownerName,
-      this.ownerId,
-      this.type,
-      this.mediaUrl,
-      this.jobId,
-      this.userProfileImg,
-      this.commentData,
-      this.timestamp,
-      this.applicantId});
+  ActivityFeedItem({
+    this.type,
+    this.jobId,
+    this.jobTitle,
+    this.jobOwnerName,
+    this.jobOwnerId,
+    this.applicantName,
+    this.applicantId,
+    this.userProfileImg,
+    this.commentData,
+    this.timestamp,
+  });
 
   factory ActivityFeedItem.fromDocument(DocumentSnapshot doc) {
     return ActivityFeedItem(
-      ownerName: doc['ownerName'],
-      applicantId: doc['applicantId'],
-      ownerId: doc['ownerId'],
       type: doc['type'],
       jobId: doc['jobId'],
+      jobTitle: doc['jobTitle'],
+      jobOwnerName: doc['jobOwnerName'],
+      jobOwnerId: doc['jobOwnerId'],
+      applicantName: doc['applicantName'],
+      applicantId: doc['applicantId'],
       userProfileImg: doc['userProfileImg'],
-      commentData: doc['commentData'],
       timestamp: doc['timestamp'],
-      mediaUrl: doc['mediaUrl'],
     );
   }
 
-  bool get isJobOwner => currentUser.id == ownerId;
+  bool get isJobOwner => currentUser.id == jobOwnerId;
 
   showJob(context) {
     Navigator.push(
@@ -99,7 +108,7 @@ class ActivityFeedItem extends StatelessWidget {
         builder: (context) => JobScreen(
           //TODO feed parameters
           job: null,
-          userId: ownerId,
+          userId: jobOwnerId,
         ),
       ),
     );
@@ -118,7 +127,7 @@ class ActivityFeedItem extends StatelessWidget {
               decoration: BoxDecoration(
                 image: DecorationImage(
                   fit: BoxFit.cover,
-                  image: CachedNetworkImageProvider(mediaUrl),
+                  image: CachedNetworkImageProvider(kBlankProfileUrl),
                 ),
               ),
             ),
@@ -131,14 +140,16 @@ class ActivityFeedItem extends StatelessWidget {
 
     if (type == 'apply') {
       activityItemText = isJobOwner
-          ? "$applicantId applied to your job"
-          : "You have applied to $ownerName's job";
+          ? "$applicantName applied to your job"
+          : "You have applied to $jobOwnerName's job";
     } else if (type == 'accept') {
       activityItemText = isJobOwner
           ? "You have accepted $applicantId application for job $jobId"
-          : "$ownerName accepted your application for job $jobId";
+          : "$jobOwnerName accepted your application for job $jobId";
     } else if (type == 'comment') {
       activityItemText = 'replied: $commentData';
+    } else if (type == 'message') {
+      activityItemText = "You have new messages from $jobTitle";
     } else {
       activityItemText = "Error: Unknown type '$type'";
     }
@@ -152,18 +163,23 @@ class ActivityFeedItem extends StatelessWidget {
       child: Container(
         color: Colors.white54,
         child: ListTile(
+          dense: true,
           leading: GestureDetector(
-            onTap: () {
+            onTap: () async {
               Job job;
-              jobsRef
+              await jobsRef
                   .document(jobId)
                   .get()
                   .then((doc) => job = Job.fromDocument(doc));
-              showProfile(context, profileId: ownerId, job: job);
+              showProfile(context,
+                  profileId: applicantId, profileName: applicantName, job: job);
             },
-            child: CircleAvatar(
-              backgroundImage: CachedNetworkImageProvider(userProfileImg),
-            ),
+            child: Text(type,
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                )),
           ),
           title: RichText(
             overflow: TextOverflow.ellipsis,
@@ -174,16 +190,14 @@ class ActivityFeedItem extends StatelessWidget {
                 ),
                 children: [
                   TextSpan(
-                    text: isJobOwner ? "" : ownerName,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(
-                    text: ' $activityItemText',
+                    text: activityItemText,
                   ),
                 ]),
           ),
           subtitle: Text(
-            timeago.format(timestamp.toDate()),
+            timestamp != null
+                ? timeago.format(timestamp.toDate())
+                : "a moment ago",
             overflow: TextOverflow.ellipsis,
             maxLines: 2,
           ),

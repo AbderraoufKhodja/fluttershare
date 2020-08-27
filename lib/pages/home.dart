@@ -22,12 +22,13 @@ final postsRef = Firestore.instance.collection('posts');
 final jobsRef = Firestore.instance.collection('jobs');
 final commentsRef = Firestore.instance.collection('comments');
 final reviewsRef = Firestore.instance.collection('reviews');
+final messagesRef = Firestore.instance.collection('messages');
 final activityFeedRef = Firestore.instance.collection('feeds');
 final hiresRef = Firestore.instance.collection('hires');
 final followingRef = Firestore.instance.collection('following');
 final timelineRef = Firestore.instance.collection('timeline');
 final jobTimelineRef = Firestore.instance.collection('timeline');
-final DateTime timestamp = DateTime.now();
+final DateTime currentTimestamp = DateTime.now();
 User currentUser;
 
 class Home extends StatefulWidget {
@@ -42,8 +43,8 @@ class _HomeState extends State<Home> {
   PageController pageController;
   int pageIndex = 0;
 
-  String jobCategory;
-  String jobSubCategory;
+  String category;
+  String subCategory;
   String jobTitle;
 
   @override
@@ -136,10 +137,10 @@ class _HomeState extends State<Home> {
         "email": user.email,
         "displayName": user.displayName,
         "bio": "",
-        "timestamp": timestamp,
+        "timestamp": currentTimestamp,
         "hasCard": false,
-        "jobCategory": jobCategory,
-        "jobSubCategory": jobSubCategory,
+        "category": category,
+        "subCategory": subCategory,
         "jobTitle": jobTitle,
       });
       // make new user their own follower (to include their posts in their timeline)

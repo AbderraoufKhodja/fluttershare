@@ -5,15 +5,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
-import 'file:///E:/Users/zjnu/AndroidStudioProjects/fluttershare/lib/pages/original%20fluttershare/activity_feed.dart';
-import 'package:khadamat/pages/comments.dart';
+import 'file:///C:/Users/ZJNU/Documents/AndroidStudioProjects/fluttershare/lib/pages/original%20fluttershare/comments.dart';
 import 'package:khadamat/pages/home.dart';
+import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/widgets/custom_image.dart';
 import 'package:khadamat/widgets/progress.dart';
 
 class Post extends StatefulWidget {
   final String postId;
-  final String ownerId;
+  final String jobOwnerId;
   final String username;
   final String location;
   final String description;
@@ -22,7 +22,7 @@ class Post extends StatefulWidget {
 
   Post({
     this.postId,
-    this.ownerId,
+    this.jobOwnerId,
     this.username,
     this.location,
     this.description,
@@ -33,7 +33,7 @@ class Post extends StatefulWidget {
   factory Post.fromDocument(DocumentSnapshot doc) {
     return Post(
       postId: doc['postId'],
-      ownerId: doc['ownerId'],
+      jobOwnerId: doc['jobOwnerId'],
       username: doc['username'],
       location: doc['location'],
       description: doc['description'],
@@ -60,7 +60,7 @@ class Post extends StatefulWidget {
   @override
   _PostState createState() => _PostState(
         postId: this.postId,
-        ownerId: this.ownerId,
+        jobOwnerId: this.jobOwnerId,
         username: this.username,
         location: this.location,
         description: this.description,
@@ -73,7 +73,7 @@ class Post extends StatefulWidget {
 class _PostState extends State<Post> {
   final String currentUserId = currentUser?.id;
   final String postId;
-  final String ownerId;
+  final String jobOwnerId;
   final String username;
   final String location;
   final String description;
@@ -85,7 +85,7 @@ class _PostState extends State<Post> {
 
   _PostState({
     this.postId,
-    this.ownerId,
+    this.jobOwnerId,
     this.username,
     this.location,
     this.description,
@@ -96,13 +96,13 @@ class _PostState extends State<Post> {
 
   buildPostHeader() {
     return FutureBuilder(
-      future: usersRef.document(ownerId).get(),
+      future: usersRef.document(jobOwnerId).get(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return circularProgress();
         }
         User user = User.fromDocument(snapshot.data);
-        bool isPostOwner = currentUserId == ownerId;
+        bool isPostOwner = currentUserId == jobOwnerId;
         return ListTile(
           leading: CircleAvatar(
             backgroundImage: CachedNetworkImageProvider(user.photoUrl),
@@ -154,11 +154,11 @@ class _PostState extends State<Post> {
         });
   }
 
-  // Note: To delete post, ownerId and currentUserId must be equal, so they can be used interchangeably
+  // Note: To delete post, jobOwnerId and currentUserId must be equal, so they can be used interchangeably
   deletePost() async {
     // delete post itself
     postsRef
-        .document(ownerId)
+        .document(jobOwnerId)
         .collection('userPosts')
         .document(postId)
         .get()
@@ -171,7 +171,7 @@ class _PostState extends State<Post> {
     storageRef.child("post_$postId.jpg").delete();
     // then delete all activity feed notifications
     QuerySnapshot activityFeedSnapshot = await activityFeedRef
-        .document(ownerId)
+        .document(jobOwnerId)
         .collection("feedItems")
         .where('postId', isEqualTo: postId)
         .getDocuments();
@@ -197,7 +197,7 @@ class _PostState extends State<Post> {
 
     if (_isLiked) {
       postsRef
-          .document(ownerId)
+          .document(jobOwnerId)
           .collection('userPosts')
           .document(postId)
           .updateData({'likes.$currentUserId': false});
@@ -209,7 +209,7 @@ class _PostState extends State<Post> {
       });
     } else if (!_isLiked) {
       postsRef
-          .document(ownerId)
+          .document(jobOwnerId)
           .collection('userPosts')
           .document(postId)
           .updateData({'likes.$currentUserId': true});
@@ -230,10 +230,10 @@ class _PostState extends State<Post> {
 
   addLikeToActivityFeed() {
     // add a notification to the postOwner's activity feed only if comment made by OTHER user (to avoid getting notification for our own like)
-    bool isNotPostOwner = currentUserId != ownerId;
+    bool isNotPostOwner = currentUserId != jobOwnerId;
     if (isNotPostOwner) {
       activityFeedRef
-          .document(ownerId)
+          .document(jobOwnerId)
           .collection("feedItems")
           .document(postId)
           .setData({
@@ -243,16 +243,16 @@ class _PostState extends State<Post> {
         "userProfileImg": currentUser.photoUrl,
         "postId": postId,
         "mediaUrl": mediaUrl,
-        "timestamp": timestamp,
+        "timestamp": currentTimestamp,
       });
     }
   }
 
   removeLikeFromActivityFeed() {
-    bool isNotPostOwner = currentUserId != ownerId;
+    bool isNotPostOwner = currentUserId != jobOwnerId;
     if (isNotPostOwner) {
       activityFeedRef
-          .document(ownerId)
+          .document(jobOwnerId)
           .collection("feedItems")
           .document(postId)
           .get()
@@ -312,7 +312,7 @@ class _PostState extends State<Post> {
               onTap: () => showComments(
                 context,
                 postId: postId,
-                ownerId: ownerId,
+                jobOwnerId: jobOwnerId,
                 mediaUrl: mediaUrl,
               ),
               child: Icon(
@@ -373,11 +373,11 @@ class _PostState extends State<Post> {
 }
 
 showComments(BuildContext context,
-    {String postId, String ownerId, String mediaUrl}) {
+    {String postId, String jobOwnerId, String mediaUrl}) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
     return Comments(
       postId: postId,
-      postOwnerId: ownerId,
+      postOwnerId: jobOwnerId,
       postMediaUrl: mediaUrl,
     );
   }));

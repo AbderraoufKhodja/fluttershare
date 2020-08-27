@@ -4,16 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
-import 'file:///E:/Users/zjnu/AndroidStudioProjects/fluttershare/lib/pages/original%20fluttershare/activity_feed.dart';
-import 'package:khadamat/pages/comments.dart';
 import 'package:khadamat/pages/home.dart';
+import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/widgets/progress.dart';
 
 class BusinessCard extends StatefulWidget {
   final String cardId;
-  final String ownerId;
   final String username;
-  final String jobCategory;
+  final String category;
   final String address;
   final String description;
   final String cardPhotoUrl;
@@ -33,9 +31,8 @@ class BusinessCard extends StatefulWidget {
 
   BusinessCard({
     this.cardId,
-    this.ownerId,
     this.username,
-    this.jobCategory,
+    this.category,
     this.address,
     this.description,
     this.cardPhotoUrl,
@@ -57,9 +54,8 @@ class BusinessCard extends StatefulWidget {
   factory BusinessCard.fromDocument(DocumentSnapshot doc) {
     return BusinessCard(
       cardId: doc['cardId'],
-      ownerId: doc['ownerId'],
       username: doc['username'],
-      jobCategory: doc['jobCategory'],
+      category: doc['category'],
       address: doc['address'],
       description: doc['description'],
       cardPhotoUrl: doc['cardPhotoUrl'],
@@ -97,9 +93,8 @@ class BusinessCard extends StatefulWidget {
   @override
   _BusinessCardState createState() => _BusinessCardState(
         cardId: this.cardId,
-        ownerId: this.ownerId,
         username: this.username,
-        jobCategory: this.jobCategory,
+        category: this.category,
         address: this.address,
         description: this.description,
         cardPhotoUrl: this.cardPhotoUrl,
@@ -123,9 +118,8 @@ class BusinessCard extends StatefulWidget {
 class _BusinessCardState extends State<BusinessCard> {
   final String currentUserId = currentUser?.id;
   final String cardId;
-  final String ownerId;
   final String username;
-  final String jobCategory;
+  final String category;
   final String address;
   final String description;
   final String cardPhotoUrl;
@@ -149,9 +143,8 @@ class _BusinessCardState extends State<BusinessCard> {
 
   _BusinessCardState({
     this.cardId,
-    this.ownerId,
     this.username,
-    this.jobCategory,
+    this.category,
     this.intro,
     this.bio,
     this.professionalExperience,
@@ -195,19 +188,19 @@ class _BusinessCardState extends State<BusinessCard> {
         });
   }
 
-  // Note: To delete businessCard, ownerId and currentUserId must be equal, so they can be used interchangeably
+  // Note: To delete businessCard, jobOwnerId and currentUserId must be equal, so they can be used interchangeably
   deleteBusinessCard() async {
     // delete businessCard itself
-    cardsRef.document(ownerId).get().then((doc) {
+    cardsRef.document(cardId).get().then((doc) {
       if (doc.exists) {
         doc.reference.delete();
       }
     });
     // delete uploaded image for the card
-    storageRef.child("card_$ownerId.jpg").delete();
+    storageRef.child("card_$cardId.jpg").delete();
     // then delete all activity feed notifications
     QuerySnapshot activityFeedSnapshot = await activityFeedRef
-        .document(ownerId)
+        .document(cardId)
         .collection("feedItems")
         .where('type', isEqualTo: "claps")
         .getDocuments();
@@ -229,7 +222,7 @@ class _BusinessCardState extends State<BusinessCard> {
   }
 
   handleClapBusinessCard() {
-    cardsRef.document(ownerId).updateData({'claps.$currentUserId': true});
+    cardsRef.document(cardId).updateData({'claps.$currentUserId': true});
     addClapToActivityFeed();
     setState(() {
       clapCount += 1;
@@ -246,25 +239,25 @@ class _BusinessCardState extends State<BusinessCard> {
 
   addClapToActivityFeed() {
     // add a notification to the businessCardOwner's activity feed only if comment made by OTHER user (to avoid getting notification for our own clap)
-    bool isNotBusinessCardOwner = currentUserId != ownerId;
+    bool isNotBusinessCardOwner = currentUserId != cardId;
     if (isNotBusinessCardOwner) {
-      activityFeedRef.document(ownerId).setData({
+      activityFeedRef.document(cardId).setData({
         "type": "clap",
         "userId": currentUser.id,
         "username": currentUser.username,
-        "jobCategory": jobCategory,
+        "category": category,
         "userProfileImg": currentUser.photoUrl,
         "cardId": cardId,
         "cardPhotoUrl": cardPhotoUrl,
-        "timestamp": timestamp,
+        "timestamp": currentTimestamp,
       });
     }
   }
 
   removeClapFromActivityFeed() {
-    bool isNotBusinessCardOwner = currentUserId != ownerId;
+    bool isNotBusinessCardOwner = currentUserId != cardId;
     if (isNotBusinessCardOwner) {
-      activityFeedRef.document(ownerId).get().then((doc) {
+      activityFeedRef.document(cardId).get().then((doc) {
         if (doc.exists) {
           doc.reference.delete();
         }
@@ -274,20 +267,21 @@ class _BusinessCardState extends State<BusinessCard> {
 
   buildBusinessCardHeader() {
     return FutureBuilder(
-      future: cardsRef.document(ownerId).get(),
+      future: cardsRef.document(cardId).get(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return circularProgress();
         }
         BusinessCard card = BusinessCard.fromDocument(snapshot.data);
-        bool isBusinessCardOwner = currentUserId == ownerId;
+        bool isBusinessCardOwner = currentUserId == cardId;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
               dense: false,
               leading: GestureDetector(
-                onTap: () => showProfile(context, profileId: card.cardId),
+                onTap: () => showProfile(context,
+                    profileId: card.cardId, profileName: card.username),
                 child: CircleAvatar(
                   radius: 40.0,
                   backgroundImage: card.cardPhotoUrl != null
@@ -303,7 +297,7 @@ class _BusinessCardState extends State<BusinessCard> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              subtitle: Text(card.jobCategory),
+              subtitle: Text(card.category),
               trailing: isBusinessCardOwner
                   ? IconButton(
                       onPressed: () => handleDeleteBusinessCard(context),
@@ -318,7 +312,7 @@ class _BusinessCardState extends State<BusinessCard> {
     );
   }
 
-  buildBusinessContentImage() {
+  buildBusinessContent() {
     return Column(
       children: [
         Container(
@@ -353,12 +347,14 @@ class _BusinessCardState extends State<BusinessCard> {
             ),
             Padding(padding: EdgeInsets.only(right: 5.0)),
             GestureDetector(
-              onTap: () => showComments(
-                context,
-                cardId: cardId,
-                ownerId: ownerId,
-                cardPhotoUrl: cardPhotoUrl,
-              ),
+              onTap: () {
+//                showComments(
+//                  context,
+//                  cardId: cardId,
+//                  jobOwnerId: jobOwnerId,
+//                  cardPhotoUrl: cardPhotoUrl,
+//                );
+              },
               child: Icon(
                 Icons.chat,
                 size: 28.0,
@@ -394,7 +390,7 @@ class _BusinessCardState extends State<BusinessCard> {
       child: Column(
         children: <Widget>[
           buildBusinessCardHeader(),
-          buildBusinessContentImage(),
+          buildBusinessContent(),
           buildBusinessCardFooter(),
         ],
       ),
@@ -402,14 +398,13 @@ class _BusinessCardState extends State<BusinessCard> {
   }
 }
 
-showComments(BuildContext context,
-    {String cardId, String ownerId, String cardPhotoUrl}) {
-  Navigator.push(context, MaterialPageRoute(builder: (context) {
-    //TODO: refactor showComment to support the BusinessCard class
-    return Comments(
-//      businessCardId: businessCardId,
-//      businessCardOwnerId: ownerId,
-//      businessCardMediaUrl: mediaUrl,
-        );
-  }));
-}
+//showComments(BuildContext context,
+//    {String cardId, String jobOwnerId, String cardPhotoUrl}) {
+//  Navigator.push(context, MaterialPageRoute(builder: (context) {
+//    //TODO: refactor showComment to support the BusinessCard class
+//    return Reviews();
+//  }));
+//}
+//
+//class Reviews {
+//}

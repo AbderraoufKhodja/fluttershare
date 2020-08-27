@@ -24,7 +24,6 @@ AppBar header(context,
           : Text("")
     ],
     automaticallyImplyLeading: removeBackButton ? false : true,
-    shadowColor: Colors.white,
     elevation: 0,
     title: Text(
       isAppTitle ? "المهَنــي" : titleText,

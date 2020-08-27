@@ -34,7 +34,7 @@ class _JobTimelineState extends State<JobTimeline> {
 
   getJobTimeline() async {
     QuerySnapshot snapshot = await jobsRef
-        .where("jobSubCategory", isEqualTo: currentUser.jobSubCategory)
+        .where("subCategory", isEqualTo: currentUser.subCategory)
         .where("isVacant", isEqualTo: true)
         .orderBy("timestamp", descending: true)
         .getDocuments();
@@ -44,12 +44,13 @@ class _JobTimelineState extends State<JobTimeline> {
     setState(() {
       this.jobs = jobs;
     });
-    print(currentUser.jobSubCategory);
+    print(this.jobs);
+    print(currentUser.subCategory);
   }
 
   getCardSuggestions() async {
     QuerySnapshot snapshot = await cardsRef
-        .where("jobSubCategory", isEqualTo: currentUser.jobSubCategory)
+        .where("subCategory", isEqualTo: currentUser.subCategory)
         .where("isVacant", isEqualTo: false)
         .orderBy("timestamp", descending: true)
         .getDocuments();

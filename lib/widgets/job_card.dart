@@ -35,7 +35,7 @@ class _JobCardState extends State<JobCard> {
   void initState() {
     super.initState();
     applicationsCount = job.getApplicationsCount();
-    isJobOwner = currentUser.id == job.ownerId;
+    isJobOwner = currentUser.id == job.jobOwnerId;
     isApplied = (job.applications[currentUserId] == null &&
         job.applications.containsKey(currentUserId));
   }
@@ -60,7 +60,7 @@ class _JobCardState extends State<JobCard> {
     );
   }
 
-  // Note: To delete job, ownerId and currentUserId must be equal, so they can be used interchangeably
+  // Note: To delete job, jobOwnerId and currentUserId must be equal, so they can be used interchangeably
   handleDeleteJob(BuildContext parentContext) {
     return showDialog(
         context: parentContext,
@@ -96,16 +96,17 @@ class _JobCardState extends State<JobCard> {
             backgroundColor: Theme.of(context).primaryColor,
           ),
           title: GestureDetector(
-            onTap: () => showProfile(context, profileId: job.ownerId),
+            onTap: () => showProfile(context, profileId: job.jobOwnerId),
             child: Text(
-              job.username,
+              job.jobOwnerName,
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          subtitle: Text("${timeago.format(job.timestamp.toDate())}"
+          subtitle: Text(
+              "${job.timestamp != null ? timeago.format(job.timestamp.toDate()) : "a moment ago"}"
               " | ${applicationsCount.toString()} applied"),
           trailing: Column(
             children: [
@@ -137,7 +138,7 @@ class _JobCardState extends State<JobCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomListTile(
-                  description: job.jobCategory,
+                  description: job.category,
                   icon: Icon(
                     Icons.work,
                     color: Colors.blueGrey,
@@ -272,7 +273,7 @@ class _JobCardState extends State<JobCard> {
 showDetails(BuildContext context,
 // TODO: fix this
     {String jobId,
-    String ownerId,
+    String jobOwnerId,
     String mediaUrl}) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
     return JobScreen(

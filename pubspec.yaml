@@ -19,7 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cloud_firestore:
+  cloud_firestore: ^0.13.7
   image_picker:
   firebase_storage:
   firebase_auth:
@@ -33,7 +33,7 @@ dependencies:
   firebase_messaging:
   timeago:
   cached_network_image:
-  flutter_svg:
+  flutter_svg: ^0.17.0
   eva_icons_flutter:
   outline_material_icons:
 

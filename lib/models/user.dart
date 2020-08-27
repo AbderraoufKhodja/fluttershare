@@ -9,8 +9,8 @@ class User {
   final String bio;
   bool hasCard;
   final String jobId;
-  final String jobCategory;
-  final String jobSubCategory;
+  final String category;
+  final String subCategory;
   final String jobTitle;
 
   User(
@@ -22,8 +22,8 @@ class User {
       this.bio,
       this.hasCard,
       this.jobId,
-      this.jobCategory,
-      this.jobSubCategory,
+      this.category,
+      this.subCategory,
       this.jobTitle});
 
   factory User.fromDocument(DocumentSnapshot doc) {
@@ -36,8 +36,8 @@ class User {
         bio: doc['bio'],
         hasCard: doc['hasCard'],
         jobId: doc['jobId'],
-        jobCategory: doc['jobCategory'],
-        jobSubCategory: doc['jobSubCategory'],
+        category: doc['category'],
+        subCategory: doc['subCategory'],
         jobTitle: doc['jobTitle']);
   }
 }

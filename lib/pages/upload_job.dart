@@ -28,6 +28,7 @@ class _UploadJobState extends State<UploadJob>
     with AutomaticKeepAliveClientMixin<UploadJob> {
   TextEditingController captionController = TextEditingController();
   TextEditingController locationController = TextEditingController();
+  TextEditingController jobTitleController = TextEditingController();
   // Todo initialize cat and subcat for firebase call
   String category;
   String subCategory;
@@ -37,8 +38,14 @@ class _UploadJobState extends State<UploadJob>
   File file;
   bool isUploading = false;
   String jobId = Uuid().v4();
-
   int calIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return buildUploadJobForm();
+//    return file == null ? buildSplashScreen() : buildUploadJobForm();
+  }
 
   handleTakePhoto() async {
     Navigator.pop(context);
@@ -136,57 +143,35 @@ class _UploadJobState extends State<UploadJob>
   }
 
   createJobInFirestore({
+    String jobTitle,
+    String category,
+    String subCategory,
     String mediaUrl,
     String location,
     String description,
-    String jobCategory,
-    String jobSubCategory,
     String price,
     String schedule,
   }) {
     jobsRef.document(jobId).setData(
       {
         "jobId": jobId,
-        "jobCategory": jobCategory,
-        "jobSubCategory": jobSubCategory,
-        "ownerId": widget.currentUser.id,
-        "ownerName": widget.currentUser.username,
+        "jobTitle": jobTitle,
+        "category": category,
+        "subCategory": subCategory,
+        "jobOwnerId": widget.currentUser.id,
+        "jobOwnerName": widget.currentUser.username,
         "mediaUrl": mediaUrl,
         "description": description,
         "location": location,
-        "timestamp": timestamp,
+        "timestamp": currentTimestamp,
         "price": price,
         "schedule": schedule,
         "applications": {},
         "isVacant": true,
         "isOnGoing": false,
         "isCompleted": false,
-        "hiredId": {},
       },
     );
-    // TODO get back to widget.currentUser.id
-    String id;
-//    if (currentUser.id == "114724315703014253470") id = "105303619841718040097";
-//    if (currentUser.id == "105303619841718040097") id = "114724315703014253470";
-//    timelineRef.document(id).collection("timelineJobs").document(jobId).setData(
-//      {
-//        "jobId": jobId,
-//        "jobCategory": jobCategory,
-//        "ownerId": widget.currentUser.id,
-//        "username": widget.currentUser.username,
-//        "mediaUrl": mediaUrl,
-//        "description": description,
-//        "location": location,
-//        "timestamp": timestamp,
-//        "price": price,
-//        "schedule": schedule,
-//        "applications": {},
-//        "isVacant": true,
-//        "isOnGoing": false,
-//        "isCompleted": false,
-//        "hiredId": {},
-//      },
-//    );
   }
 
   handleSubmit() async {
@@ -196,14 +181,16 @@ class _UploadJobState extends State<UploadJob>
     if (file != null) await compressImage();
     String mediaUrl = file == null ? "" : await uploadJobImage(file);
     createJobInFirestore(
+      jobTitle: jobTitleController.text,
+      category: category,
+      subCategory: subCategory,
       mediaUrl: mediaUrl,
       location: locationController.text,
       description: captionController.text,
-      jobCategory: category,
-      jobSubCategory: subCategory,
       price: priceController.text,
       schedule: scheduleController.text,
     );
+    jobTitleController.clear();
     captionController.clear();
     locationController.clear();
     priceController.clear();
@@ -246,9 +233,27 @@ class _UploadJobState extends State<UploadJob>
         children: <Widget>[
           Divider(),
           isUploading ? linearProgress() : Text(""),
-          Padding(
-            padding: EdgeInsets.only(top: 10.0),
+          ListTile(
+            leading: Text(
+              kJobTitle,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                textBaseline: TextBaseline.alphabetic,
+              ),
+            ),
+            title: Container(
+              width: 250.0,
+              child: TextField(
+                controller: jobTitleController,
+                decoration: InputDecoration(
+                  hintText: kJobDescription,
+                  border: InputBorder.none,
+                ),
+              ),
+            ),
           ),
+          Divider(),
           ListTile(
             leading: Icon(
               Icons.work,
@@ -299,6 +304,7 @@ class _UploadJobState extends State<UploadJob>
               ),
             ),
           ),
+          Divider(),
           ListTile(
             leading: Text(
               "Category",
@@ -340,6 +346,7 @@ class _UploadJobState extends State<UploadJob>
                         ))
                     .toList()),
           ),
+          Divider(),
           ListTile(
             leading: Text(
               "Subcategory",
@@ -381,6 +388,7 @@ class _UploadJobState extends State<UploadJob>
                         ))
                     .toList()),
           ),
+          Divider(),
           ListTile(
             leading: Icon(
               Icons.attach_money,
@@ -393,12 +401,13 @@ class _UploadJobState extends State<UploadJob>
                 keyboardType: TextInputType.number,
                 controller: priceController,
                 decoration: InputDecoration(
-                  hintText: kCategory,
+                  hintText: kJobPrice,
                   border: InputBorder.none,
                 ),
               ),
             ),
           ),
+          Divider(),
           Container(
             alignment: Alignment.centerLeft,
             child: file == null
@@ -447,11 +456,4 @@ class _UploadJobState extends State<UploadJob>
   }
 
   bool get wantKeepAlive => true;
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return buildUploadJobForm();
-//    return file == null ? buildSplashScreen() : buildUploadJobForm();
-  }
 }

@@ -26,7 +26,7 @@ class JobScreen extends StatelessWidget {
               body: ListView(
                 children: <Widget>[
                   Container(
-                    child: Text(job.jobCategory),
+                    child: Text(job.category),
                   )
                 ],
               ),
@@ -49,7 +49,7 @@ class JobScreen extends StatelessWidget {
                   body: ListView(
                     children: <Widget>[
                       Container(
-                        child: Text(job.jobCategory),
+                        child: Text(job.category),
                       )
                     ],
                   ),
