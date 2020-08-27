@@ -27,7 +27,6 @@ class _JobActivityFeedState extends State<JobActivityFeed> {
     List<ActivityFeedItem> feedItems = [];
     snapshot.documents.forEach((doc) {
       feedItems.add(ActivityFeedItem.fromDocument(doc));
-//      print('Activity Feed Item: ${doc.data}');
     });
     return feedItems;
   }
@@ -149,7 +148,7 @@ class ActivityFeedItem extends StatelessWidget {
     } else if (type == 'comment') {
       activityItemText = 'replied: $commentData';
     } else if (type == 'message') {
-      activityItemText = "You have new messages from $jobTitle";
+      activityItemText = "You have a new message from $jobTitle";
     } else {
       activityItemText = "Error: Unknown type '$type'";
     }
@@ -171,6 +170,9 @@ class ActivityFeedItem extends StatelessWidget {
                   .document(jobId)
                   .get()
                   .then((doc) => job = Job.fromDocument(doc));
+              print("applicantId: $applicantId");
+              print("applicantName: $applicantName");
+              print("${job.applications}");
               showProfile(context,
                   profileId: applicantId, profileName: applicantName, job: job);
             },

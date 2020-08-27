@@ -96,8 +96,8 @@ class MessagesState extends State<Messages> {
         "messageData": messageController.text,
         "jobId": jobId,
         "jobTitle": jobTitle,
-        "userId": currentUser.id,
-        "username": currentUser.username,
+        "applicantId": currentUser.id,
+        "applicantName": currentUser.username,
         "userProfileImg": currentUser.photoUrl,
         "timestamp": FieldValue.serverTimestamp(),
       });

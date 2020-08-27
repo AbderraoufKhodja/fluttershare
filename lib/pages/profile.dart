@@ -31,12 +31,11 @@ class _ProfileState extends State<Profile> {
   String postOrientation = "grid";
   bool isHired = false;
   bool isLoading = false;
+  bool isApplicationResponse = false;
   int postCount = 0;
   int hireCount = 0;
   int followingCount = 0;
   List<Post> posts = [];
-
-  get isApplicationResponse => widget.job != null;
 
   @override
   void initState() {
@@ -45,11 +44,11 @@ class _ProfileState extends State<Profile> {
     getHires();
     getHired();
     checkIfHired();
+    checkIfApplicationResponse();
   }
 
   @override
   Widget build(BuildContext context) {
-    print("isApplicationResponse: $isApplicationResponse");
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
 //      appBar: header(context, titleText: "Profile"),
@@ -80,6 +79,9 @@ class _ProfileState extends State<Profile> {
                   fillColor: Colors.green,
                   function: () {
                     handleAcceptApplication();
+                    setState(() {
+                      isApplicationResponse = false;
+                    });
                     showMessageScreen(context);
                   },
                 )),
@@ -490,20 +492,29 @@ class _ProfileState extends State<Profile> {
 
   handleRejectApplication() {
     jobsRef.document(widget.job.jobId).updateData({
-      'applications.${currentUser.id}': FieldValue.delete()
-    }).then((value) => widget.job.applications.remove(currentUser.id));
-    widget.job.addRejectToActivityFeed(applicantId: widget.profileId);
+      'applications.${widget.profileId}': FieldValue.delete()
+    }).then((value) => widget.job.applications.remove(widget.profileId));
+    widget.job.addRejectToActivityFeed(
+        applicantId: widget.profileId, applicantName: widget.profileName);
   }
 
   handleAcceptApplication() async {
     await jobsRef
         .document(widget.job.jobId)
-        .updateData({'applications.${currentUser.id}': true}).then(
-            (value) => widget.job.applications[currentUserId] = true);
+        .updateData({'applications.${widget.profileId}': true}).then(
+            (value) => widget.job.applications[widget.profileId] = true);
     widget.job.addAcceptToActivityFeed(
         applicantId: widget.profileId,
         applicantName: widget.profileName,
         jobOwnerId: widget.job.jobOwnerId);
+  }
+
+  checkIfApplicationResponse() {
+    setState(() {
+      isApplicationResponse = widget.job != null &&
+          widget.job.applications[widget.profileId] == null &&
+          widget.job.jobOwnerId != widget.profileId;
+    });
   }
 }
 
