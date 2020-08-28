@@ -162,7 +162,6 @@ class ActivityFeedItem extends StatelessWidget {
       child: Container(
         color: Colors.white54,
         child: ListTile(
-          dense: true,
           leading: GestureDetector(
             onTap: () async {
               Job job;

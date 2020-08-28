@@ -9,6 +9,11 @@ const String kEditJob = "Edit job";
 const String kJobPrice = "price";
 const String kMessagesScreenTitle = "kMessagesScreenTitle";
 const String kApply = "Apply";
+const String kConfirmTerms = "kConfirmTerms";
+const String kUpdateConfirmCancel =
+    "Would you like to confirm or cancel the application?";
+const String kConfirmAcceptance = "kConfirmAcceptance";
+const String kCancelAcceptance = "kCancelAcceptance";
 const String kUnapply = "Unapply";
 const String kReject = "Reject";
 const String kAccept = "Accept";

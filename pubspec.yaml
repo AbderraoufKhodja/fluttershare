@@ -36,6 +36,7 @@ dependencies:
   flutter_svg: ^0.17.0
   eva_icons_flutter:
   outline_material_icons:
+  bubble: ^1.1.9+1
 
 dev_dependencies:
   flutter_test:

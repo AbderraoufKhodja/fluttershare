@@ -1,6 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:bubble/bubble.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/progress.dart';
@@ -108,26 +109,75 @@ class MessagesState extends State<Messages> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: header(context, titleText: "messages"),
-      body: Column(
-        children: <Widget>[
-          Expanded(child: buildMessages()),
-          Divider(),
-          ListTile(
-            title: TextFormField(
-              controller: messageController,
-              decoration: InputDecoration(labelText: "Write a message..."),
+      appBar: header(
+        context,
+        titleText: "messages",
+        hasAction: true,
+        actionLabel: kConfirmTerms,
+        action: () => showConfirmDialog(context),
+      ),
+      body: Container(
+        padding: EdgeInsets.all(5.0),
+        child: Column(
+          children: <Widget>[
+            Expanded(child: buildMessages()),
+            Divider(),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: TextFormField(
+                controller: messageController,
+                decoration: InputDecoration(labelText: "Write a message..."),
+              ),
+              trailing: OutlineButton(
+                  onPressed: addMessage,
+                  borderSide: BorderSide.none,
+                  child: Icon(
+                    Icons.send,
+                    size: 40,
+                  )),
             ),
-            trailing: OutlineButton(
-              onPressed: addMessage,
-              borderSide: BorderSide.none,
-              child: Text("send"),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+
+  showConfirmDialog(BuildContext parentContext) {
+    return showDialog(
+        context: parentContext,
+        builder: (context) {
+          return SimpleDialog(
+            title: Text(kUpdateConfirmCancel),
+            children: <Widget>[
+              SimpleDialogOption(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    confirmAcceptance();
+                  },
+                  child: Text(
+                    kConfirmAcceptance,
+                    style: TextStyle(color: Colors.green),
+                  )),
+              SimpleDialogOption(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    cancelAcceptance();
+                  },
+                  child: Text(
+                    kCancelAcceptance,
+                    style: TextStyle(color: Colors.red),
+                  )),
+              SimpleDialogOption(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Cancel')),
+            ],
+          );
+        });
+  }
+
+  confirmAcceptance() {}
+
+  cancelAcceptance() {}
 }
 
 class Message extends StatelessWidget {
@@ -157,18 +207,28 @@ class Message extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCurrentUser = currentUser.id == userId;
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        ListTile(
-          title: Text(message),
-          leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(avatarUrl),
-          ),
-          subtitle: Text(timestamp != null
-              ? timeago.format(timestamp.toDate())
-              : 'a moment ago'),
+        Bubble(
+          margin: BubbleEdges.only(top: 10),
+          alignment: isCurrentUser ? Alignment.topRight : Alignment.topLeft,
+          nip: isCurrentUser ? BubbleNip.rightTop : BubbleNip.leftTop,
+          color:
+              isCurrentUser ? Color.fromRGBO(225, 255, 199, 1.0) : Colors.white,
+          child: Text(message),
         ),
-        Divider(),
+        Container(
+          padding: EdgeInsets.only(left: 4.0, right: 4.0, top: 3.0),
+          child: Text(
+            timestamp != null
+                ? timeago.format(timestamp.toDate())
+                : 'a moment ago',
+            style: TextStyle(color: Colors.grey, fontSize: 11.0),
+            textAlign: isCurrentUser ? TextAlign.right : TextAlign.left,
+          ),
+        ),
       ],
     );
   }
