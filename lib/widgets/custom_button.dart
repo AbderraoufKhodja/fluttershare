@@ -3,10 +3,18 @@ import 'package:flutter/material.dart';
 class CustomButton extends StatelessWidget {
   final String text;
   final Function function;
+  final Color fillColor;
+  final double padding;
+  final double heightFactor;
+  final double widthFactor;
 
   CustomButton({
     @required this.text,
     @required this.function,
+    this.fillColor,
+    this.padding,
+    this.heightFactor = 1,
+    this.widthFactor = 1,
   });
 
   @override
@@ -14,8 +22,9 @@ class CustomButton extends StatelessWidget {
     return FlatButton(
       onPressed: function,
       child: Container(
-        width: MediaQuery.of(context).size.width * (1 / 3),
-        height: MediaQuery.of(context).size.height * (1 / 18),
+        padding: EdgeInsets.all(padding),
+        width: MediaQuery.of(context).size.width * (1 / 3) * widthFactor,
+        height: MediaQuery.of(context).size.height * (1 / 18) * heightFactor,
         child: Text(
           text,
           style: TextStyle(
@@ -25,7 +34,7 @@ class CustomButton extends StatelessWidget {
         ),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: fillColor,
           border: Border.all(
             color: Theme.of(context).primaryColor,
           ),

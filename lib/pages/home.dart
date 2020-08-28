@@ -42,7 +42,7 @@ class _HomeState extends State<Home> {
   bool isAuth = false;
   PageController pageController;
   int pageIndex = 0;
-
+  bool isFreelancer = false;
   String category;
   String subCategory;
   String jobTitle;
@@ -132,23 +132,30 @@ class _HomeState extends State<Home> {
       // 3) get username from create account, use it to make new user document in users collection
       usersRef.document(user.id).setData({
         "id": user.id,
-        "username": username,
+        "displayName": user.displayName,
         "photoUrl": user.photoUrl,
         "email": user.email,
-        "displayName": user.displayName,
-        "bio": "",
-        "timestamp": currentTimestamp,
-        "hasCard": false,
-        "category": category,
-        "subCategory": subCategory,
-        "jobTitle": jobTitle,
+        "username": username,
+//        "bio": bio,
+//        "timestamp": FieldValue.serverTimestamp(),
+//        "isFreelancer": isFreelancer,
+//        "category": category,
+//        "subCategory": subCategory,
+//        "description": description,
+//        "location": location,
+//        "claps": {},
+//        "intro": intro,
+//        "professionalExperience": professionalExperience,
+//        "training": training,
+//        "diploma": diploma,
+//        "licence": licence,
+//        "certification": certification,
+//        "experience": experience,
+//        "competences": competences,
+//        "achievement": achievement,
+//        "recommendation": recommendation,
+//        "language": language,
       });
-      // make new user their own follower (to include their posts in their timeline)
-      await hiresRef
-          .document(user.id)
-          .collection('userFollowers')
-          .document(user.id)
-          .setData({});
 
       doc = await usersRef.document(user.id).get();
     }
@@ -189,9 +196,8 @@ class _HomeState extends State<Home> {
       key: _scaffoldKey,
       body: PageView(
         children: <Widget>[
-//          Timeline(currentUser: currentUser),
-          JobTimeline(currentUser: currentUser),
-//          ActivityFeed(),
+//          JobTimeline(currentUser: currentUser),
+          CreateAccount(),
           JobActivityFeed(),
           UploadJob(currentUser: currentUser),
           Search(),
@@ -232,10 +238,6 @@ class _HomeState extends State<Home> {
         ],
       ),
     );
-    // return RaisedButton(
-    //   child: Text('Logout'),
-    //   onPressed: logout,
-    // );
   }
 
   Scaffold buildUnAuthScreen() {
