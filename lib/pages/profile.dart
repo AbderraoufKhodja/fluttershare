@@ -8,7 +8,7 @@ import 'package:khadamat/models/job.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/edit_profile.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/message_screen.dart';
+import 'package:khadamat/pages/messages_screen.dart';
 import 'package:khadamat/pages/upload_card.dart';
 import 'package:khadamat/widgets/business_card.dart';
 import 'package:khadamat/widgets/post.dart';
@@ -55,7 +55,7 @@ class _ProfileState extends State<Profile> {
       body: ListView(
         children: <Widget>[
           buildProfileHeader(),
-          buildProfileCard(),
+//          buildProfileCard(),
           Divider(),
           buildTogglePostOrientation(),
           Divider(

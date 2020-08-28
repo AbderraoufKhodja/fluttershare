@@ -1,24 +1,34 @@
 import 'package:flutter/material.dart';
 
 const String kJobDescription = "Write the job description";
-const String kJobLocation = "Job location";
-const String kCategory = "Job category";
-const String kJobTitle = "Job title";
-const String kJobScreenTitle = "Job details";
-const String kEditJob = "Edit job";
-const String kJobPrice = "price";
+const String kJobLocation = "kJobLocation";
+const String kLocationField = "kLocationField";
+const String kCategory = "kCategory";
+const String kJobTitle = "kJobTitle";
+const String kJobScreenTitle = "kJobScreenTitle";
+const String kEditJob = "kEditJob";
+const String kJobPrice = "kJobPrice";
 const String kMessagesScreenTitle = "kMessagesScreenTitle";
-const String kApply = "Apply";
-const String kConfirmTerms = "kConfirmTerms";
-const String kUpdateConfirmCancel =
-    "Would you like to confirm or cancel the application?";
-const String kConfirmAcceptance = "kConfirmAcceptance";
+const String kApply = "kApply";
+const String kCancel = "kCancel";
+const String kLocationErrorText = "kLocationErrorText";
+const String kPriceHintText = "kPriceHintText";
+const String kPriceErrorText = "kPriceErrorText";
+const String kUpdateJob = "kUpdateJob";
+const String kJobTitleHint = "kJobTitleHint";
+const String kJobUpdated = "kJobUpdated";
+const String kUpdateLocationHint = "kUpdateLocationHint";
+const String kManageJob = "kManageJob";
+const String kJobsScreenTitle = "kJobsScreenTitle";
+const String kJobSchedule = "kJobSchedule";
+const String kJobScheduleHint = "kJobScheduleHint";
+const String kUpdateConfirmCancel = "kUpdateConfirmCancel";
+const String kUpdateJobTerms = "kUpdateJobTerms";
 const String kCancelAcceptance = "kCancelAcceptance";
-const String kUnapply = "Unapply";
-const String kReject = "Reject";
-const String kAccept = "Accept";
-const String kCreateCard = "Create card";
-const String kHasNoCard =
-    "You have no business card for application, create one!";
+const String kUnapply = "kUnapply";
+const String kReject = "kReject";
+const String kAccept = "kAccept";
+const String kCreateCard = "kCreateCard";
+const String kHasNoCard = "kHasNoCard";
 const String kBlankProfileUrl =
     "https://firebasestorage.googleapis.com/v0/b/khadamat-2dbbb.appspot.com/o/images.jpg?alt=media&token=72cc8bac-1f0c-4ab7-9545-ec3f15478bcf";

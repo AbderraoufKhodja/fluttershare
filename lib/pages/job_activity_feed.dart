@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/job_screen.dart';
-import 'package:khadamat/pages/message_screen.dart';
+import 'package:khadamat/pages/jobs_screen.dart';
+import 'package:khadamat/pages/manage_job.dart';
+import 'package:khadamat/pages/messages_screen.dart';
 import 'package:khadamat/pages/profile.dart';
-import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/progress.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -35,11 +35,32 @@ class _JobActivityFeedState extends State<JobActivityFeed> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
-      appBar: header(context,
-          titleText: "Activity Feed",
-          hasAction: true,
-          actionLabel: "messages",
-          action: () => showMessageScreen(context)),
+      appBar: AppBar(
+//        leading: IconButton(
+//          icon: Icon(Icons.card_travel),
+//        ),
+
+        actions: [
+          Expanded(
+            child: IconButton(
+              onPressed: () => showJobsScreen(context),
+              icon: Icon(
+                Icons.card_travel,
+                size: 40.0,
+              ),
+            ),
+          ),
+          Expanded(
+            child: IconButton(
+              onPressed: () => showMessageScreen(context),
+              icon: Icon(
+                Icons.message,
+                size: 40.0,
+              ),
+            ),
+          ),
+        ],
+      ),
       body: Container(
           child: FutureBuilder(
         future: getActivityFeed(),
@@ -104,11 +125,7 @@ class ActivityFeedItem extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => JobScreen(
-          //TODO feed parameters
-          job: null,
-          userId: jobOwnerId,
-        ),
+        builder: (context) => JobsScreen(),
       ),
     );
   }

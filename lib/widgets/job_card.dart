@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/job_screen.dart';
+import 'package:khadamat/pages/jobs_screen.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/pages/upload_card.dart';
 import 'package:khadamat/widgets/custom_button.dart';
@@ -276,7 +276,7 @@ showDetails(BuildContext context,
     String jobOwnerId,
     String mediaUrl}) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
-    return JobScreen(
+    return JobsScreen(
 //      job: job,
         );
   }));

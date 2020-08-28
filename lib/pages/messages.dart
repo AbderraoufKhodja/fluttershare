@@ -2,6 +2,7 @@ import 'package:bubble/bubble.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
+import 'package:khadamat/pages/manage_job.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/progress.dart';
@@ -43,6 +44,7 @@ class MessagesState extends State<Messages> {
   final String jobOwnerName;
   final String applicantId;
   final String applicantName;
+  bool isJobOwner = false;
 
   MessagesState({
     this.jobId,
@@ -52,6 +54,67 @@ class MessagesState extends State<Messages> {
     this.applicantId,
     this.applicantName,
   });
+  @override
+  void initState() {
+    super.initState();
+    checkIfJobOwner();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: buildAppBar(context),
+      body: Container(
+        padding: EdgeInsets.all(5.0),
+        child: Column(
+          children: <Widget>[
+            Expanded(child: buildMessages()),
+            Divider(),
+            buildTextField(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  ListTile buildTextField() {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: TextFormField(
+        controller: messageController,
+        decoration: InputDecoration(labelText: "Write a message..."),
+      ),
+      trailing: OutlineButton(
+        onPressed: addMessage,
+        borderSide: BorderSide.none,
+        child: Icon(
+          Icons.send,
+          size: 40,
+        ),
+      ),
+    );
+  }
+
+  AppBar buildAppBar(BuildContext context) {
+    return isJobOwner
+        ? header(
+            context,
+            titleText: "messages",
+            hasAction: true,
+            actionLabel: kManageJob,
+            action: () => showConfirmDialog(context),
+          )
+        : header(
+            context,
+            titleText: "messages",
+          );
+  }
+
+  checkIfJobOwner() {
+    setState(() {
+      isJobOwner = currentUser.id == jobOwnerId;
+    });
+  }
 
   buildMessages() {
     return StreamBuilder(
@@ -106,42 +169,6 @@ class MessagesState extends State<Messages> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: header(
-        context,
-        titleText: "messages",
-        hasAction: true,
-        actionLabel: kConfirmTerms,
-        action: () => showConfirmDialog(context),
-      ),
-      body: Container(
-        padding: EdgeInsets.all(5.0),
-        child: Column(
-          children: <Widget>[
-            Expanded(child: buildMessages()),
-            Divider(),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: TextFormField(
-                controller: messageController,
-                decoration: InputDecoration(labelText: "Write a message..."),
-              ),
-              trailing: OutlineButton(
-                  onPressed: addMessage,
-                  borderSide: BorderSide.none,
-                  child: Icon(
-                    Icons.send,
-                    size: 40,
-                  )),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   showConfirmDialog(BuildContext parentContext) {
     return showDialog(
         context: parentContext,
@@ -155,7 +182,7 @@ class MessagesState extends State<Messages> {
                     confirmAcceptance();
                   },
                   child: Text(
-                    kConfirmAcceptance,
+                    kUpdateJobTerms,
                     style: TextStyle(color: Colors.green),
                   )),
               SimpleDialogOption(
@@ -175,7 +202,9 @@ class MessagesState extends State<Messages> {
         });
   }
 
-  confirmAcceptance() {}
+  confirmAcceptance() {
+    showManageJob(context, jobId: jobId, applicantId: applicantId);
+  }
 
   cancelAcceptance() {}
 }
