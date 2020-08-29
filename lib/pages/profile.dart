@@ -173,7 +173,8 @@ class _ProfileState extends State<Profile> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => UploadCard(currentUser: currentUser)));
+            builder: (context) =>
+                CreateFreelanceAccount(firestoreUser: currentUser)));
   }
 
   Container buildButton(

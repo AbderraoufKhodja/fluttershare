@@ -1,8 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:khadamat/constants.dart';
+import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/header.dart';
 
 class CreateClientAccount extends StatefulWidget {
+  final GoogleSignInAccount googleUser;
+  CreateClientAccount({this.googleUser});
   @override
   _CreateClientAccountState createState() => _CreateClientAccountState();
 }
@@ -14,13 +19,23 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
 
   submit() {
     final form = _formKey.currentState;
-
     if (form.validate()) {
       form.save();
-      SnackBar snackbar = SnackBar(content: Text("Welcome $username!"));
-      _scaffoldKey.currentState.showSnackBar(snackbar);
-      Timer(Duration(seconds: 2), () {
-        Navigator.pop(context, username);
+      final SnackBar welcomeSnackbar = SnackBar(content: Text("Welcome $username!"));
+      usersRef.document(widget.googleUser.id).setData({
+        "id": widget.googleUser.id,
+        "displayName": widget.googleUser.displayName,
+        "photoUrl": widget.googleUser.photoUrl,
+        "email": widget.googleUser.email,
+        "username": username,
+      }).then((value) {
+        Timer(Duration(seconds: 1), () {
+          Navigator.pop(context, true);
+        });
+        _scaffoldKey.currentState.showSnackBar(welcomeSnackbar);
+      }, onError: (err) {
+        _scaffoldKey.currentState.showSnackBar(kProblemSnackbar);
+        print(err);
       });
     }
   }
@@ -101,11 +116,12 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
   }
 }
 
-showCreateClientAccount(BuildContext context) {
-  Navigator.push(
+Future<bool> showCreateClientAccount(BuildContext context,
+    {@required GoogleSignInAccount googleUser}) async {
+  return await Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => CreateClientAccount(),
+      builder: (context) => CreateClientAccount(googleUser: googleUser),
     ),
   );
 }

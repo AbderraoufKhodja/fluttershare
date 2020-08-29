@@ -208,8 +208,8 @@ class _JobCardState extends State<JobCard> {
                 child: CustomButton(
                   text: isApplied ? kUnapply : kApply,
                   function: () async {
-                    if (!currentUser.hasCard) showCreateCard(context);
-                    if (currentUser.hasCard) {
+                    if (!currentUser.isFreelancer) showCreateCard(context);
+                    if (currentUser.isFreelancer) {
                       job.handleApplyJob();
                       setState(() {
                         applicationsCount += isApplied ? -1 : 1;
@@ -254,8 +254,8 @@ class _JobCardState extends State<JobCard> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) =>
-                                UploadCard(currentUser: currentUser)));
+                            builder: (context) => CreateFreelanceAccount(
+                                firestoreUser: currentUser)));
                   },
                   child: Text(
                     kCreateCard,

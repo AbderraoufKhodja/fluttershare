@@ -2,12 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class User {
   final String id;
+  final String displayName;
+  final String photoUrl;
   final String username;
   final String email;
-  final String photoUrl;
-  final String displayName;
   final String bio;
-  bool hasCard;
+  bool isFreelancer;
   final String jobId;
   final String category;
   final String subCategory;
@@ -20,7 +20,7 @@ class User {
       this.photoUrl,
       this.displayName,
       this.bio,
-      this.hasCard,
+      this.isFreelancer,
       this.jobId,
       this.category,
       this.subCategory,
@@ -34,7 +34,7 @@ class User {
         photoUrl: doc['photoUrl'],
         displayName: doc['displayName'],
         bio: doc['bio'],
-        hasCard: doc['hasCard'],
+        isFreelancer: doc['isFreelancer'],
         jobId: doc['jobId'],
         category: doc['category'],
         subCategory: doc['subCategory'],

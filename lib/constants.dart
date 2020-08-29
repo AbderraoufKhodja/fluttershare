@@ -22,6 +22,8 @@ const String kManageJob = "kManageJob";
 const String kJobsScreenTitle = "kJobsScreenTitle";
 const String kCreateFreelanceAccount = "kCreateFreelanceAccount";
 const String kCreateClientAccount = "kCreateClientAccount";
+const String kSubmit = "kSubmit";
+const String kProfessionalInfo = "kProfessionalInfo";
 const String kJobSchedule = "kJobSchedule";
 const String kJobScheduleHint = "kJobScheduleHint";
 const String kUpdateConfirmCancel = "kUpdateConfirmCancel";
@@ -32,5 +34,9 @@ const String kReject = "kReject";
 const String kAccept = "kAccept";
 const String kCreateCard = "kCreateCard";
 const String kHasNoCard = "kHasNoCard";
+const String kConnectivityProblem = "kConnectivityProblem";
+const String kWelcome = "kWelcome";
+const SnackBar kProblemSnackbar = SnackBar(content: Text(kConnectivityProblem));
+
 const String kBlankProfileUrl =
     "https://firebasestorage.googleapis.com/v0/b/khadamat-2dbbb.appspot.com/o/images.jpg?alt=media&token=72cc8bac-1f0c-4ab7-9545-ec3f15478bcf";

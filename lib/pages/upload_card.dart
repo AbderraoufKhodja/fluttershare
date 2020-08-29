@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:khadamat/categories.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/user.dart';
@@ -14,18 +16,19 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as Im;
 
-class UploadCard extends StatefulWidget {
-  final User currentUser;
+class CreateFreelanceAccount extends StatefulWidget {
+  final User firestoreUser;
+  final GoogleSignInAccount googleUser;
 
-  UploadCard({this.currentUser});
+  CreateFreelanceAccount({this.firestoreUser, this.googleUser});
 
   @override
-  _UploadCardState createState() => _UploadCardState();
+  _CreateFreelanceAccountState createState() => _CreateFreelanceAccountState();
 }
 
-class _UploadCardState extends State<UploadCard>
-    with AutomaticKeepAliveClientMixin<UploadCard> {
-  TextEditingController captionController = TextEditingController();
+class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
+    with AutomaticKeepAliveClientMixin<CreateFreelanceAccount> {
+  TextEditingController descriptionController = TextEditingController();
   TextEditingController locationController = TextEditingController();
   String category;
   String subCategory;
@@ -46,6 +49,9 @@ class _UploadCardState extends State<UploadCard>
   File file;
   bool isUploading = false;
   int calIndex = 0;
+
+  get user =>
+      widget.googleUser != null ? widget.googleUser : widget.firestoreUser;
 
   handleTakePhoto() async {
     Navigator.pop(context);
@@ -127,7 +133,7 @@ class _UploadCardState extends State<UploadCard>
     final tempDir = await getTemporaryDirectory();
     final path = tempDir.path;
     Im.Image imageFile = Im.decodeImage(file.readAsBytesSync());
-    final compressedImageFile = File('$path/img_${currentUser.id}.jpg')
+    final compressedImageFile = File('$path/img_${user.id}.jpg')
       ..writeAsBytesSync(Im.encodeJpg(imageFile, quality: 85));
     setState(() {
       file = compressedImageFile;
@@ -136,61 +142,10 @@ class _UploadCardState extends State<UploadCard>
 
   Future<String> uploadCardImage(imageFile) async {
     StorageUploadTask uploadCardTask =
-        storageRef.child("card_${currentUser.id}.jpg").putFile(imageFile);
+        storageRef.child("card_${user.id}.jpg").putFile(imageFile);
     StorageTaskSnapshot storageSnap = await uploadCardTask.onComplete;
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     return downloadUrl;
-  }
-
-  createBusinessCardInFirestore({
-    String mediaUrl,
-    String location,
-    String description,
-    String category,
-    String subCategory,
-    String intro,
-    String bio,
-    String professionalExperience,
-    String training,
-    String diploma,
-    String licence,
-    String certification,
-    String experience,
-    String competences,
-    String achievement,
-    String recommendation,
-    String language,
-  }) {
-    cardsRef.document(widget.currentUser.id).setData({
-      "cardId": widget.currentUser.id,
-      "category": category,
-      "subCategory": subCategory,
-      "jobOwnerId": widget.currentUser.id,
-      "username": widget.currentUser.username,
-      "mediaUrl": mediaUrl,
-      "description": description,
-      "location": location,
-      "timestamp": currentTimestamp,
-      "claps": {},
-      "intro": intro,
-      "bio": bio,
-      "professionalExperience": professionalExperience,
-      "training": training,
-      "diploma": diploma,
-      "licence": licence,
-      "certification": certification,
-      "experience": experience,
-      "competences": competences,
-      "achievement": achievement,
-      "recommendation": recommendation,
-      "language": language,
-    });
-    usersRef
-        .document(currentUser.id)
-        .updateData({"hasCard": true}).then((value) => Navigator.pop(context));
-    setState(() {
-      currentUser.hasCard = true;
-    });
   }
 
   handleSubmit() async {
@@ -199,26 +154,46 @@ class _UploadCardState extends State<UploadCard>
     });
     if (file != null) await compressImage();
     String mediaUrl = file == null ? "" : await uploadCardImage(file);
-    createBusinessCardInFirestore(
-      mediaUrl: mediaUrl,
-      location: locationController.text,
-      description: captionController.text,
-      category: category,
-      subCategory: subCategory,
-      intro: introController.text,
-      bio: bioController.text,
-      professionalExperience: professionalExperienceController.text,
-      training: trainingController.text,
-      diploma: diplomaController.text,
-      licence: licenceController.text,
-      certification: certificationController.text,
-      experience: experienceController.text,
-      competences: competencesController.text,
-      achievement: achievementController.text,
-      recommendation: recommendationController.text,
-      language: languageController.text,
-    );
-    captionController.clear();
+    uploadUsersProfessionalInfo(mediaUrl);
+    clearControllers();
+    clearImage();
+    setState(() {
+      isUploading = false;
+    });
+  }
+
+  uploadUsersProfessionalInfo(String mediaUrl) {
+    usersRef.document(user.id).setData({
+      "id": user.id,
+      "displayName": user.displayName,
+      "photoUrl": user.photoUrl,
+      "email": user.email,
+      "username": widget.firestoreUser.username,
+      "isFreelancer": true,
+      "category": category,
+      "subCategory": subCategory,
+      "mediaUrl": mediaUrl,
+      "description": descriptionController.text,
+      "location": locationController.text,
+      "timestamp": FieldValue.serverTimestamp(),
+      "claps": {},
+      "intro": introController.text,
+      "bio": bioController.text,
+      "professionalExperience": professionalExperienceController.text,
+      "training": trainingController.text,
+      "diploma": diplomaController.text,
+      "licence": licenceController.text,
+      "certification": certificationController.text,
+      "experience": experienceController.text,
+      "competences": competencesController.text,
+      "achievement": achievementController.text,
+      "recommendation": recommendationController.text,
+      "language": languageController.text,
+    });
+  }
+
+  clearControllers() {
+    descriptionController.clear();
     locationController.clear();
     introController.clear();
     bioController.clear();
@@ -232,20 +207,14 @@ class _UploadCardState extends State<UploadCard>
     achievementController.clear();
     recommendationController.clear();
     languageController.clear();
-
-    setState(() {
-      file = null;
-      isUploading = false;
-    });
   }
 
   Scaffold buildUploadCardForm() {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white70,
-//        leading: IconButton(
-//            icon: Icon(Icons.arrow_back, color: Colors.black),
-//            onPressed: clearImage),
+        leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black), onPressed: null),
         title: Text(
           "Caption Job",
           style: TextStyle(color: Colors.black),
@@ -273,12 +242,12 @@ class _UploadCardState extends State<UploadCard>
           ListTile(
             leading: CircleAvatar(
               backgroundImage:
-                  CachedNetworkImageProvider(widget.currentUser.photoUrl),
+                  CachedNetworkImageProvider(widget.firestoreUser.photoUrl),
             ),
             title: Container(
               width: 250.0,
               child: TextField(
-                controller: captionController,
+                controller: descriptionController,
                 decoration: InputDecoration(
                   hintText: kJobDescription,
                   border: InputBorder.none,
@@ -501,4 +470,13 @@ class CardTextField extends StatelessWidget {
       ),
     );
   }
+}
+
+showCreateFreelanceAccount(BuildContext context) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => CreateFreelanceAccount(),
+    ),
+  );
 }

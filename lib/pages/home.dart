@@ -67,11 +67,14 @@ class _HomeState extends State<Home> {
 
   handleSignIn(GoogleSignInAccount account) async {
     if (account != null) {
-      await createUserInFirestore();
-      setState(() {
-        isAuth = true;
-      });
-      configurePushNotifications();
+      bool isSuccessful = await createUserInFirestore();
+      print("isSuccessful: $isSuccessful");
+      if (isSuccessful == true) {
+        setState(() {
+          isAuth = true;
+        });
+        configurePushNotifications();
+      }
     } else {
       setState(() {
         isAuth = false;
@@ -119,48 +122,33 @@ class _HomeState extends State<Home> {
     });
   }
 
-  createUserInFirestore() async {
+  Future<bool> createUserInFirestore() async {
+    bool isSuccessful = true;
     // 1) check if user exists in users collection in database (according to their id)
     final GoogleSignInAccount user = googleSignIn.currentUser;
     DocumentSnapshot doc = await usersRef.document(user.id).get();
 
     if (!doc.exists) {
       // 2) if the user doesn't exist, then we want to take them to the create account page
-      final username = await Navigator.push(
-          context, MaterialPageRoute(builder: (context) => CreateAccount()));
+      isSuccessful = await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => CreateAccount(
+                    googleUser: user,
+                  )));
+      print("isCreated : $isSuccessful");
+      if (isSuccessful == true) {
+        // 3) get username from create account, use it to make new user document in users collection
+        doc = await usersRef.document(user.id).get();
+        currentUser = User.fromDocument(doc);
+      } else
+        logout();
 
-      // 3) get username from create account, use it to make new user document in users collection
-      usersRef.document(user.id).setData({
-        "id": user.id,
-        "displayName": user.displayName,
-        "photoUrl": user.photoUrl,
-        "email": user.email,
-        "username": username,
-//        "bio": bio,
-//        "timestamp": FieldValue.serverTimestamp(),
-//        "isFreelancer": isFreelancer,
-//        "category": category,
-//        "subCategory": subCategory,
-//        "description": description,
-//        "location": location,
-//        "claps": {},
-//        "intro": intro,
-//        "professionalExperience": professionalExperience,
-//        "training": training,
-//        "diploma": diploma,
-//        "licence": licence,
-//        "certification": certification,
-//        "experience": experience,
-//        "competences": competences,
-//        "achievement": achievement,
-//        "recommendation": recommendation,
-//        "language": language,
-      });
-
-      doc = await usersRef.document(user.id).get();
+      return isSuccessful;
     }
 
     currentUser = User.fromDocument(doc);
+    return isSuccessful;
   }
 
   @override
@@ -196,8 +184,8 @@ class _HomeState extends State<Home> {
       key: _scaffoldKey,
       body: PageView(
         children: <Widget>[
-//          JobTimeline(currentUser: currentUser),
-          CreateAccount(),
+          JobTimeline(currentUser: currentUser),
+//          CreateAccount(),
           JobActivityFeed(),
           UploadJob(currentUser: currentUser),
           Search(),
