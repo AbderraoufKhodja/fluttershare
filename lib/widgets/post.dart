@@ -101,7 +101,11 @@ class _PostState extends State<Post> {
         if (!snapshot.hasData) {
           return circularProgress();
         }
-        User user = User.fromDocument(snapshot.data);
+        User user;
+        if (snapshot.data['isFreelancer'] == true)
+          user = User.freelancerFromDocument(snapshot.data);
+        else
+          user = User.clientFromDocument(snapshot.data);
         bool isPostOwner = currentUserId == jobOwnerId;
         return ListTile(
           leading: CircleAvatar(
@@ -109,7 +113,8 @@ class _PostState extends State<Post> {
             backgroundColor: Theme.of(context).primaryColor,
           ),
           title: GestureDetector(
-            onTap: () => showProfile(context, profileId: user.id),
+            onTap: () => showProfile(context,
+                profileId: user.id, profileName: user.username),
             child: Text(
               user.username,
               style: TextStyle(

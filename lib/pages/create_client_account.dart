@@ -21,13 +21,15 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-      final SnackBar welcomeSnackbar = SnackBar(content: Text("Welcome $username!"));
+      final SnackBar welcomeSnackbar =
+          SnackBar(content: Text("Welcome $username!"));
       usersRef.document(widget.googleUser.id).setData({
         "id": widget.googleUser.id,
         "displayName": widget.googleUser.displayName,
         "photoUrl": widget.googleUser.photoUrl,
         "email": widget.googleUser.email,
         "username": username,
+        "isFreelancer": false,
       }).then((value) {
         Timer(Duration(seconds: 1), () {
           Navigator.pop(context, true);

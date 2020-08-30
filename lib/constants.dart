@@ -37,6 +37,27 @@ const String kHasNoCard = "kHasNoCard";
 const String kConnectivityProblem = "kConnectivityProblem";
 const String kWelcome = "kWelcome";
 const SnackBar kProblemSnackbar = SnackBar(content: Text(kConnectivityProblem));
+const String kUsername = "kUsername";
+const String kIntro = "kIntro";
+const String kBio = "kBio";
+const String kProfessionalExperience = "kProfessionalExperience";
+const String kInternship = "kTraining";
+const String kDiploma = "kDiploma";
+const String kLicence = "kLicence";
+const String kCertification = "kCertification";
+const String kExperience = "kExperience";
+const String kCompetences = "kCompetences";
+const String kAchievement = "kAchievement";
+const String kRecommendation = "kRecommendation";
+const String kLanguage = "kLanguage";
+const String kUploadImage = "kUploadImage";
+const String kTellUsAboutYou = "kTellUsAboutYou";
+const String kFromCamera = "kFromCamera";
+const String kFromGallery = "kFromGallery";
+const String kProfessionalDescription = "kProfessionalDescription";
+const String kKeyWords = "kKeyWords";
+const String kProfessionalTitle = "kProfessionalTitle";
+const String kLocation = "kLocation";
 
 const String kBlankProfileUrl =
     "https://firebasestorage.googleapis.com/v0/b/khadamat-2dbbb.appspot.com/o/images.jpg?alt=media&token=72cc8bac-1f0c-4ab7-9545-ec3f15478bcf";

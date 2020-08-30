@@ -92,7 +92,11 @@ class _JobTimelineState extends State<JobTimeline> {
         }
         List<UserResult> userResults = [];
         snapshot.data.documents.forEach((doc) {
-          User user = User.fromDocument(doc);
+          User user;
+          if (doc['isFreelancer'] == true)
+            user = User.freelancerFromDocument(doc);
+          else
+            user = User.clientFromDocument(doc);
           final bool isAuthUser = currentUser.id == user.id;
           final bool isFollowingUser = followingList.contains(user.id);
           // remove auth user from recommended list

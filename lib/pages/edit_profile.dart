@@ -34,7 +34,10 @@ class _EditProfileState extends State<EditProfile> {
       isLoading = true;
     });
     DocumentSnapshot doc = await usersRef.document(widget.currentUserId).get();
-    user = User.fromDocument(doc);
+    if (doc['isFreelancer'] == true)
+      user = User.freelancerFromDocument(doc);
+    else
+      user = User.clientFromDocument(doc);
     displayNameController.text = user.displayName;
     bioController.text = user.bio;
     setState(() {

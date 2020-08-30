@@ -330,7 +330,11 @@ class _ProfileState extends State<Profile> {
           if (!snapshot.hasData) {
             return circularProgress();
           }
-          User user = User.fromDocument(snapshot.data);
+          User user;
+          if (snapshot.data['isFreelancer'] == true)
+            user = User.freelancerFromDocument(snapshot.data);
+          else
+            user = User.clientFromDocument(snapshot.data);
           return Padding(
             padding: EdgeInsets.all(16.0),
             child: Column(

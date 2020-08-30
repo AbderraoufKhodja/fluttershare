@@ -26,7 +26,20 @@ class User {
       this.subCategory,
       this.jobTitle});
 
-  factory User.fromDocument(DocumentSnapshot doc) {
+  factory User.clientFromDocument(DocumentSnapshot doc) {
+    return User(
+        id: doc['id'],
+        email: doc['email'],
+        username: doc['username'],
+        photoUrl: doc['photoUrl'],
+        displayName: doc['displayName'],
+        bio: doc['bio'],
+        isFreelancer: doc['isFreelancer'],
+        category: doc['category'],
+        subCategory: doc['subCategory'],
+        jobTitle: doc['jobTitle']);
+  }
+  factory User.freelancerFromDocument(DocumentSnapshot doc) {
     return User(
         id: doc['id'],
         email: doc['email'],
