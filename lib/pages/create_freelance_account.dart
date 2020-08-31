@@ -31,6 +31,8 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   TextEditingController professionalTitleController = TextEditingController();
   TextEditingController personalBioController = TextEditingController();
   TextEditingController locationController = TextEditingController();
+  TextEditingController birthDateController = TextEditingController();
+  TextEditingController genderController = TextEditingController();
   TextEditingController professionalDescriptionController =
       TextEditingController();
   String category;
@@ -53,6 +55,9 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   bool isUploading = false;
   int calIndex = 0;
   String instruction = kTellUsAboutYou;
+  String initValue = "Select your Birth Date";
+  bool isDateSelected = false;
+  DateTime birthDate; //
 
   get user =>
       widget.googleUser != null ? widget.googleUser : widget.firestoreUser;
@@ -178,6 +183,8 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       "ProfessionalTitle": professionalTitleController.text,
       "personalBio": personalBioController.text,
       "location": locationController.text,
+      "birthDate": birthDateController.text,
+      "gender": genderController.text,
       "professionalDescriptionDescription":
           professionalDescriptionController.text,
       "keyWords": "$keyWord1Controller;$keyWord2Controller;"
@@ -309,6 +316,12 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                             hint: kLocation,
                             trailing: buildLocationButton(),
                             onTap: () => updateInstruction(kLocation)),
+                        CustomTextField(
+                            controller: birthDateController,
+                            hint: kBirthDateController,
+                            trailing: buildBirthDayGestureDetector(),
+                            onTap: () =>
+                                updateInstruction(kBirthDateController)),
                       ],
                     ),
                   ),
@@ -325,88 +338,8 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                             hint: kProfessionalDescription,
                             onTap: () =>
                                 updateInstruction(kProfessionalDescription)),
-                        ListTile(
-                          leading: Text(
-                            "Category",
-                            style: TextStyle(
-                              fontSize: 16,
-                              textBaseline: TextBaseline.alphabetic,
-                            ),
-                          ),
-                          title: DropdownButton<String>(
-                              value: this.category,
-                              icon: Container(
-                                child: Icon(Icons.arrow_downward),
-                              ),
-                              iconSize: 24,
-                              elevation: 16,
-                              isExpanded: true,
-                              style: TextStyle(color: Colors.blueAccent),
-                              iconDisabledColor: Colors.black,
-                              iconEnabledColor: Colors.grey,
-                              underline: Container(
-                                height: 2,
-                                color: Colors.blueAccent,
-                              ),
-                              onChanged: (String val) {
-                                setState(() {
-                                  this.category = val;
-                                  calIndex = categoryList.indexOf(val);
-                                });
-                              },
-                              items: categoryList
-                                  .map(
-                                    (category) => DropdownMenuItem<String>(
-                                      value: category,
-                                      child: Text(
-                                        category,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      ),
-                                    ),
-                                  )
-                                  .toList()),
-                        ),
-                        ListTile(
-                          leading: Text(
-                            "Subcategory",
-                            style: TextStyle(
-                              fontSize: 16,
-                              textBaseline: TextBaseline.alphabetic,
-                            ),
-                            textAlign: TextAlign.start,
-                          ),
-                          title: DropdownButton<String>(
-                              value: this.subCategory,
-                              icon: Container(
-                                child: Icon(Icons.arrow_downward),
-                              ),
-                              iconSize: 24,
-                              elevation: 16,
-                              isExpanded: true,
-                              style: TextStyle(color: Colors.blueAccent),
-                              iconDisabledColor: Colors.black,
-                              iconEnabledColor: Colors.grey,
-                              underline: Container(
-                                height: 2,
-                                color: Colors.blueAccent,
-                              ),
-                              onChanged: (String val) {
-                                setState(() {
-                                  this.subCategory = val;
-                                });
-                              },
-                              items: subCategoryList[calIndex]
-                                  .map((subCategory) => DropdownMenuItem(
-                                        value: subCategory,
-                                        child: Text(
-                                          subCategory,
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                        ),
-                                      ))
-                                  .toList()),
-                        ),
+                        buildCategoryListTile(),
+                        buildSubCategoryListTile(),
                         Container(
                           margin: EdgeInsets.all(5.0),
                           decoration: BoxDecoration(
@@ -504,9 +437,105 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     );
   }
 
-  IconButton buildLocationButton() {
-    return IconButton(
-        icon: Icon(Icons.my_location), onPressed: getUserLocation);
+  buildBirthDayGestureDetector() {
+    return GestureDetector(
+        child: new Icon(Icons.calendar_today),
+        onTap: () async {
+          final datePick = await showDatePicker(
+              context: context,
+              initialDate: new DateTime.now(),
+              firstDate: new DateTime(1900),
+              lastDate: new DateTime(2100));
+          if (datePick != null && datePick != birthDate) {
+            setState(() {
+              birthDate = datePick;
+              isDateSelected = true;
+              birthDateController.text =
+                  "${birthDate.month}/${birthDate.day}/${birthDate.year}"; // 08/14/2019
+            });
+          }
+        });
+  }
+
+  ListTile buildSubCategoryListTile() {
+    return ListTile(
+      title: DropdownButton<String>(
+          value: this.subCategory,
+          icon: Container(
+            child: Icon(Icons.list),
+          ),
+          iconSize: 24,
+          elevation: 16,
+          isExpanded: true,
+          style: TextStyle(color: Colors.blueAccent),
+          iconDisabledColor: Colors.black,
+          iconEnabledColor: Colors.grey,
+          underline: Container(
+            height: 2,
+            color: Colors.blueAccent,
+          ),
+          onChanged: (String val) {
+            setState(() {
+              this.subCategory = val;
+            });
+          },
+          items: subCategoryList[calIndex]
+              .map((subCategory) => DropdownMenuItem(
+                    value: subCategory,
+                    child: Text(
+                      subCategory,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
+                  ))
+              .toList()),
+    );
+  }
+
+  ListTile buildCategoryListTile() {
+    return ListTile(
+      title: DropdownButton<String>(
+          value: this.category,
+          icon: Container(
+            child: Icon(Icons.list),
+          ),
+          iconSize: 24,
+          elevation: 16,
+          isExpanded: true,
+          style: TextStyle(color: Colors.grey),
+          iconDisabledColor: Colors.black,
+          iconEnabledColor: Colors.grey,
+          underline: Container(
+            height: 2,
+            color: Colors.blueAccent,
+          ),
+          onChanged: (String val) {
+            setState(() {
+              this.subCategory = null;
+              this.category = val;
+              calIndex = categoryList.indexOf(val);
+            });
+          },
+          items: categoryList
+              .map(
+                (category) => DropdownMenuItem<String>(
+                  value: category,
+                  child: Text(
+                    category,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+              )
+              .toList()),
+    );
+  }
+
+  GestureDetector buildLocationButton() {
+    return GestureDetector(
+      child: Icon(Icons.my_location),
+      onTap: getUserLocation,
+    );
   }
 
   getUserLocation() async {

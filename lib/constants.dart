@@ -52,6 +52,7 @@ const String kRecommendation = "kRecommendation";
 const String kLanguage = "kLanguage";
 const String kUploadImage = "kUploadImage";
 const String kTellUsAboutYou = "kTellUsAboutYou";
+const String kBirthDateController = "kBirthDateController";
 const String kFromCamera = "kFromCamera";
 const String kFromGallery = "kFromGallery";
 const String kProfessionalDescription = "kProfessionalDescription";

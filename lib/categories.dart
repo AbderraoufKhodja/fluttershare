@@ -22,6 +22,7 @@ const List<String> categoryList = [
   "Production",
   "Protective Service",
   "Sales and Related",
+  "Other",
 ];
 const List<List<String>> subCategoryList = [
   [
@@ -106,8 +107,8 @@ const List<List<String>> subCategoryList = [
     "Water/Wastewater Engineers",
     "Wind Energy Engineers"
   ],
-  [],
-  [],
+  ["0", "1", "2"],
+  ["a", "b", "c"],
   [],
   [],
   [],
