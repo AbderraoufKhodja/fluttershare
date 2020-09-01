@@ -65,28 +65,7 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
                 Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Container(
-                    child: Form(
-                      key: _formKey,
-                      autovalidate: true,
-                      child: TextFormField(
-                        validator: (val) {
-                          if (val.trim().length < 3 || val.isEmpty) {
-                            return "Username too short";
-                          } else if (val.trim().length > 12) {
-                            return "Username too long";
-                          } else {
-                            return null;
-                          }
-                        },
-                        onSaved: (val) => username = val,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: "Username",
-                          labelStyle: TextStyle(fontSize: 15.0),
-                          hintText: "Must be at least 3 characters",
-                        ),
-                      ),
-                    ),
+                    child: buildForm(),
                   ),
                 ),
                 GestureDetector(
@@ -115,6 +94,37 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
         ],
       ),
     );
+  }
+
+  Form buildForm() {
+    return Form(
+      key: _formKey,
+      autovalidate: true,
+      child: TextFormField(
+        validator: (val) {
+          if (val.trim().length < 3 || val.isEmpty) {
+            return "Username too short";
+          } else if (val.trim().length > 12) {
+            return "Username too long";
+          } else {
+            return null;
+          }
+        },
+        onSaved: (val) => username = val,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(),
+          labelText: "Username",
+          labelStyle: TextStyle(fontSize: 15.0),
+          hintText: "Must be at least 3 characters",
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _formKey.currentState.dispose();
+    super.dispose();
   }
 }
 
