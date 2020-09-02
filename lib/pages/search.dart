@@ -88,11 +88,7 @@ class _SearchState extends State<Search>
         }
         List<UserResult> searchResults = [];
         snapshot.data.documents.forEach((doc) {
-          User user;
-          if (doc['isFreelancer'] == true)
-            user = User.freelancerFromDocument(doc);
-          else
-            user = User.clientFromDocument(doc);
+          User user = User.fromDocument(doc);
           UserResult searchResult = UserResult(user);
           searchResults.add(searchResult);
         });

@@ -140,20 +140,14 @@ class _HomeState extends State<Home> {
       if (isSuccessful == true) {
         // 3) get username from create account, use it to make new user document in users collection
         doc = await usersRef.document(user.id).get();
-        if (doc['isFreelancer'] == true)
-          currentUser = User.freelancerFromDocument(doc);
-        else
-          currentUser = User.clientFromDocument(doc);
+        currentUser = User.fromDocument(doc);
       } else
         logout();
 
       return isSuccessful;
     }
 
-    if (doc['isFreelancer'] == true)
-      currentUser = User.freelancerFromDocument(doc);
-    else
-      currentUser = User.clientFromDocument(doc);
+    currentUser = User.fromDocument(doc);
     return isSuccessful;
   }
 

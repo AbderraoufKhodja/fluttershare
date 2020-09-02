@@ -53,4 +53,10 @@ class User {
         subCategory: doc['subCategory'],
         jobTitle: doc['jobTitle']);
   }
+  factory User.fromDocument(DocumentSnapshot doc) {
+    if (doc['isFreelancer'] == true)
+      return User.freelancerFromDocument(doc);
+    else
+      return User.clientFromDocument(doc);
+  }
 }

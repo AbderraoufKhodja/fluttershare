@@ -5,7 +5,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
-import 'file:///C:/Users/ZJNU/Documents/AndroidStudioProjects/fluttershare/lib/pages/original%20fluttershare/comments.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/widgets/custom_image.dart';
@@ -101,11 +100,7 @@ class _PostState extends State<Post> {
         if (!snapshot.hasData) {
           return circularProgress();
         }
-        User user;
-        if (snapshot.data['isFreelancer'] == true)
-          user = User.freelancerFromDocument(snapshot.data);
-        else
-          user = User.clientFromDocument(snapshot.data);
+        User user = User.fromDocument(snapshot.data);
         bool isPostOwner = currentUserId == jobOwnerId;
         return ListTile(
           leading: CircleAvatar(
@@ -314,12 +309,12 @@ class _PostState extends State<Post> {
             ),
             Padding(padding: EdgeInsets.only(right: 20.0)),
             GestureDetector(
-              onTap: () => showComments(
-                context,
-                postId: postId,
-                jobOwnerId: jobOwnerId,
-                mediaUrl: mediaUrl,
-              ),
+//              onTap: () => showComments(
+//                context,
+//                postId: postId,
+//                jobOwnerId: jobOwnerId,
+//                mediaUrl: mediaUrl,
+//              ),
               child: Icon(
                 Icons.chat,
                 size: 28.0,
@@ -376,14 +371,14 @@ class _PostState extends State<Post> {
     );
   }
 }
-
-showComments(BuildContext context,
-    {String postId, String jobOwnerId, String mediaUrl}) {
-  Navigator.push(context, MaterialPageRoute(builder: (context) {
-    return Comments(
-      postId: postId,
-      postOwnerId: jobOwnerId,
-      postMediaUrl: mediaUrl,
-    );
-  }));
-}
+//
+//showComments(BuildContext context,
+//    {String postId, String jobOwnerId, String mediaUrl}) {
+//  Navigator.push(context, MaterialPageRoute(builder: (context) {
+//    return Comments(
+//      postId: postId,
+//      postOwnerId: jobOwnerId,
+//      postMediaUrl: mediaUrl,
+//    );
+//  }));
+//}
