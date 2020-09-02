@@ -66,6 +66,28 @@ const String kGenderController = "kGenderController";
 const String kMale = "kMale";
 const String kFemale = "kFemale";
 const String kCountry = "kCountry";
+const String kProfessionalCategoryController =
+    "kProfessionalCategoryController";
+const String kUsernameInstruction = "kUsernameInstruction";
+const String kProfessionalTitleInstruction = "kProfessionalTitleInstruction";
+const String kPersonalBioInstruction = "kPersonalBioInstruction";
+const String kLocationInstruction = "kLocationInstruction";
+const String kBirthDateInstruction = "kBirthDateInstruction";
+const String kGenderInstruction = "kGenderInstruction";
+const String kProfessionalDescriptionInstruction =
+    "kProfessionalDescriptionInstruction";
+const String kProfessionalCategoryInstruction =
+    "kProfessionalCategoryInstruction";
+const String kKeyWordsInstruction = "kKeyWordsInstruction";
+const String kDiplomaInstruction = "kDiplomaInstruction";
+const String kLicenceInstruction = "kLicenceInstruction";
+const String kCertificationInstruction = "kCertificationInstruction";
+const String kLanguageInstruction = "kLanguageInstruction";
+const String kExperienceInstruction = "kExperienceInstruction";
+const String kInternshipInstruction = "kInternshipInstruction";
+const String kCompetencesInstruction = "kCompetencesInstruction";
+const String kAchievementInstruction = "kAchievementInstruction";
+const String kRecommendationInstruction = "kRecommendationInstruction";
 
 const String kBlankProfileUrl =
     "https://firebasestorage.googleapis.com/v0/b/khadamat-2dbbb.appspot.com/o/images.jpg?alt=media&token=72cc8bac-1f0c-4ab7-9545-ec3f15478bcf";

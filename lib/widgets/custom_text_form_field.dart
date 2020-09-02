@@ -6,6 +6,7 @@ class CustomTextFormField extends StatelessWidget {
   final String hint;
   final Function onTap;
   final Function(String text) validator;
+  final TextStyle style;
 
   final bool readOnly;
 
@@ -16,6 +17,7 @@ class CustomTextFormField extends StatelessWidget {
     this.onTap,
     this.validator,
     this.readOnly = false,
+    this.style,
   });
 
   @override
@@ -29,6 +31,7 @@ class CustomTextFormField extends StatelessWidget {
             readOnly: readOnly,
             onTap: onTap,
             controller: controller,
+            style: style,
             decoration: InputDecoration(
               hintText: hint,
               border: InputBorder.none,
