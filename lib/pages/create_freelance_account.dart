@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:khadamat/constants.dart';
@@ -524,19 +525,22 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     return showDialog(
       context: parentContext,
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) => SimpleDialog(
-            title: Text(kSelectLocation),
-            children: <Widget>[
-              buildTwoDependantDropdownCategoryMenu(setState),
-              SimpleDialogOption(
-                child: Icon(
-                  Icons.check,
-                  color: Colors.green,
-                ),
-                onPressed: () => Navigator.pop(context),
-              )
-            ],
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: StatefulBuilder(
+            builder: (context, setState) => SimpleDialog(
+              title: Text(kSelectLocation),
+              children: <Widget>[
+                buildTwoDependantDropdownCategoryMenu(context, setState),
+                SimpleDialogOption(
+                  child: Icon(
+                    Icons.check,
+                    color: Colors.green,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                )
+              ],
+            ),
           ),
         );
       },
@@ -617,157 +621,125 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     }
   }
 
-  buildTwoDependantDropdownCategoryMenu(StateSetter setState) {
+  buildTwoDependantDropdownCategoryMenu(
+      BuildContext context, StateSetter setState) {
     return Column(
       children: [
-        ListTile(
-          title: DropdownButton<String>(
-              value: category,
-              icon: Container(
-                child: Icon(Icons.list),
-              ),
-              iconSize: 24,
-              elevation: 16,
-              isExpanded: true,
-              style: TextStyle(color: Colors.grey),
-              iconDisabledColor: Colors.black,
-              iconEnabledColor: Colors.grey,
-              underline: Container(
-                height: 2,
-                color: Colors.grey,
-              ),
-              onChanged: (String val) {
-                setState(() {
-                  subCategory = null;
-                  category = val;
-                  professionalCategoryController.text =
-                      "$category\n    ➤${subCategory == null ? "" : subCategory}";
-                  getSubCategoryList(setState);
-                });
-              },
-              items: categoriesList
-                  .map(
-                    (category) => DropdownMenuItem<String>(
-                      value: category,
-                      child: Text(
-                        category,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                  )
-                  .toList()),
+        buildListTile(
+          setState,
+          onChanged: (String val) {
+            setState(() {
+              subCategory = null;
+              category = val;
+              professionalCategoryController.text =
+                  "$category\n    ➤${subCategory == null ? "" : subCategory}";
+              getSubCategoryList(setState);
+            });
+          },
+          value: category,
+          items: categoriesList,
         ),
-        ListTile(
-          title: DropdownButton<String>(
-              value: subCategory,
-              icon: Container(
-                child: Icon(Icons.list),
-              ),
-              iconSize: 24,
-              elevation: 16,
-              isExpanded: true,
-              style: TextStyle(color: Colors.blueAccent),
-              iconDisabledColor: Colors.black,
-              iconEnabledColor: Colors.grey,
-              underline: Container(
-                height: 2,
-                color: Colors.grey,
-              ),
-              onChanged: (String value) {
-                setState(() {
-                  subCategory = value;
-                  professionalCategoryController.text =
-                      "$category\n    ➤$subCategory";
-                });
-              },
-              items: subCategoriesList
-                  .map((value) => DropdownMenuItem(
-                        value: value,
-                        child: Text(
-                          value,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                        ),
-                      ))
-                  .toList()),
+        buildListTile(
+          setState,
+          value: subCategory,
+          onChanged: (String value) {
+            setState(() {
+              subCategory = value;
+              professionalCategoryController.text =
+                  "$category\n    ➤$subCategory";
+            });
+          },
+          items: subCategoriesList,
+          onIconPressed: () => showInputBottomSheet(context),
         ),
       ],
+    );
+  }
+
+  PersistentBottomSheetController showInputBottomSheet(BuildContext context) {
+    return Scaffold.of(context).showBottomSheet(
+      (BuildContext context) => Container(
+        height: 200.0,
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(30.0),
+              topLeft: Radius.circular(30.0),
+            )),
+      ),
+      backgroundColor: Colors.transparent,
+    );
+  }
+
+  ListTile buildListTile(StateSetter setState,
+      {Function(String val) onChanged,
+      String value,
+      List<String> items,
+      Function onIconPressed}) {
+    return ListTile(
+      title: DropdownButton<String>(
+          value: value,
+          icon: Container(
+            child: Icon(Icons.list),
+          ),
+          iconSize: 24,
+          elevation: 16,
+          isExpanded: true,
+          style: TextStyle(color: Colors.grey),
+          iconDisabledColor: Colors.black,
+          iconEnabledColor: Colors.grey,
+          underline: Container(
+            height: 2,
+            color: Colors.grey,
+          ),
+          onChanged: onChanged,
+          items: items
+              .map(
+                (category) => DropdownMenuItem<String>(
+                  value: category,
+                  child: Text(
+                    category,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+              )
+              .toList()),
+      trailing: Builder(
+        builder: (context) => IconButton(
+          icon: Icon(Icons.add_circle),
+          onPressed: onIconPressed,
+        ),
+      ),
     );
   }
 
   buildTwoDependantDropdownLocationMenu(StateSetter setState) {
     return Column(
       children: [
-        ListTile(
-          title: DropdownButton<String>(
-              value: administrativeArea,
-              icon: Container(
-                child: Icon(Icons.list),
-              ),
-              iconSize: 24,
-              elevation: 16,
-              isExpanded: true,
-              style: TextStyle(color: Colors.grey),
-              iconDisabledColor: Colors.black,
-              iconEnabledColor: Colors.grey,
-              underline: Container(
-                height: 2,
-                color: Colors.grey,
-              ),
-              onChanged: (String val) {
-                setState(() {
-                  subAdministrativeArea = null;
-                  administrativeArea = val;
-                  valIndex = provinceLatinNameList.indexOf(val);
-                });
-              },
-              items: provinceLatinNameList
-                  .map(
-                    (value) => DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(
-                        value,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                  )
-                  .toList()),
+        buildListTile(
+          setState,
+          value: administrativeArea,
+          onChanged: (String val) {
+            setState(() {
+              subAdministrativeArea = null;
+              administrativeArea = val;
+              valIndex = provinceLatinNameList.indexOf(val);
+            });
+          },
+          items: provinceLatinNameList,
         ),
-        ListTile(
-          title: DropdownButton<String>(
-              value: subAdministrativeArea,
-              icon: Container(
-                child: Icon(Icons.list),
-              ),
-              iconSize: 24,
-              elevation: 16,
-              isExpanded: true,
-              style: TextStyle(color: Colors.blueAccent),
-              iconDisabledColor: Colors.black,
-              iconEnabledColor: Colors.grey,
-              underline: Container(
-                height: 2,
-                color: Colors.grey,
-              ),
-              onChanged: (String value) {
-                setState(() {
-                  subAdministrativeArea = value;
-                  locationController.text =
-                      "$subAdministrativeArea, $administrativeArea, $country";
-                });
-              },
-              items: communeLatinNameList[valIndex]
-                  .map((value) => DropdownMenuItem(
-                        value: value,
-                        child: Text(
-                          value,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                        ),
-                      ))
-                  .toList()),
+        buildListTile(
+          setState,
+          value: subAdministrativeArea,
+          onChanged: (String value) {
+            setState(() {
+              subAdministrativeArea = value;
+              locationController.text =
+                  "$subAdministrativeArea, $administrativeArea, $country";
+            });
+          },
+          items: communeLatinNameList[valIndex],
         ),
       ],
     );
