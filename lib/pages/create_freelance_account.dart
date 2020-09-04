@@ -4,11 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:khadamat/constants.dart';
-import 'package:khadamat/locations.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/custom_text_form_field.dart';
@@ -31,7 +29,6 @@ class CreateFreelanceAccount extends StatefulWidget {
 class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     with AutomaticKeepAliveClientMixin<CreateFreelanceAccount> {
   TextEditingController usernameController = TextEditingController();
-  TextEditingController professionalTitleController = TextEditingController();
   TextEditingController personalBioController = TextEditingController();
   TextEditingController locationController = TextEditingController();
   TextEditingController birthDateController = TextEditingController();
@@ -40,13 +37,17 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       TextEditingController();
   TextEditingController professionalCategoryController =
       TextEditingController();
-  String category;
-  List<String> categoriesList = [""];
-  List<String> subCategoriesList = [""];
-  String subCategory;
-  String country = kCountry;
+  TextEditingController professionalTitleController = TextEditingController();
+  String professionalCategory;
+  String professionalTitle;
+  List<String> professionalCategoriesList = [""];
+  List<String> professionalTitlesList = [""];
+  String country;
   String administrativeArea;
   String subAdministrativeArea;
+  List<String> countriesList = [""];
+  List<String> administrativeAreasList = [""];
+  List<String> subAdministrativeAreasList = [""];
   TextEditingController keyWord1Controller = TextEditingController();
   TextEditingController keyWord2Controller = TextEditingController();
   TextEditingController keyWord3Controller = TextEditingController();
@@ -61,6 +62,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   TextEditingController recommendationController = TextEditingController();
   TextEditingController languageController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final _categoryScaffoldKey = GlobalKey<ScaffoldState>();
 
   File file;
   bool isUploading = false;
@@ -75,36 +77,37 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   @override
   void initState() {
     super.initState();
-    getCategoryList();
+    getCategoriesList();
+    getCountriesList();
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black), onPressed: null),
-        title: Text(
-          kProfessionalInfo,
-          style: TextStyle(color: Colors.black),
-        ),
-        actions: [
-          FlatButton(
-            onPressed: isUploading ? null : () => handleSubmit(),
-            child: Text(
-              kSubmit,
-              style: TextStyle(
-                color: Colors.blueAccent,
-                fontWeight: FontWeight.bold,
-                fontSize: 20.0,
-              ),
-            ),
-          ),
-        ],
-      ),
+      backgroundColor: Colors.white70,
+//      appBar: AppBar(
+//        backgroundColor: Colors.white,
+//        leading: IconButton(
+//            icon: Icon(Icons.arrow_back, color: Colors.black), onPressed: null),
+//        title: Text(
+//          kProfessionalInfo,
+//          style: TextStyle(color: Colors.black),
+//        ),
+//        actions: [
+//          FlatButton(
+//            onPressed: isUploading ? null : () => handleSubmit(),
+//            child: Text(
+//              kSubmit,
+//              style: TextStyle(
+//                color: Colors.blueAccent,
+//                fontWeight: FontWeight.bold,
+//                fontSize: 20.0,
+//              ),
+//            ),
+//          ),
+//        ],
+//      ),
       body: Form(
         key: _formKey,
         child: Column(
@@ -142,97 +145,65 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
             ),
             Expanded(
               child: Container(
-                padding: EdgeInsets.only(right: 5.0, left: 5.0, top: 15.0),
+                padding: EdgeInsets.only(right: 5.0, left: 5.0),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(30.0),
                         topRight: Radius.circular(30.0)),
-                    color: Colors.blueGrey),
+                    color: Colors.white),
                 child: ListView(
                   children: <Widget>[
-                    Container(
-                      margin: EdgeInsets.all(5.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.white,
-                      ),
-                      child: Column(
-                        children: [
-                          CustomTextFormField(
-                            validator: (text) =>
-                                checkLength(text, label: kPersonelBio),
-                            controller: usernameController,
-                            hint: kUsername,
-                            onTap: () =>
-                                updateInstruction(kUsernameInstruction),
-                          ),
-                          CustomTextFormField(
-                              validator: (text) =>
-                                  checkLength(text, label: kPersonelBio),
-                              controller: professionalTitleController,
-                              hint: kProfessionalTitle,
-                              onTap: () => updateInstruction(
-                                  kProfessionalTitleInstruction)),
-                          CustomTextFormField(
-                              validator: (text) =>
-                                  checkLength(text, label: kPersonelBio),
-                              controller: personalBioController,
-                              hint: kPersonelBio,
-                              onTap: () =>
-                                  updateInstruction(kPersonalBioInstruction)),
-                          CustomTextFormField(
-                              validator: (text) =>
-                                  checkLength(text, label: kLocation),
-                              controller: locationController,
-                              hint: kLocation,
-                              readOnly: true,
-                              trailing: buildLocationButton(),
-                              onTap: () async {
-                                updateInstruction(kLocationInstruction);
-                                await showLocationList(context);
-                              }),
-                          CustomTextFormField(
-                              validator: (text) => checkLength(text,
-                                  label: kBirthDateController),
-                              controller: birthDateController,
-                              hint: kBirthDateController,
-                              trailing: buildBirthDateGestureDetector(),
-                              readOnly: true,
-                              onTap: () {
-                                updateInstruction(kBirthDateInstruction);
-                                showCalender();
-                              }),
-                          CustomTextFormField(
-                              validator: (text) =>
-                                  checkLength(text, label: kGenderController),
-                              controller: genderController,
-                              hint: kGenderController,
-                              readOnly: true,
-                              onTap: () {
-                                updateInstruction(kGenderInstruction);
-                                selectGender(context);
-                              }),
-                        ],
-                      ),
+                    CustomTextFormField(
+                      validator: (text) =>
+                          checkLength(text, label: kPersonalBio),
+                      controller: usernameController,
+                      hint: kUsername,
+                      onTap: () => updateInstruction(kUsernameInstruction),
                     ),
-                    Container(
-                      margin: EdgeInsets.all(5.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.white,
-                      ),
-                      child: Column(
-                        children: [
-                          CustomTextFormField(
-                              validator: (text) => checkLength(text,
-                                  label: kProfessionalDescription),
-                              controller: professionalDescriptionController,
-                              hint: kProfessionalDescription,
-                              onTap: () => updateInstruction(
-                                  kProfessionalDescriptionInstruction)),
-                          CustomTextFormField(
+                    CustomTextFormField(
+                        validator: (text) =>
+                            checkLength(text, label: kPersonalBio),
+                        controller: personalBioController,
+                        hint: kPersonalBio,
+                        onTap: () =>
+                            updateInstruction(kPersonalBioInstruction)),
+                    CustomTextFormField(
+                        validator: (text) =>
+                            checkLocationAddress(text, label: kLocation),
+                        controller: locationController,
+                        hint: kLocation,
+                        readOnly: true,
+                        trailing: buildLocationButton(),
+                        onTap: () async {
+                          updateInstruction(kLocationInstruction);
+                          await showLocationList(context);
+                        }),
+                    CustomTextFormField(
+                        validator: (text) =>
+                            checkLength(text, label: kBirthDateController),
+                        controller: birthDateController,
+                        hint: kBirthDateController,
+                        trailing: buildBirthDateGestureDetector(),
+                        readOnly: true,
+                        onTap: () {
+                          updateInstruction(kBirthDateInstruction);
+                          showCalender();
+                        }),
+                    CustomTextFormField(
+                        validator: (text) =>
+                            checkLength(text, label: kGenderController),
+                        controller: genderController,
+                        hint: kGenderController,
+                        readOnly: true,
+                        onTap: () {
+                          updateInstruction(kGenderInstruction);
+                          selectGender(context);
+                        }),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextFormField(
                               readOnly: true,
-                              style: TextStyle(height: 1.5),
                               validator: (text) => checkLength(text,
                                   label: kProfessionalCategoryController),
                               controller: professionalCategoryController,
@@ -242,113 +213,155 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                                     kProfessionalCategoryInstruction);
                                 await showCategoryList(context);
                               }),
-                          Container(
-                            margin: EdgeInsets.all(5.0),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              color: Colors.white,
-                            ),
-                            child: Column(
-                              children: [
-                                CustomTextFormField(
-                                    validator: (text) =>
-                                        checkLength(text, label: kKeyWords),
-                                    controller: keyWord1Controller,
-                                    hint: "$kKeyWords 1",
-                                    onTap: () => updateInstruction(
-                                        kKeyWordsInstruction)),
-                                CustomTextFormField(
-                                    validator: (text) =>
-                                        checkLength(text, label: kKeyWords),
-                                    controller: keyWord2Controller,
-                                    hint: "$kKeyWords 2",
-                                    onTap: () => updateInstruction(
-                                        kKeyWordsInstruction)),
-                                CustomTextFormField(
-                                    validator: (text) =>
-                                        checkLength(text, label: kKeyWords),
-                                    controller: keyWord3Controller,
-                                    hint: "$kKeyWords 3",
-                                    onTap: () => updateInstruction(
-                                        kKeyWordsInstruction)),
-                                CustomTextFormField(
-                                    validator: (text) =>
-                                        checkLength(text, label: kKeyWords),
-                                    controller: keyWord4Controller,
-                                    hint: "$kKeyWords 4",
-                                    onTap: () => updateInstruction(
-                                        kKeyWordsInstruction)),
-                              ],
-                            ),
+                        ),
+                        Container(
+                          height: 30,
+                          child: VerticalDivider(
+                            width: 2,
+                            color: Colors.black,
                           ),
-                        ],
-                      ),
+                        ),
+                        Expanded(
+                          child: CustomTextFormField(
+                              readOnly: true,
+                              validator: (text) =>
+                                  checkLength(text, label: kProfessionalTitle),
+                              controller: professionalTitleController,
+                              hint: kProfessionalTitleHint,
+                              onTap: () async {
+                                updateInstruction(
+                                    kProfessionalTitleInstruction);
+                                await showCategoryList(context);
+                              }),
+                        ),
+                      ],
                     ),
-                    Container(
-                      margin: EdgeInsets.all(5.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.white,
-                      ),
-                      child: Column(
-                        children: [
-                          CustomTextFormField(
-                            controller: diplomaController,
-                            hint: kDiploma,
-                            onTap: () => updateInstruction(kDiplomaInstruction),
+                    CustomTextFormField(
+                        validator: (text) =>
+                            checkLength(text, label: kProfessionalDescription),
+                        controller: professionalDescriptionController,
+                        hint: kProfessionalDescription,
+                        onTap: () => updateInstruction(
+                            kProfessionalDescriptionInstruction)),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextFormField(
+                              validator: (text) =>
+                                  checkLength(text, label: kKeyWords),
+                              controller: keyWord1Controller,
+                              hint: "$kKeyWords 1",
+                              onTap: () =>
+                                  updateInstruction(kKeyWordsInstruction)),
+                        ),
+                        Container(
+                          height: 30,
+                          child: VerticalDivider(
+                            width: 2,
+                            color: Colors.black,
                           ),
-                          CustomTextFormField(
-                              controller: licenceController,
-                              hint: kLicence,
+                        ),
+                        Expanded(
+                          child: CustomTextFormField(
+                              validator: (text) =>
+                                  checkLength(text, label: kKeyWords),
+                              controller: keyWord2Controller,
+                              hint: "$kKeyWords 2",
                               onTap: () =>
-                                  updateInstruction(kLicenceInstruction)),
-                          CustomTextFormField(
-                              controller: certificationController,
-                              hint: kCertification,
-                              onTap: () =>
-                                  updateInstruction(kCertificationInstruction)),
-                          CustomTextFormField(
-                              controller: languageController,
-                              hint: kLanguage,
-                              onTap: () =>
-                                  updateInstruction(kLanguageInstruction)),
-                        ],
-                      ),
+                                  updateInstruction(kKeyWordsInstruction)),
+                        ),
+                      ],
                     ),
-                    Container(
-                      margin: EdgeInsets.all(5.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Colors.white,
-                      ),
-                      child: Column(
-                        children: [
-                          CustomTextFormField(
-                              controller: experienceController,
-                              hint: kExperience,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextFormField(
+                              validator: (text) =>
+                                  checkLength(text, label: kKeyWords),
+                              controller: keyWord3Controller,
+                              hint: "$kKeyWords 3",
                               onTap: () =>
-                                  updateInstruction(kExperienceInstruction)),
-                          CustomTextFormField(
-                              controller: internshipController,
-                              hint: kInternship,
+                                  updateInstruction(kKeyWordsInstruction)),
+                        ),
+                        Container(
+                          height: 30,
+                          child: VerticalDivider(
+                            width: 2,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Expanded(
+                          child: CustomTextFormField(
+                              validator: (text) =>
+                                  checkLength(text, label: kKeyWords),
+                              controller: keyWord4Controller,
+                              hint: "$kKeyWords 4",
                               onTap: () =>
-                                  updateInstruction(kInternshipInstruction)),
-                          CustomTextFormField(
-                              controller: competenceController,
-                              hint: kCompetences,
-                              onTap: () =>
-                                  updateInstruction(kCompetencesInstruction)),
-                          CustomTextFormField(
-                              controller: achievementController,
-                              hint: kAchievement,
-                              onTap: () =>
-                                  updateInstruction(kAchievementInstruction)),
-                          CustomTextFormField(
-                              controller: recommendationController,
-                              hint: kRecommendation,
-                              onTap: () => updateInstruction(
-                                  kRecommendationInstruction)),
-                        ],
+                                  updateInstruction(kKeyWordsInstruction)),
+                        ),
+                      ],
+                    ),
+                    CustomTextFormField(
+                      controller: diplomaController,
+                      hint: kDiploma,
+                      onTap: () => updateInstruction(kDiplomaInstruction),
+                    ),
+                    CustomTextFormField(
+                        controller: licenceController,
+                        hint: kLicence,
+                        onTap: () => updateInstruction(kLicenceInstruction)),
+                    CustomTextFormField(
+                        controller: certificationController,
+                        hint: kCertification,
+                        onTap: () =>
+                            updateInstruction(kCertificationInstruction)),
+                    CustomTextFormField(
+                        controller: languageController,
+                        hint: kLanguage,
+                        onTap: () => updateInstruction(kLanguageInstruction)),
+                    CustomTextFormField(
+                        controller: experienceController,
+                        hint: kExperience,
+                        onTap: () => updateInstruction(kExperienceInstruction)),
+                    CustomTextFormField(
+                        controller: internshipController,
+                        hint: kInternship,
+                        onTap: () => updateInstruction(kInternshipInstruction)),
+                    CustomTextFormField(
+                        controller: competenceController,
+                        hint: kCompetences,
+                        onTap: () =>
+                            updateInstruction(kCompetencesInstruction)),
+                    CustomTextFormField(
+                        controller: achievementController,
+                        hint: kAchievement,
+                        onTap: () =>
+                            updateInstruction(kAchievementInstruction)),
+                    CustomTextFormField(
+                        controller: recommendationController,
+                        hint: kRecommendation,
+                        onTap: () =>
+                            updateInstruction(kRecommendationInstruction)),
+                    GestureDetector(
+                      onTap: isUploading ? null : () => handleSubmit(),
+                      child: Container(
+                        margin: EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 20.0),
+                        height: 50.0,
+                        width: 350.0,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(7.0),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Submit",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -362,16 +375,26 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   }
 
   String checkLength(value,
-      {@required String label, int min = 3, int max = 1000}) {
-    print(value.isEmpty);
-    print(value.trim().length < min);
+      {@required String label, int min = 2, int max = 1000}) {
     if (value.trim().length < min || value.isEmpty) {
-      return "$label too short";
+      return "$label $kTooShort";
     } else if (value.trim().length > max) {
-      return "$label too long";
+      return "$label $kTooLong";
     } else {
       return null;
     }
+  }
+
+  String checkLocationAddress(String value,
+      {@required String label, int min = 2, int max = 1000}) {
+    if (value.trim().length < min || value.isEmpty) {
+      return "$label $kTooShort";
+    } else if (value.trim().length > max) {
+      return "$label $kTooLong";
+    } else if (value.contains("#")) {
+      return "$label $kLocationErrorText";
+    } else
+      return null;
   }
 
   uploadUsersProfessionalInfo(String mediaUrl) {
@@ -383,16 +406,15 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       "isFreelancer": true,
       "mediaUrl": mediaUrl,
       "username": usernameController.text,
-      "ProfessionalTitle": professionalTitleController.text,
       "personalBio": personalBioController.text,
       "location": locationController.text,
       "birthDate": birthDateController.text,
       "gender": genderController.text,
+      "professionalCategory": professionalCategory,
+      "professionalTitle": professionalTitleController.text,
       "professionalDescription": professionalDescriptionController.text,
       "keyWords": "$keyWord1Controller;$keyWord2Controller;"
           "$keyWord3Controller;$keyWord4Controller;",
-      "category": category,
-      "subCategory": subCategory,
       "diploma": diplomaController.text,
       "licence": licenceController.text,
       "certification": certificationController.text,
@@ -402,7 +424,6 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       "competence": competenceController.text,
       "achievement": achievementController.text,
       "recommendation": recommendationController.text,
-      "claps": {},
       "timestamp": FieldValue.serverTimestamp(),
     });
   }
@@ -502,19 +523,22 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     return showDialog(
       context: parentContext,
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) => SimpleDialog(
-            title: Text(kSelectLocation),
-            children: <Widget>[
-              buildTwoDependantDropdownLocationMenu(setState),
-              SimpleDialogOption(
-                child: Icon(
-                  Icons.check,
-                  color: Colors.green,
-                ),
-                onPressed: () => Navigator.pop(context),
-              )
-            ],
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: StatefulBuilder(
+            builder: (context, setState) => SimpleDialog(
+              title: Text(kSelectLocation),
+              children: <Widget>[
+                buildLocationDropdownMenu(setState),
+                SimpleDialogOption(
+                  child: Icon(
+                    Icons.check,
+                    color: Colors.green,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                )
+              ],
+            ),
           ),
         );
       },
@@ -526,12 +550,13 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       context: parentContext,
       builder: (context) {
         return Scaffold(
+          key: _categoryScaffoldKey,
           backgroundColor: Colors.transparent,
           body: StatefulBuilder(
             builder: (context, setState) => SimpleDialog(
               title: Text(kSelectLocation),
               children: <Widget>[
-                buildTwoDependantDropdownCategoryMenu(context, setState),
+                buildProfessionalCategoryDropdownMenu(context, setState),
                 SimpleDialogOption(
                   child: Icon(
                     Icons.check,
@@ -621,61 +646,17 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     }
   }
 
-  buildTwoDependantDropdownCategoryMenu(
-      BuildContext context, StateSetter setState) {
-    return Column(
-      children: [
-        buildListTile(
-          setState,
-          onChanged: (String val) {
-            setState(() {
-              subCategory = null;
-              category = val;
-              professionalCategoryController.text =
-                  "$category\n    ➤${subCategory == null ? "" : subCategory}";
-              getSubCategoryList(setState);
-            });
-          },
-          value: category,
-          items: categoriesList,
-        ),
-        buildListTile(
-          setState,
-          value: subCategory,
-          onChanged: (String value) {
-            setState(() {
-              subCategory = value;
-              professionalCategoryController.text =
-                  "$category\n    ➤$subCategory";
-            });
-          },
-          items: subCategoriesList,
-          onIconPressed: () => showInputBottomSheet(context),
-        ),
-      ],
-    );
-  }
-
-  PersistentBottomSheetController showInputBottomSheet(BuildContext context) {
-    return Scaffold.of(context).showBottomSheet(
-      (BuildContext context) => Container(
-        height: 200.0,
-        decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(30.0),
-              topLeft: Radius.circular(30.0),
-            )),
-      ),
-      backgroundColor: Colors.transparent,
-    );
-  }
-
-  ListTile buildListTile(StateSetter setState,
-      {Function(String val) onChanged,
-      String value,
-      List<String> items,
-      Function onIconPressed}) {
+  ListTile buildListTile(
+    StateSetter setState, {
+    Function(String val) onChanged,
+    Function(TextEditingController controller) onAddFieldIconPressed,
+    bool hasTrailing = true,
+    @required String value,
+    @required List<String> items,
+    TextEditingController parentController,
+    String addFieldHint,
+  }) {
+    final TextEditingController controller = TextEditingController();
     return ListTile(
       title: DropdownButton<String>(
           value: value,
@@ -692,7 +673,9 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
             height: 2,
             color: Colors.grey,
           ),
-          onChanged: onChanged,
+          onChanged: (value) {
+            onChanged(value);
+          },
           items: items
               .map(
                 (category) => DropdownMenuItem<String>(
@@ -705,18 +688,134 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                 ),
               )
               .toList()),
-      trailing: Builder(
-        builder: (context) => IconButton(
-          icon: Icon(Icons.add_circle),
-          onPressed: onIconPressed,
-        ),
-      ),
+      trailing: hasTrailing
+          ? Builder(
+              builder: (context) => IconButton(
+                icon: Icon(Icons.add_circle),
+                onPressed: () => parentController?.text?.trim()?.isNotEmpty ??
+                        true
+                    ? Scaffold.of(context).showBottomSheet(
+                        (BuildContext context) => Container(
+                          height: 60.0,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20.0)),
+                          ),
+                          child: CustomTextFormField(
+                            hint: addFieldHint,
+                            controller: controller,
+                            trailing: IconButton(
+                              icon: Icon(
+                                Icons.check,
+                                color: Colors.green,
+                              ),
+                              onPressed: () =>
+                                  onAddFieldIconPressed(controller),
+                            ),
+                          ),
+                        ),
+                        backgroundColor: Colors.transparent,
+                      )
+                    : _categoryScaffoldKey.currentState
+                        .showSnackBar(SnackBar(content: Text("prentEmpty"))),
+              ),
+            )
+          : Container(
+              width: 0,
+            ),
     );
   }
 
-  buildTwoDependantDropdownLocationMenu(StateSetter setState) {
+  buildProfessionalCategoryDropdownMenu(
+      BuildContext context, StateSetter setState) {
     return Column(
       children: [
+        buildListTile(
+          setState,
+          value: professionalCategory,
+          onChanged: (String val) {
+            setState(() {
+              professionalTitle = null;
+              professionalTitleController.clear();
+              professionalCategory = val;
+              professionalCategoryController.text = val;
+              getProfessionalTitlesList(setState);
+            });
+          },
+          items: professionalCategoriesList,
+
+          // Belongs to bottomSheet context
+          addFieldHint: kAddProfessionalCategory,
+          parentController: null,
+          onAddFieldIconPressed: (controller) {
+            if (checkLength(controller.text, label: kCheckProfessionalTitle) ==
+                null) {
+              handleAddProfessionalCategoriesList(
+                      setState: setState, professionalCategory: controller.text)
+                  .then((_) {
+                setState(() {
+                  professionalCategory = controller.text;
+                  professionalCategoryController.text = professionalCategory;
+                });
+                Navigator.pop(context);
+                controller.clear();
+              });
+            }
+          },
+        ),
+        buildListTile(
+          setState,
+          value: professionalTitle,
+          onChanged: (String value) {
+            setState(() {
+              professionalTitle = value;
+              professionalTitleController.text = value;
+            });
+          },
+          items: professionalTitlesList,
+          addFieldHint: kAddProfessionalTitle,
+          parentController: professionalCategoryController,
+          onAddFieldIconPressed: (controller) {
+            if (checkLength(controller.text,
+                    label: kCheckProfessionalCategory) ==
+                null) {
+              handleAddProfessionalTitlesList(
+                      setState: setState, professionalTitle: controller.text)
+                  .then((_) {
+                setState(() {
+                  professionalTitle = controller.text;
+                });
+                Navigator.pop(context);
+                controller.clear();
+              });
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  buildLocationDropdownMenu(StateSetter setState) {
+    return Column(
+      children: [
+        buildListTile(
+          setState,
+          value: country,
+          onChanged: (String val) {
+            setState(() {
+              administrativeArea = null;
+              subAdministrativeArea = null;
+              country = val;
+              locationController.text = "${subAdministrativeArea ?? "#"}, "
+                  "${administrativeArea ?? "#"}, ${country ?? "#"}";
+              getAdministrativeAreasList(setState);
+            });
+          },
+          items: countriesList,
+          hasTrailing: false,
+          // Add formField BottomSheet
+        ),
         buildListTile(
           setState,
           value: administrativeArea,
@@ -724,22 +823,26 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
             setState(() {
               subAdministrativeArea = null;
               administrativeArea = val;
-              valIndex = provinceLatinNameList.indexOf(val);
+              locationController.text = "${subAdministrativeArea ?? "#"}, "
+                  "${administrativeArea ?? "#"}, ${country ?? "#"}";
+              getSubAdministrativeAreasList(setState);
             });
           },
-          items: provinceLatinNameList,
+          items: administrativeAreasList,
+          hasTrailing: false,
         ),
         buildListTile(
           setState,
           value: subAdministrativeArea,
-          onChanged: (String value) {
+          onChanged: (String val) {
             setState(() {
-              subAdministrativeArea = value;
-              locationController.text =
-                  "$subAdministrativeArea, $administrativeArea, $country";
+              subAdministrativeArea = val;
+              locationController.text = "${subAdministrativeArea ?? "#"}, "
+                  "${administrativeArea ?? "#"}, ${country ?? "#"}";
             });
           },
-          items: communeLatinNameList[valIndex],
+          items: subAdministrativeAreasList,
+          hasTrailing: false,
         ),
       ],
     );
@@ -759,17 +862,20 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   }
 
   getUserLocation() async {
+    // TODO fix permission issue
     Position position =
         await getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     List<Placemark> placemarks =
         await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark placemark = placemarks[0];
-    String completeAddress =
-        '${placemark.subThoroughfare} ${placemark.thoroughfare}, ${placemark.subLocality} ${placemark.locality}, ${placemark.subAdministrativeArea}, ${placemark.administrativeArea} ${placemark.postalCode}, ${placemark.country}';
-    print(completeAddress);
     String formattedAddress =
-        " ${placemark.locality}, ${placemark.subAdministrativeArea}, ${placemark.administrativeArea}, ${placemark.country}";
+        " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"
+        " ${placemark.country}";
     locationController.text = formattedAddress;
+    addLocation(
+        country: country,
+        administrativeArea: administrativeArea,
+        subAdministrativeArea: subAdministrativeArea);
   }
 
   updateInstruction(String instruction) {
@@ -778,53 +884,95 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     });
   }
 
-  getCategoryList() async {
+  Future<void> getCategoriesList() async {
     QuerySnapshot snapshot = await categoriesRef.getDocuments();
     setState(() {
-      categoriesList = snapshot.documents.map((doc) => doc.documentID).toList();
-      subCategoriesList = [""];
+      professionalCategoriesList =
+          snapshot.documents.map((doc) => doc.documentID).toList();
+      professionalTitlesList = [""];
     });
   }
 
-  getSubCategoryList(StateSetter setState) async {
+  Future<void> getProfessionalTitlesList(StateSetter setState) async {
     QuerySnapshot snapshot = await categoriesRef
-        .document(category)
-        .collection("subCategories")
+        .document(professionalCategory)
+        .collection("professionalTitles")
         .getDocuments();
     setState(() {
-      subCategoriesList =
+      professionalTitlesList =
           snapshot.documents.map((doc) => doc.documentID).toList();
     });
   }
 
-  getCountryList() async {
-    QuerySnapshot snapshot = await categoriesRef.getDocuments();
+  getCountriesList() async {
+    QuerySnapshot snapshot = await locationsRef.getDocuments();
     setState(() {
-      categoriesList = snapshot.documents.map((doc) => doc.documentID).toList();
-      subCategoriesList = [""];
+      countriesList = snapshot.documents.map((doc) => doc.documentID).toList();
+      administrativeAreasList = [""];
+      subAdministrativeAreasList = [""];
     });
   }
 
-  getAdministrativeAreList(StateSetter setState) async {
-    QuerySnapshot snapshot = await categoriesRef
-        .document(category)
-        .collection("subCategories")
-        .getDocuments();
-    setState(() {
-      subCategoriesList =
-          snapshot.documents.map((doc) => doc.documentID).toList();
-    });
+  Future<void> getAdministrativeAreasList(StateSetter setState) async {
+    if (country.isNotEmpty) {
+      QuerySnapshot snapshot = await locationsRef
+          .document(country)
+          .collection("administrativeAreas")
+          .getDocuments();
+      setState(() {
+        administrativeAreasList =
+            snapshot.documents.map((doc) => doc.documentID).toList();
+        subAdministrativeAreasList = [""];
+      });
+    }
   }
 
-  getSubAdministrativeAreList(StateSetter setState) async {
-    QuerySnapshot snapshot = await categoriesRef
-        .document(category)
-        .collection("subCategories")
-        .getDocuments();
-    setState(() {
-      subCategoriesList =
-          snapshot.documents.map((doc) => doc.documentID).toList();
-    });
+  Future<void> getSubAdministrativeAreasList(StateSetter setState) async {
+    if (country.isNotEmpty && administrativeArea.isNotEmpty) {
+      QuerySnapshot snapshot = await locationsRef
+          .document(country)
+          .collection("administrativeAreas")
+          .document(administrativeArea)
+          .collection("subAdministrativeAreas")
+          .getDocuments();
+      setState(() {
+        subAdministrativeAreasList =
+            snapshot.documents.map((doc) => doc.documentID).toList();
+      });
+    }
+  }
+
+  Future<void> handleAddProfessionalCategoriesList(
+      {StateSetter setState, String professionalCategory}) async {
+    if (professionalCategory.isNotEmpty) {
+      await categoriesRef.document(professionalCategory).setData({});
+      getCategoriesList();
+    }
+  }
+
+  Future<void> handleAddProfessionalTitlesList(
+      {StateSetter setState, String professionalTitle}) async {
+    if (professionalTitle.isNotEmpty) {
+      await categoriesRef
+          .document(professionalCategory)
+          .collection("professionalTitles")
+          .document(professionalTitle)
+          .setData({});
+      getProfessionalTitlesList(setState);
+    }
+  }
+
+  Future<void> addLocation(
+      {String country,
+      String administrativeArea,
+      String subAdministrativeArea}) async {
+    return await locationsRef
+        .document(country)
+        .collection("administrativeAreas")
+        .document(administrativeArea)
+        .collection("subAdministrativeAreas")
+        .document(subAdministrativeArea)
+        .setData({});
   }
 }
 

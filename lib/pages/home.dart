@@ -21,6 +21,7 @@ final cardsRef = Firestore.instance.collection('cards');
 final postsRef = Firestore.instance.collection('posts');
 final jobsRef = Firestore.instance.collection('jobs');
 final categoriesRef = Firestore.instance.collection('categories');
+final locationsRef = Firestore.instance.collection('locations');
 final commentsRef = Firestore.instance.collection('comments');
 final reviewsRef = Firestore.instance.collection('reviews');
 final messagesRef = Firestore.instance.collection('messages');

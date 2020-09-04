@@ -123,7 +123,7 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
 
   @override
   void dispose() {
-    _formKey.currentState.dispose();
+    _formKey.currentState?.dispose();
     super.dispose();
   }
 }
