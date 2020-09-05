@@ -6,7 +6,6 @@ import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/create_freelance_account.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/jobs_screen.dart';
-import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/widgets/custom_button.dart';
 import 'package:khadamat/widgets/custom_image.dart';
 import 'package:khadamat/widgets/custom_list_tile.dart';
@@ -96,7 +95,6 @@ class _JobCardState extends State<JobCard> {
             backgroundColor: Theme.of(context).primaryColor,
           ),
           title: GestureDetector(
-            onTap: () => showProfile(context, profileId: job.jobOwnerId),
             child: Text(
               job.jobOwnerName,
               style: TextStyle(
@@ -106,7 +104,7 @@ class _JobCardState extends State<JobCard> {
             ),
           ),
           subtitle: Text(
-              "${job.timestamp != null ? timeago.format(job.timestamp.toDate()) : "a moment ago"}"
+              "${job.createdAt != null ? timeago.format(job.createdAt.toDate()) : "a moment ago"}"
               " | ${applicationsCount.toString()} applied"),
           trailing: Column(
             children: [
@@ -138,14 +136,14 @@ class _JobCardState extends State<JobCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomListTile(
-                  description: job.category,
+                  description: job.professionalCategory,
                   icon: Icon(
                     Icons.work,
                     color: Colors.blueGrey,
                   ),
                 ),
                 CustomListTile(
-                  description: job.description,
+                  description: job.jobDescription,
                   icon: Icon(
                     Icons.description,
                     color: Colors.blueGrey,
@@ -160,7 +158,7 @@ class _JobCardState extends State<JobCard> {
                   ),
                 ),
                 CustomListTile(
-                  description: job.schedule,
+                  description: job.dateRange,
                   icon: Icon(
                     Icons.schedule,
                     color: Colors.blueGrey,
@@ -172,7 +170,7 @@ class _JobCardState extends State<JobCard> {
           VerticalDivider(
             color: Colors.black,
           ),
-          job.mediaUrl.isEmpty
+          job.jobPhotoUrl.isEmpty
               ? Text("")
               : Container(
                   height: 100.0,
@@ -180,7 +178,7 @@ class _JobCardState extends State<JobCard> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5.0),
                   ),
-                  child: cachedNetworkImage(job.mediaUrl),
+                  child: cachedNetworkImage(job.jobPhotoUrl),
                 ),
         ],
       ),

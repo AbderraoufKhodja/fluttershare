@@ -165,6 +165,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                             checkLength(text, label: kPersonalBio),
                         controller: personalBioController,
                         hint: kPersonalBio,
+                        maxLines: null,
                         onTap: () =>
                             updateInstruction(kPersonalBioInstruction)),
                     CustomTextFormField(
@@ -241,6 +242,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                             checkLength(text, label: kProfessionalDescription),
                         controller: professionalDescriptionController,
                         hint: kProfessionalDescription,
+                        maxLines: null,
                         onTap: () => updateInstruction(
                             kProfessionalDescriptionInstruction)),
                     Row(
@@ -397,20 +399,20 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       return null;
   }
 
-  uploadUsersProfessionalInfo(String mediaUrl) {
+  uploadUsersProfessionalInfo(String professionalPhotoUrl) {
     usersRef.document(user.id).setData({
       "id": user.id,
       "googleName": user.googleName,
       "photoUrl": user.photoUrl,
       "email": user.email,
       "isFreelancer": true,
-      "mediaUrl": mediaUrl,
+      "professionalPhotoUrl": professionalPhotoUrl,
       "username": usernameController.text,
       "personalBio": personalBioController.text,
       "location": locationController.text,
       "birthDate": birthDateController.text,
       "gender": genderController.text,
-      "professionalCategory": professionalCategory,
+      "professionalCategory": professionalCategoryController.text,
       "professionalTitle": professionalTitleController.text,
       "professionalDescription": professionalDescriptionController.text,
       "keyWords": "${keyWord1Controller.text};${keyWord2Controller.text};"
@@ -441,8 +443,8 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
           file == null ? kBlankProfileUrl : await uploadImage(file);
       uploadUsersProfessionalInfo(mediaUrl);
       clearControllers();
-      clearImage();
       setState(() {
+        clearImage();
         isUploading = false;
       });
       Navigator.pop(context, true);
@@ -574,9 +576,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   }
 
   clearImage() {
-    setState(() {
-      file = null;
-    });
+    file = null;
   }
 
   compressImage() async {

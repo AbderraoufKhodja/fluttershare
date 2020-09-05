@@ -10,7 +10,7 @@ import 'package:timeago/timeago.dart' as timeago;
 
 class Messages extends StatefulWidget {
   final String jobId;
-  final String jobTitle;
+  final String professionalTitle;
   final String jobOwnerId;
   final String jobOwnerName;
   final String applicantId;
@@ -18,7 +18,7 @@ class Messages extends StatefulWidget {
 
   Messages({
     this.jobId,
-    this.jobTitle,
+    this.professionalTitle,
     this.jobOwnerId,
     this.jobOwnerName,
     this.applicantId,
@@ -28,7 +28,7 @@ class Messages extends StatefulWidget {
   @override
   MessagesState createState() => MessagesState(
         jobId: this.jobId,
-        jobTitle: this.jobTitle,
+        professionalTitle: this.professionalTitle,
         jobOwnerId: this.jobOwnerId,
         jobOwnerName: this.jobOwnerName,
         applicantId: this.applicantId,
@@ -39,7 +39,7 @@ class Messages extends StatefulWidget {
 class MessagesState extends State<Messages> {
   TextEditingController messageController = TextEditingController();
   final String jobId;
-  final String jobTitle;
+  final String professionalTitle;
   final String jobOwnerId;
   final String jobOwnerName;
   final String applicantId;
@@ -50,7 +50,7 @@ class MessagesState extends State<Messages> {
     this.jobId,
     this.jobOwnerId,
     this.jobOwnerName,
-    this.jobTitle,
+    this.professionalTitle,
     this.applicantId,
     this.applicantName,
   });
@@ -121,7 +121,7 @@ class MessagesState extends State<Messages> {
         stream: messagesRef
             .document(jobId)
             .collection('messages')
-            .orderBy("timestamp", descending: true)
+            .orderBy("createdAt", descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -145,7 +145,7 @@ class MessagesState extends State<Messages> {
         "username": currentUser.username,
         "message": messageController.text,
         "avatarUrl": currentUser.photoUrl,
-        "timestamp": FieldValue.serverTimestamp(),
+        "createdAt": FieldValue.serverTimestamp(),
       });
       String feedId = jobOwnerId;
       if (currentUser.id == jobOwnerId)
@@ -159,11 +159,11 @@ class MessagesState extends State<Messages> {
         "type": "message",
         "messageData": messageController.text,
         "jobId": jobId,
-        "jobTitle": jobTitle,
+        "professionalTitle": professionalTitle,
         "applicantId": currentUser.id,
         "applicantName": currentUser.username,
         "userProfileImg": currentUser.photoUrl,
-        "timestamp": FieldValue.serverTimestamp(),
+        "createdAt": FieldValue.serverTimestamp(),
       });
       messageController.clear();
     }
@@ -267,14 +267,14 @@ showMessages(BuildContext context,
     {String jobId,
     String jobOwnerId,
     String jobOwnerName,
-    String jobTitle,
+    String professionalTitle,
     String applicantId,
     String applicantName}) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
     return Messages(
       jobId: jobId,
       jobOwnerId: jobOwnerId,
-      jobTitle: jobTitle,
+      professionalTitle: professionalTitle,
       applicantId: applicantId,
       applicantName: applicantName,
     );

@@ -140,7 +140,7 @@ class _UploadState extends State<Upload>
       "mediaUrl": mediaUrl,
       "description": description,
       "location": location,
-      "timestamp": FieldValue.serverTimestamp(),
+      "createdAt": FieldValue.serverTimestamp(),
       "likes": {},
     });
   }

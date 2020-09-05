@@ -5,7 +5,6 @@ import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/jobs_screen.dart';
-import 'package:khadamat/pages/manage_job.dart';
 import 'package:khadamat/pages/messages_screen.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/widgets/progress.dart';
@@ -82,7 +81,7 @@ String activityItemText;
 class ActivityFeedItem extends StatelessWidget {
   final String type; // 'apply', 'accept', 'reject', 'hire', 'message'
   final String jobId;
-  final String jobTitle;
+  final String professionalTitle;
   final String jobOwnerName;
   final String jobOwnerId;
   final String applicantName;
@@ -94,7 +93,7 @@ class ActivityFeedItem extends StatelessWidget {
   ActivityFeedItem({
     this.type,
     this.jobId,
-    this.jobTitle,
+    this.professionalTitle,
     this.jobOwnerName,
     this.jobOwnerId,
     this.applicantName,
@@ -108,7 +107,7 @@ class ActivityFeedItem extends StatelessWidget {
     return ActivityFeedItem(
       type: doc['type'],
       jobId: doc['jobId'],
-      jobTitle: doc['jobTitle'],
+      professionalTitle: doc['professionalTitle'],
       jobOwnerName: doc['jobOwnerName'],
       jobOwnerId: doc['jobOwnerId'],
       applicantName: doc['applicantName'],
@@ -164,7 +163,7 @@ class ActivityFeedItem extends StatelessWidget {
     } else if (type == 'comment') {
       activityItemText = 'replied: $commentData';
     } else if (type == 'message') {
-      activityItemText = "You have a new message from $jobTitle";
+      activityItemText = "You have a new message from $professionalTitle";
     } else {
       activityItemText = "Error: Unknown type '$type'";
     }
@@ -189,7 +188,10 @@ class ActivityFeedItem extends StatelessWidget {
               print("applicantName: $applicantName");
               print("${job.applications}");
               showProfile(context,
-                  profileId: applicantId, profileName: applicantName, job: job);
+                  profileId: applicantId,
+                  profileName: applicantName,
+                  isFreelancer: true,
+                  job: job);
             },
             child: Text(type,
                 style: TextStyle(

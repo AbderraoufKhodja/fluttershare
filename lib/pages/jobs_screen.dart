@@ -31,7 +31,7 @@ buildListJobs() {
       stream: usersRef
           .document(currentUser.id)
           .collection('userJobs')
-          .orderBy("timestamp", descending: false)
+          .orderBy("createdAt", descending: false)
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -53,7 +53,7 @@ class JobContainer extends StatelessWidget {
   final String jobOwnerName;
   final String applicantId;
   final String applicantName;
-  final String jobTitle;
+  final String professionalTitle;
   final Map applications;
 
   JobContainer({
@@ -62,7 +62,7 @@ class JobContainer extends StatelessWidget {
     this.jobOwnerName,
     this.applicantId,
     this.applicantName,
-    this.jobTitle,
+    this.professionalTitle,
     this.applications,
   });
 
@@ -73,7 +73,7 @@ class JobContainer extends StatelessWidget {
       jobOwnerName: doc['jobOwnerName'],
       applicantId: doc['applicantId'],
       applicantName: doc['applicantName'],
-      jobTitle: doc['jobTitle'],
+      professionalTitle: doc['professionalTitle'],
       applications: doc['applications'],
     );
   }
@@ -88,7 +88,7 @@ class JobContainer extends StatelessWidget {
               applicantName: applicantName,
               applicantId: applicantId),
           child: ListTile(
-            title: Text(jobTitle),
+            title: Text(professionalTitle),
             leading: CircleAvatar(
               backgroundImage: CachedNetworkImageProvider(kBlankProfileUrl),
             ),

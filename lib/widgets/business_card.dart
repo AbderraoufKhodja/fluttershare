@@ -249,7 +249,7 @@ class _BusinessCardState extends State<BusinessCard> {
         "userProfileImg": currentUser.photoUrl,
         "cardId": cardId,
         "cardPhotoUrl": cardPhotoUrl,
-        "timestamp": currentTimestamp,
+        "createdAt": FieldValue.serverTimestamp(),
       });
     }
   }

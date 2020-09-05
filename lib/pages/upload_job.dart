@@ -1,13 +1,14 @@
+import 'dart:async';
 import 'dart:io';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/home.dart';
+import 'package:khadamat/widgets/custom_text_form_field.dart';
 import 'package:khadamat/widgets/progress.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,9 +17,7 @@ import 'package:image/image.dart' as Im;
 import 'package:uuid/uuid.dart';
 
 class UploadJob extends StatefulWidget {
-  final User currentUser;
-
-  UploadJob({this.currentUser});
+  UploadJob({User currentUser});
 
   @override
   _UploadJobState createState() => _UploadJobState();
@@ -26,27 +25,324 @@ class UploadJob extends StatefulWidget {
 
 class _UploadJobState extends State<UploadJob>
     with AutomaticKeepAliveClientMixin<UploadJob> {
-  TextEditingController captionController = TextEditingController();
   TextEditingController locationController = TextEditingController();
-  TextEditingController jobTitleController = TextEditingController();
-  // Todo initialize cat and subcat for firebase call
+  TextEditingController dateRangeController = TextEditingController();
+  TextEditingController jobDescriptionController = TextEditingController();
+  TextEditingController professionalCategoryController =
+      TextEditingController();
+  TextEditingController professionalTitleController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
   String professionalCategory;
   String professionalTitle;
-  TextEditingController priceController = TextEditingController();
-  TextEditingController scheduleController = TextEditingController();
   List<String> professionalCategoriesList = [""];
   List<String> professionalTitlesList = [""];
+  String country;
+  String administrativeArea;
+  String subAdministrativeArea;
+  List<String> countriesList = [""];
+  List<String> administrativeAreasList = [""];
+  List<String> subAdministrativeAreasList = [""];
+  TextEditingController keyWord1Controller = TextEditingController();
+  TextEditingController keyWord2Controller = TextEditingController();
+  TextEditingController keyWord3Controller = TextEditingController();
+  TextEditingController keyWord4Controller = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _categoryScaffoldKey = GlobalKey<ScaffoldState>();
 
+  String jobId = Uuid().v4();
   File file;
   bool isUploading = false;
-  String jobId = Uuid().v4();
-  int calIndex = 0;
+  int valIndex = 0;
+  String instruction = kTellUsAboutYou;
+  DateTimeRange dateRange;
+
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    getCategoriesList();
+    getCountriesList();
+  }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return buildUploadJobForm();
-//    return file == null ? buildSplashScreen() : buildUploadJobForm();
+    return Scaffold(
+      body: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            isUploading ? linearProgress() : Text(""),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                    padding: EdgeInsets.only(left: 25.0),
+                    child: Text(instruction)),
+                Container(
+                  margin:
+                      EdgeInsets.symmetric(vertical: 30.0, horizontal: 25.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: file == null
+                      ? GestureDetector(
+                          onTap: () => selectImage(context),
+                          child: Container(
+                            child: Icon(
+                              Icons.add_a_photo,
+                              size: 50.0,
+                            ),
+                          ),
+                        )
+                      : CircleAvatar(
+                          radius: 50.0,
+                          backgroundImage: FileImage(file),
+                        ),
+                ),
+              ],
+            ),
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.only(right: 5.0, left: 5.0),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30.0),
+                        topRight: Radius.circular(30.0)),
+                    color: Colors.white),
+                child: ListView(
+                  children: <Widget>[
+                    CustomTextFormField(
+                        validator: (text) =>
+                            checkLocationAddress(text, label: kLocation),
+                        controller: locationController,
+                        hint: kLocation,
+                        readOnly: true,
+                        trailing: buildLocationButton(),
+                        onTap: () async {
+                          updateInstruction(kLocationInstruction);
+                          await showLocationList(context);
+                        }),
+                    CustomTextFormField(
+                        validator: (text) =>
+                            checkLength(text, label: kBirthDateController),
+                        controller: dateRangeController,
+                        hint: kBirthDateController,
+                        trailing: buildBirthDateGestureDetector(),
+                        readOnly: true,
+                        onTap: () {
+                          updateInstruction(kBirthDateInstruction);
+                          showCalender();
+                        }),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextFormField(
+                              readOnly: true,
+                              validator: (text) => checkLength(text,
+                                  label: kProfessionalCategoryController),
+                              controller: professionalCategoryController,
+                              hint: kProfessionalCategoryController,
+                              onTap: () async {
+                                updateInstruction(
+                                    kProfessionalCategoryInstruction);
+                                await showCategoryList(context);
+                              }),
+                        ),
+                        Container(
+                          height: 30,
+                          child: VerticalDivider(
+                            width: 2,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Expanded(
+                          child: CustomTextFormField(
+                              readOnly: true,
+                              validator: (text) =>
+                                  checkLength(text, label: kProfessionalTitle),
+                              controller: professionalTitleController,
+                              hint: kProfessionalTitleHint,
+                              onTap: () async {
+                                updateInstruction(
+                                    kProfessionalTitleInstruction);
+                                await showCategoryList(context);
+                              }),
+                        ),
+                      ],
+                    ),
+                    CustomTextFormField(
+                        validator: (text) =>
+                            checkLength(text, label: kProfessionalDescription),
+                        controller: jobDescriptionController,
+                        maxLines: null,
+                        hint: kProfessionalDescription,
+                        onTap: () => updateInstruction(
+                            kProfessionalDescriptionInstruction)),
+                    CustomTextFormField(
+                        validator: (text) =>
+                            checkLength(text, label: kProfessionalDescription),
+                        controller: priceController,
+                        hint: kPriceHint,
+                        onTap: () => updateInstruction(kPriceInstruction)),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextFormField(
+                              validator: (text) =>
+                                  checkLength(text, label: kKeyWords),
+                              controller: keyWord1Controller,
+                              hint: "$kKeyWords 1",
+                              onTap: () =>
+                                  updateInstruction(kKeyWordsInstruction)),
+                        ),
+                        Container(
+                          height: 30,
+                          child: VerticalDivider(
+                            width: 2,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Expanded(
+                          child: CustomTextFormField(
+                              validator: (text) =>
+                                  checkLength(text, label: kKeyWords),
+                              controller: keyWord2Controller,
+                              hint: "$kKeyWords 2",
+                              onTap: () =>
+                                  updateInstruction(kKeyWordsInstruction)),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextFormField(
+                              validator: (text) =>
+                                  checkLength(text, label: kKeyWords),
+                              controller: keyWord3Controller,
+                              hint: "$kKeyWords 3",
+                              onTap: () =>
+                                  updateInstruction(kKeyWordsInstruction)),
+                        ),
+                        Container(
+                          height: 30,
+                          child: VerticalDivider(
+                            width: 2,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Expanded(
+                          child: CustomTextFormField(
+                              validator: (text) =>
+                                  checkLength(text, label: kKeyWords),
+                              controller: keyWord4Controller,
+                              hint: "$kKeyWords 4",
+                              onTap: () =>
+                                  updateInstruction(kKeyWordsInstruction)),
+                        ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: isUploading ? null : () => handleSubmit(),
+                      child: Container(
+                        margin: EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 20.0),
+                        height: 50.0,
+                        width: 350.0,
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(7.0),
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Submit",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15.0,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String checkLength(value,
+      {@required String label, int min = 2, int max = 1000}) {
+    if (value.trim().length < min || value.isEmpty) {
+      return "$label $kTooShort";
+    } else if (value.trim().length > max) {
+      return "$label $kTooLong";
+    } else {
+      return null;
+    }
+  }
+
+  String checkLocationAddress(String value,
+      {@required String label, int min = 2, int max = 1000}) {
+    if (value.trim().length < min || value.isEmpty) {
+      return "$label $kTooShort";
+    } else if (value.trim().length > max) {
+      return "$label $kTooLong";
+    } else if (value.contains("#")) {
+      return "$label $kLocationErrorText";
+    } else
+      return null;
+  }
+
+  uploadJob(String jobPhotoUrl) {
+    jobsRef.document(jobId).setData({
+      "jobId": jobId,
+      "jobOwnerId": currentUser.id,
+      "jobOwnerName": currentUser.username,
+      "isOwnerFreelancer": currentUser.isFreelancer,
+      "ownerEmail": currentUser.email,
+      "professionalCategory": professionalCategoryController.text,
+      "professionalTitle": professionalTitleController.text,
+      "jobDescription": jobDescriptionController.text,
+      "location": locationController.text,
+      "dateRange": dateRangeController.text,
+      "jobPhotoUrl": jobPhotoUrl,
+      "price": priceController.text,
+      "keyWords": "${keyWord1Controller.text};${keyWord2Controller.text};"
+          "${keyWord3Controller.text};${keyWord4Controller.text};",
+      "applications": {},
+      "isVacant": true,
+      "isOnGoing": false,
+      "isCompleted": false,
+      "createdAt": FieldValue.serverTimestamp(),
+    });
+  }
+
+  handleSubmit() async {
+    final form = _formKey.currentState;
+    print("form.validate() ;${form.validate()}");
+    form.save();
+    if ((form.validate())) {
+      setState(() {
+        isUploading = true;
+      });
+      if (file != null) await compressImage();
+      String jobPhotoUrl =
+          file == null ? kBlankProfileUrl : await uploadImage(file);
+      uploadJob(jobPhotoUrl);
+      clearControllers();
+      setState(() {
+        clearImage();
+        isUploading = false;
+        jobId = Uuid().v4();
+      });
+      Navigator.pop(context, true);
+    }
   }
 
   handleTakePhoto() async {
@@ -74,15 +370,14 @@ class _UploadJobState extends State<UploadJob>
       context: parentContext,
       builder: (context) {
         return SimpleDialog(
-          title: Text("Create Job"),
+          title: Text(kUploadImage),
           children: <Widget>[
             SimpleDialogOption(
-                child: Text("Photo with Camera"), onPressed: handleTakePhoto),
+                child: Text(kFromCamera), onPressed: handleTakePhoto),
             SimpleDialogOption(
-                child: Text("Image from Gallery"),
-                onPressed: handleChooseFromGallery),
+                child: Text(kFromGallery), onPressed: handleChooseFromGallery),
             SimpleDialogOption(
-              child: Text("Cancel"),
+              child: Text(kCancel),
               onPressed: () => Navigator.pop(context),
             )
           ],
@@ -91,379 +386,459 @@ class _UploadJobState extends State<UploadJob>
     );
   }
 
-  Container buildSplashScreen() {
-    return Container(
-      color: Theme.of(context).accentColor.withOpacity(0.6),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          SvgPicture.asset('assets/images/upload.svg', height: 260.0),
-          Padding(
-            padding: EdgeInsets.only(top: 20.0),
-            child: RaisedButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Text(
-                  "UploadJob Image",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22.0,
+  showLocationList(parentContext) {
+    return showDialog(
+      context: parentContext,
+      builder: (context) {
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: StatefulBuilder(
+            builder: (context, setState) => SimpleDialog(
+              title: Text(kSelectLocation),
+              children: <Widget>[
+                buildLocationDropdownMenu(setState),
+                SimpleDialogOption(
+                  child: Icon(
+                    Icons.check,
+                    color: Colors.green,
                   ),
-                ),
-                color: Colors.deepOrange,
-                onPressed: () => selectImage(context)),
+                  onPressed: () => Navigator.pop(context),
+                )
+              ],
+            ),
           ),
-        ],
-      ),
+        );
+      },
+    );
+  }
+
+  showCategoryList(parentContext) {
+    return showDialog(
+      context: parentContext,
+      builder: (context) {
+        return Scaffold(
+          key: _categoryScaffoldKey,
+          backgroundColor: Colors.transparent,
+          body: StatefulBuilder(
+            builder: (context, setState) => SimpleDialog(
+              title: Text(kSelectLocation),
+              children: <Widget>[
+                buildProfessionalCategoryDropdownMenu(context, setState),
+                SimpleDialogOption(
+                  child: Icon(
+                    Icons.check,
+                    color: Colors.green,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                )
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
   clearImage() {
-    setState(() {
-      file = null;
-    });
+    file = null;
   }
 
   compressImage() async {
     final tempDir = await getTemporaryDirectory();
     final path = tempDir.path;
     Im.Image imageFile = Im.decodeImage(file.readAsBytesSync());
-    final compressedImageFile = File('$path/img_$jobId.jpg')
+    final compressedImageFile = File('$path/img_${currentUser.id}.jpg')
       ..writeAsBytesSync(Im.encodeJpg(imageFile, quality: 85));
     setState(() {
       file = compressedImageFile;
     });
   }
 
-  Future<String> uploadJobImage(imageFile) async {
-    StorageUploadTask uploadJobTask =
-        storageRef.child("post_$jobId.jpg").putFile(imageFile);
-    StorageTaskSnapshot storageSnap = await uploadJobTask.onComplete;
+  Future<String> uploadImage(imageFile) async {
+    StorageUploadTask uploadCardTask =
+        storageRef.child("card_${currentUser.id}.jpg").putFile(imageFile);
+    StorageTaskSnapshot storageSnap = await uploadCardTask.onComplete;
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     return downloadUrl;
   }
 
-  createJobInFirestore({
-    String jobTitle,
-    String category,
-    String subCategory,
-    String mediaUrl,
-    String location,
-    String description,
-    String price,
-    String schedule,
-  }) {
-    jobsRef.document(jobId).setData(
-      {
-        "jobId": jobId,
-        "jobTitle": jobTitle,
-        "category": category,
-        "subCategory": subCategory,
-        "jobOwnerId": widget.currentUser.id,
-        "jobOwnerName": widget.currentUser.username,
-        "mediaUrl": mediaUrl,
-        "description": description,
-        "location": location,
-        "timestamp": currentTimestamp,
-        "price": price,
-        "schedule": schedule,
-        "applications": {},
-        "isVacant": true,
-        "isOnGoing": false,
-        "isCompleted": false,
-      },
-    );
-  }
-
-  handleSubmit() async {
-    setState(() {
-      isUploading = true;
-    });
-    if (file != null) await compressImage();
-    String mediaUrl = file == null ? "" : await uploadJobImage(file);
-    createJobInFirestore(
-      jobTitle: jobTitleController.text,
-      category: professionalCategory,
-      subCategory: professionalTitle,
-      mediaUrl: mediaUrl,
-      location: locationController.text,
-      description: captionController.text,
-      price: priceController.text,
-      schedule: scheduleController.text,
-    );
-    jobTitleController.clear();
-    captionController.clear();
+  clearControllers() {
+    professionalTitleController.clear();
     locationController.clear();
-    priceController.clear();
-    scheduleController.clear();
-    setState(() {
-      file = null;
-      isUploading = false;
-      jobId = Uuid().v4();
-    });
+    jobDescriptionController.clear();
+    dateRangeController.clear();
+    keyWord1Controller.clear();
+    keyWord2Controller.clear();
+    keyWord3Controller.clear();
+    keyWord4Controller.clear();
   }
 
-  Scaffold buildUploadJobForm() {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () => null),
-        title: Text(
-          "Job form",
-          style: TextStyle(color: Colors.black),
-        ),
-        actions: [
-          FlatButton(
-            onPressed: isUploading ? null : () => handleSubmit(),
-            child: Text(
-              "Post",
-              style: TextStyle(
-                color: Colors.blueAccent,
-                fontWeight: FontWeight.bold,
-                fontSize: 20.0,
-              ),
-            ),
+  buildBirthDateGestureDetector() {
+    return GestureDetector(
+        child: CircleAvatar(
+            backgroundColor: Colors.blue,
+            child: new Icon(
+              Icons.calendar_today,
+              color: Colors.white,
+            )),
+        onTap: showCalender);
+  }
+
+  showCalender() async {
+    final datePick = await showDateRangePicker(
+        context: context,
+        firstDate: new DateTime.now(),
+        lastDate: new DateTime(2100));
+    if (datePick != null && datePick != dateRange) {
+      setState(() {
+        dateRange = datePick;
+        dateRangeController.text =
+            "${dateRange.start.day}/${dateRange.start.month}/"
+            "${dateRange.start.year} to ${dateRange.end.day}/"
+            "${dateRange.end.month}/${dateRange.end.year}"; // 08/14/2019
+      });
+    }
+  }
+
+  ListTile buildListTile(
+    StateSetter setState, {
+    Function(String val) onChanged,
+    Function(TextEditingController controller) onAddFieldIconPressed,
+    bool hasTrailing = true,
+    @required String value,
+    @required List<String> items,
+    TextEditingController parentController,
+    String addFieldHint,
+  }) {
+    final TextEditingController controller = TextEditingController();
+    return ListTile(
+      title: DropdownButton<String>(
+          value: value,
+          icon: Container(
+            child: Icon(Icons.list),
           ),
-        ],
-      ),
-      body: ListView(
-        children: <Widget>[
-          Divider(),
-          isUploading ? linearProgress() : Text(""),
-          ListTile(
-            leading: Text(
-              kJobTitle,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                textBaseline: TextBaseline.alphabetic,
-              ),
-            ),
-            title: Container(
-              width: 250.0,
-              child: TextField(
-                controller: jobTitleController,
-                decoration: InputDecoration(
-                  hintText: kJobDescription,
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
+          iconSize: 24,
+          elevation: 16,
+          isExpanded: true,
+          style: TextStyle(color: Colors.grey),
+          iconDisabledColor: Colors.black,
+          iconEnabledColor: Colors.grey,
+          underline: Container(
+            height: 2,
+            color: Colors.grey,
           ),
-          Divider(),
-          ListTile(
-            leading: Icon(
-              Icons.work,
-              color: Theme.of(context).primaryColor,
-              size: 35.0,
-            ),
-            title: Container(
-              width: 250.0,
-              child: TextField(
-                controller: captionController,
-                decoration: InputDecoration(
-                  hintText: kJobDescription,
-                  border: InputBorder.none,
+          onChanged: (value) {
+            onChanged(value);
+          },
+          items: items
+              .map(
+                (category) => DropdownMenuItem<String>(
+                  value: category,
+                  child: Text(
+                    category,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
                 ),
-              ),
-            ),
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(
-              Icons.pin_drop,
-              color: Theme.of(context).primaryColor,
-              size: 35.0,
-            ),
-            title: Container(
-              width: 250.0,
-              child: TextField(
-                controller: locationController,
-                decoration: InputDecoration(
-                  hintText: kJobLocation,
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-            trailing: RaisedButton.icon(
-              label: Text(
-                "Location",
-                style: TextStyle(color: Colors.white),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
-              color: Colors.blue,
-              onPressed: getUserLocation,
-              icon: Icon(
-                Icons.my_location,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          Divider(),
-          ListTile(
-            leading: Text(
-              "Category",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                textBaseline: TextBaseline.alphabetic,
-              ),
-            ),
-            title: DropdownButton<String>(
-                value: this.professionalCategory,
-                icon: Container(
-                  child: Icon(Icons.arrow_downward),
-                ),
-                iconSize: 24,
-                elevation: 16,
-                isExpanded: true,
-                style: TextStyle(color: Colors.blueAccent),
-                iconDisabledColor: Colors.black,
-                iconEnabledColor: Colors.grey,
-                underline: Container(
-                  height: 2,
-                  color: Colors.blueAccent,
-                ),
-                onChanged: (String val) {
-                  setState(() {
-                    this.professionalCategory = val;
-                  });
-                },
-                items: professionalCategoriesList
-                    .map((category) => DropdownMenuItem<String>(
-                          value: category,
-                          child: Text(
-                            category,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ))
-                    .toList()),
-          ),
-          Divider(),
-          ListTile(
-            leading: Text(
-              "Subcategory",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                textBaseline: TextBaseline.alphabetic,
-              ),
-              textAlign: TextAlign.start,
-            ),
-            title: DropdownButton<String>(
-                value: this.professionalTitle,
-                icon: Container(
-                  child: Icon(Icons.arrow_downward),
-                ),
-                iconSize: 24,
-                elevation: 16,
-                isExpanded: true,
-                style: TextStyle(color: Colors.blueAccent),
-                iconDisabledColor: Colors.black,
-                iconEnabledColor: Colors.grey,
-                underline: Container(
-                  height: 2,
-                  color: Colors.blueAccent,
-                ),
-                onChanged: (String val) {
-                  setState(() {
-                    this.professionalTitle = val;
-                  });
-                },
-                items: professionalTitlesList
-                    .map((subCategory) => DropdownMenuItem(
-                          value: subCategory,
-                          child: Text(
-                            subCategory,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ))
-                    .toList()),
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(
-              Icons.attach_money,
-              color: Theme.of(context).primaryColor,
-              size: 35.0,
-            ),
-            title: Container(
-              width: 250.0,
-              child: TextField(
-                keyboardType: TextInputType.number,
-                controller: priceController,
-                decoration: InputDecoration(
-                  hintText: kJobPrice,
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-          ),
-          Divider(),
-          Container(
-            alignment: Alignment.centerLeft,
-            child: file == null
-                ? IconButton(
-                    iconSize: 100.0,
-                    icon: Icon(
-                      Icons.add_a_photo,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    onPressed: () => selectImage(context),
-                  )
-                : Container(
-                    height: 220.0,
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    child: Center(
-                      child: AspectRatio(
-                        aspectRatio: 16 / 9,
-                        child: Container(
+              )
+              .toList()),
+      trailing: hasTrailing
+          ? Builder(
+              builder: (context) => IconButton(
+                icon: Icon(Icons.add_circle),
+                onPressed: () => parentController?.text?.trim()?.isNotEmpty ??
+                        true
+                    ? Scaffold.of(context).showBottomSheet(
+                        (BuildContext context) => Container(
+                          height: 60.0,
                           decoration: BoxDecoration(
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: FileImage(file),
+                            color: Colors.white,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(20.0)),
+                          ),
+                          child: CustomTextFormField(
+                            hint: addFieldHint,
+                            controller: controller,
+                            trailing: IconButton(
+                              icon: Icon(
+                                Icons.check,
+                                color: Colors.green,
+                              ),
+                              onPressed: () =>
+                                  onAddFieldIconPressed(controller),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-          ),
-        ],
+                        backgroundColor: Colors.transparent,
+                      )
+                    : _categoryScaffoldKey.currentState
+                        .showSnackBar(SnackBar(content: Text("prentEmpty"))),
+              ),
+            )
+          : Container(
+              width: 0,
+            ),
+    );
+  }
+
+  buildProfessionalCategoryDropdownMenu(
+      BuildContext context, StateSetter setState) {
+    return Column(
+      children: [
+        buildListTile(
+          setState,
+          value: professionalCategory,
+          onChanged: (String val) {
+            setState(() {
+              professionalTitle = null;
+              professionalTitleController.clear();
+              professionalCategory = val;
+              professionalCategoryController.text = val;
+              getProfessionalTitlesList(setState);
+            });
+          },
+          items: professionalCategoriesList,
+
+          // Belongs to bottomSheet context
+          addFieldHint: kAddProfessionalCategory,
+          parentController: null,
+          onAddFieldIconPressed: (controller) {
+            if (checkLength(controller.text, label: kCheckProfessionalTitle) ==
+                null) {
+              handleAddProfessionalCategoriesList(
+                      setState: setState, professionalCategory: controller.text)
+                  .then((_) {
+                setState(() {
+                  professionalCategory = controller.text;
+                  professionalCategoryController.text = professionalCategory;
+                });
+                Navigator.pop(context);
+                controller.clear();
+              });
+            }
+          },
+        ),
+        buildListTile(
+          setState,
+          value: professionalTitle,
+          onChanged: (String value) {
+            setState(() {
+              professionalTitle = value;
+              professionalTitleController.text = value;
+            });
+          },
+          items: professionalTitlesList,
+          addFieldHint: kAddProfessionalTitle,
+          parentController: professionalCategoryController,
+          onAddFieldIconPressed: (controller) {
+            if (checkLength(controller.text,
+                    label: kCheckProfessionalCategory) ==
+                null) {
+              handleAddProfessionalTitlesList(
+                      setState: setState, professionalTitle: controller.text)
+                  .then((_) {
+                setState(() {
+                  professionalTitle = controller.text;
+                  professionalTitleController.text = professionalTitle;
+                });
+                Navigator.pop(context);
+                controller.clear();
+              });
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  buildLocationDropdownMenu(StateSetter setState) {
+    return Column(
+      children: [
+        buildListTile(
+          setState,
+          value: country,
+          onChanged: (String val) {
+            setState(() {
+              administrativeArea = null;
+              subAdministrativeArea = null;
+              country = val;
+              locationController.text = "${subAdministrativeArea ?? "#"}, "
+                  "${administrativeArea ?? "#"}, ${country ?? "#"}";
+              getAdministrativeAreasList(setState);
+            });
+          },
+          items: countriesList,
+          hasTrailing: false,
+          // Add formField BottomSheet
+        ),
+        buildListTile(
+          setState,
+          value: administrativeArea,
+          onChanged: (String val) {
+            setState(() {
+              subAdministrativeArea = null;
+              administrativeArea = val;
+              locationController.text = "${subAdministrativeArea ?? "#"}, "
+                  "${administrativeArea ?? "#"}, ${country ?? "#"}";
+              getSubAdministrativeAreasList(setState);
+            });
+          },
+          items: administrativeAreasList,
+          hasTrailing: false,
+        ),
+        buildListTile(
+          setState,
+          value: subAdministrativeArea,
+          onChanged: (String val) {
+            setState(() {
+              subAdministrativeArea = val;
+              locationController.text = "${subAdministrativeArea ?? "#"}, "
+                  "${administrativeArea ?? "#"}, ${country ?? "#"}";
+            });
+          },
+          items: subAdministrativeAreasList,
+          hasTrailing: false,
+        ),
+      ],
+    );
+  }
+
+  GestureDetector buildLocationButton() {
+    return GestureDetector(
+      child: CircleAvatar(
+        backgroundColor: Colors.blue,
+        child: Icon(
+          Icons.my_location,
+          color: Colors.white,
+        ),
       ),
+      onTap: getUserLocation,
     );
   }
 
   getUserLocation() async {
+    // TODO fix permission issue
     Position position =
         await getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     List<Placemark> placemarks =
         await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark placemark = placemarks[0];
-    String completeAddress =
-        '${placemark.subThoroughfare} ${placemark.thoroughfare}, ${placemark.subLocality} ${placemark.locality}, ${placemark.subAdministrativeArea}, ${placemark.administrativeArea} ${placemark.postalCode}, ${placemark.country}';
-    print(completeAddress);
-    String formattedAddress = "${placemark.locality}, ${placemark.country}";
+    String formattedAddress =
+        " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"
+        " ${placemark.country}";
     locationController.text = formattedAddress;
+    addLocation(
+        country: country,
+        administrativeArea: administrativeArea,
+        subAdministrativeArea: subAdministrativeArea);
   }
 
-  bool get wantKeepAlive => true;
+  updateInstruction(String instruction) {
+    setState(() {
+      this.instruction = instruction;
+    });
+  }
+
+  Future<void> getCategoriesList() async {
+    QuerySnapshot snapshot = await categoriesRef.getDocuments();
+    setState(() {
+      professionalCategoriesList =
+          snapshot.documents.map((doc) => doc.documentID).toList();
+      professionalTitlesList = [""];
+    });
+  }
+
+  Future<void> getProfessionalTitlesList(StateSetter setState) async {
+    QuerySnapshot snapshot = await categoriesRef
+        .document(professionalCategory)
+        .collection("professionalTitles")
+        .getDocuments();
+    setState(() {
+      professionalTitlesList =
+          snapshot.documents.map((doc) => doc.documentID).toList();
+    });
+  }
+
+  getCountriesList() async {
+    QuerySnapshot snapshot = await locationsRef.getDocuments();
+    setState(() {
+      countriesList = snapshot.documents.map((doc) => doc.documentID).toList();
+      administrativeAreasList = [""];
+      subAdministrativeAreasList = [""];
+    });
+  }
+
+  Future<void> getAdministrativeAreasList(StateSetter setState) async {
+    if (country.isNotEmpty) {
+      QuerySnapshot snapshot = await locationsRef
+          .document(country)
+          .collection("administrativeAreas")
+          .getDocuments();
+      setState(() {
+        administrativeAreasList =
+            snapshot.documents.map((doc) => doc.documentID).toList();
+        subAdministrativeAreasList = [""];
+      });
+    }
+  }
+
+  Future<void> getSubAdministrativeAreasList(StateSetter setState) async {
+    if (country.isNotEmpty && administrativeArea.isNotEmpty) {
+      QuerySnapshot snapshot = await locationsRef
+          .document(country)
+          .collection("administrativeAreas")
+          .document(administrativeArea)
+          .collection("subAdministrativeAreas")
+          .getDocuments();
+      setState(() {
+        subAdministrativeAreasList =
+            snapshot.documents.map((doc) => doc.documentID).toList();
+      });
+    }
+  }
+
+  Future<void> handleAddProfessionalCategoriesList(
+      {StateSetter setState, String professionalCategory}) async {
+    if (professionalCategory.isNotEmpty) {
+      await categoriesRef.document(professionalCategory).setData({});
+      await getCategoriesList();
+    }
+  }
+
+  Future<void> handleAddProfessionalTitlesList(
+      {StateSetter setState, String professionalTitle}) async {
+    if (professionalTitle.isNotEmpty) {
+      await categoriesRef
+          .document(professionalCategory)
+          .collection("professionalTitles")
+          .document(professionalTitle)
+          .setData({});
+      await getProfessionalTitlesList(setState);
+    }
+  }
+
+  Future<void> addLocation(
+      {String country,
+      String administrativeArea,
+      String subAdministrativeArea}) async {
+    return await locationsRef
+        .document(country)
+        .collection("administrativeAreas")
+        .document(administrativeArea)
+        .collection("subAdministrativeAreas")
+        .document(subAdministrativeArea)
+        .setData({});
+  }
 }
 
-showUploadJobPage(BuildContext context, {@required User currentUser}) {
-  Navigator.push(
+Future<bool> showUploadJobScreen(BuildContext context,
+    {User currentUser}) async {
+  return await Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => UploadJob(currentUser: currentUser),
+      builder: (context) => UploadJob(
+        currentUser: currentUser,
+      ),
     ),
   );
 }

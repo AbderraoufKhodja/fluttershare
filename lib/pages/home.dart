@@ -7,11 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/create_account.dart';
 import 'package:khadamat/pages/job_activity_feed.dart';
-import 'package:khadamat/pages/job_timeline.dart';
+import 'package:khadamat/pages/professional_categories_screen.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/pages/search.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:khadamat/pages/upload_job.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -30,7 +29,6 @@ final hiresRef = Firestore.instance.collection('hires');
 final followingRef = Firestore.instance.collection('following');
 final timelineRef = Firestore.instance.collection('timeline');
 final jobTimelineRef = Firestore.instance.collection('timeline');
-final DateTime currentTimestamp = DateTime.now();
 User currentUser;
 
 class Home extends StatefulWidget {
@@ -47,7 +45,7 @@ class _HomeState extends State<Home> {
   bool isFreelancer = false;
   String category;
   String subCategory;
-  String jobTitle;
+  String professionalTitle;
 
   @override
   void initState() {
@@ -186,7 +184,7 @@ class _HomeState extends State<Home> {
       key: _scaffoldKey,
       body: PageView(
         children: <Widget>[
-          JobTimeline(currentUser: currentUser),
+          ProfessionalCategoriesScreen(currentUser: currentUser),
 //          CreateAccount(),
           JobActivityFeed(),
 //          UploadJob(currentUser: currentUser),

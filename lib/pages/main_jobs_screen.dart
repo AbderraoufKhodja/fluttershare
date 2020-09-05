@@ -3,51 +3,57 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/messages.dart';
+import 'package:khadamat/pages/manage_job.dart';
 import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/progress.dart';
 
-class MessagesScreen extends StatefulWidget {
+class MainJobsScreen extends StatefulWidget {
+  final String title;
+
+  MainJobsScreen({@required this.title});
   @override
-  MessagesScreenState createState() => MessagesScreenState();
+  _JobsScreen createState() => _JobsScreen();
 }
 
-class MessagesScreenState extends State<MessagesScreen> {
+class _JobsScreen extends State<MainJobsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: header(context, titleText: kMessagesScreenTitle),
+      appBar: header(context, titleText: kJobsScreenTitle),
       body: Column(
         children: <Widget>[
-          Expanded(child: buildListMessages()),
+          Expanded(child: buildListJobs()),
         ],
       ),
     );
   }
-}
 
-buildListMessages() {
-  return StreamBuilder(
-      stream: usersRef
-          .document(currentUser.id)
-          .collection('userJobs')
-          .orderBy("createdAt", descending: false)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return circularProgress();
-        }
-        List<MessageContainer> messages = [];
-        snapshot.data.documents.forEach((doc) {
-          messages.add(MessageContainer.fromDocument(doc));
+  buildListJobs() {
+    return StreamBuilder(
+        stream: getVacantJobsList(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return circularProgress();
+          }
+          List<JobContainer> messages = [];
+          snapshot.data.documents.forEach((doc) {
+            messages.add(JobContainer.fromDocument(doc));
+          });
+          return ListView(
+            children: messages,
+          );
         });
-        return ListView(
-          children: messages,
-        );
-      });
+  }
+
+  Stream<QuerySnapshot> getVacantJobsList() {
+    return jobsRef
+        .where("professionalTitle", isEqualTo: widget.title)
+        .where("isVacant", isEqualTo: true)
+        .snapshots();
+  }
 }
 
-class MessageContainer extends StatelessWidget {
+class JobContainer extends StatelessWidget {
   final String jobId;
   final String jobOwnerId;
   final String jobOwnerName;
@@ -56,7 +62,7 @@ class MessageContainer extends StatelessWidget {
   final String professionalTitle;
   final Map applications;
 
-  MessageContainer({
+  JobContainer({
     this.jobId,
     this.jobOwnerId,
     this.jobOwnerName,
@@ -66,8 +72,8 @@ class MessageContainer extends StatelessWidget {
     this.applications,
   });
 
-  factory MessageContainer.fromDocument(DocumentSnapshot doc) {
-    return MessageContainer(
+  factory JobContainer.fromDocument(DocumentSnapshot doc) {
+    return JobContainer(
       jobId: doc['jobId'],
       jobOwnerId: doc['jobOwnerId'],
       jobOwnerName: doc['jobOwnerName'],
@@ -83,15 +89,12 @@ class MessageContainer extends StatelessWidget {
     return Column(
       children: <Widget>[
         GestureDetector(
-          onTap: () => showMessages(context,
+          onTap: () => showManageJob(context,
               jobId: jobId,
-              jobOwnerId: jobOwnerId,
-              jobOwnerName: jobOwnerName,
-              applicantId: applicantId,
               applicantName: applicantName,
-              professionalTitle: professionalTitle),
+              applicantId: applicantId),
           child: ListTile(
-            title: Text(professionalTitle),
+            title: Text(professionalTitle ?? ""),
             leading: CircleAvatar(
               backgroundImage: CachedNetworkImageProvider(kBlankProfileUrl),
             ),
@@ -104,8 +107,10 @@ class MessageContainer extends StatelessWidget {
   }
 }
 
-showMessageScreen(BuildContext context) {
+showMainJobsScreen(BuildContext context, {String title}) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
-    return MessagesScreen();
+    return MainJobsScreen(
+      title: title,
+    );
   }));
 }

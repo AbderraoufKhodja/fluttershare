@@ -345,7 +345,7 @@ class _ProfileState extends State<Profile> {
       "username": currentUser.username,
       "userId": currentUserId,
       "userProfileImg": currentUser.photoUrl,
-      "timestamp": currentTimestamp,
+      "createdAt": FieldValue.serverTimestamp(),
     });
 
     activityFeedRef
@@ -358,7 +358,7 @@ class _ProfileState extends State<Profile> {
       "username": currentUser.username,
       "userId": currentUserId,
       "userProfileImg": currentUser.photoUrl,
-      "timestamp": currentTimestamp,
+      "createdAt": FieldValue.serverTimestamp(),
     });
   }
 
@@ -440,8 +440,8 @@ class _ProfileState extends State<Profile> {
                     CircleAvatar(
                       radius: 40.0,
                       backgroundColor: Theme.of(context).primaryColor,
-                      backgroundImage:
-                          CachedNetworkImageProvider(user.professionalPhoto),
+                      backgroundImage: CachedNetworkImageProvider(
+                          user.professionalPhoto ?? ""),
                     ),
                     Expanded(
                       flex: 1,
@@ -467,7 +467,7 @@ class _ProfileState extends State<Profile> {
                   alignment: Alignment.centerLeft,
                   padding: EdgeInsets.only(top: 12.0),
                   child: Text(
-                    user.username,
+                    user.username ?? "",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16.0,
@@ -478,7 +478,7 @@ class _ProfileState extends State<Profile> {
                   alignment: Alignment.centerLeft,
                   padding: EdgeInsets.only(top: 4.0),
                   child: Text(
-                    user.googleName,
+                    user.googleName ?? "",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                     ),

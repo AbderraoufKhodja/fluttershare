@@ -19,14 +19,14 @@ class _ManageJobState extends State<ManageJob> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController priceController = TextEditingController();
   TextEditingController locationController = TextEditingController();
-  TextEditingController jobTitleController = TextEditingController();
+  TextEditingController professionalTitleController = TextEditingController();
   TextEditingController jobScheduleController = TextEditingController();
   Job job;
   bool isLoading = false;
   bool hasApplicant = false;
   bool _priceValid = true;
   bool _locationValid = true;
-  bool _jobTitleValid = true;
+  bool _professionalTitleValid = true;
   bool _jobScheduleValid = true;
 
   @override
@@ -60,7 +60,7 @@ class _ManageJobState extends State<ManageJob> {
                         padding: EdgeInsets.all(16.0),
                         child: Column(
                           children: <Widget>[
-                            buildJobTitleField(),
+                            buildProfessionalTitleField(),
                             buildPriceField(),
                             buildLocationField(),
                             buildJobScheduleField(),
@@ -94,8 +94,8 @@ class _ManageJobState extends State<ManageJob> {
     job = Job.fromDocument(doc);
     priceController.text = job.price;
     locationController.text = job.location;
-    jobTitleController.text = job.jobTitle;
-    jobScheduleController.text = job.schedule;
+    professionalTitleController.text = job.professionalTitle;
+    jobScheduleController.text = job.dateRange;
     setState(() {
       isLoading = false;
     });
@@ -122,21 +122,21 @@ class _ManageJobState extends State<ManageJob> {
     );
   }
 
-  Column buildJobTitleField() {
+  Column buildProfessionalTitleField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Padding(
             padding: EdgeInsets.only(top: 12.0),
             child: Text(
-              kJobTitle,
+              kProfessionalTitle,
               style: TextStyle(color: Theme.of(context).primaryColor),
             )),
         TextField(
-          controller: jobTitleController,
+          controller: professionalTitleController,
           decoration: InputDecoration(
-            hintText: kJobTitleHint,
-            errorText: _jobTitleValid ? null : kPriceErrorText,
+            hintText: kProfessionalTitleHint,
+            errorText: _professionalTitleValid ? null : kPriceErrorText,
           ),
         )
       ],

@@ -1,32 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:khadamat/models/job.dart';
-import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/upload_job.dart';
 import 'package:khadamat/widgets/business_card.dart';
-import 'package:khadamat/widgets/custom_button.dart';
 import 'package:khadamat/widgets/header.dart';
-import 'package:khadamat/widgets/job_card.dart';
 import 'package:khadamat/widgets/progress.dart';
+import 'package:khadamat/widgets/title_button.dart';
 
-class JobTimeline extends StatefulWidget {
-  final User currentUser;
+class ProfessionalTitlesScreen extends StatefulWidget {
+  final String professionalTitle;
 
-  JobTimeline({this.currentUser});
+  ProfessionalTitlesScreen({@required this.professionalTitle});
 
   @override
-  _JobTimelineState createState() => _JobTimelineState();
+  _ProfessionalTitlesScreenState createState() =>
+      _ProfessionalTitlesScreenState();
 }
 
-class _JobTimelineState extends State<JobTimeline> {
+class _ProfessionalTitlesScreenState extends State<ProfessionalTitlesScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  List<String> professionalCategoriesList;
-  List<JobCard> professionalTitlesList;
+  List<String> professionalTitlesList;
   List<String> followingList = [];
   List<BusinessCard> cards = [];
-  String professionalCategory;
 
   bool isLoading = false;
 
@@ -35,64 +31,33 @@ class _JobTimelineState extends State<JobTimeline> {
   @override
   void initState() {
     super.initState();
-    getCategoriesList();
-
-//    getCardSuggestions();
+    getProfessionalTitlesList();
   }
 
-  getCategoriesList() async {
-    QuerySnapshot snapshot = await categoriesRef.getDocuments();
-    List<String> jobs =
-        snapshot.documents.map((doc) => doc.documentID).toList();
-    setState(() {
-      this.professionalCategoriesList = jobs;
-    });
-  }
-
-  getJobList() async {
+  getProfessionalTitlesList() async {
     QuerySnapshot snapshot = await categoriesRef
-        .document(professionalCategory)
+        .document(widget.professionalTitle)
         .collection("professionalTitles")
         .getDocuments();
-    List<JobCard> jobs = snapshot.documents
-        .map((doc) => JobCard(Job.fromDocument(doc)))
-        .toList();
+    List<String> professionalTitle =
+        snapshot.documents.map((doc) => doc.documentID).toList();
     setState(() {
-      this.professionalTitlesList = jobs;
+      professionalTitlesList = professionalTitle;
     });
   }
 
-//  getCardSuggestions() async {
-//    QuerySnapshot snapshot = await cardsRef
-//        .where("hobTitle", isEqualTo: currentUser.professionalTitle)
-//        .where("isVacant", isEqualTo: false)
-//        .orderBy("timestamp", descending: true)
-//        .getDocuments();
-//    List<JobCard> jobs = snapshot.documents
-//        .map((doc) => JobCard(Job.fromDocument(doc)))
-//        .toList();
-//    setState(() {
-//      this.categoriesList = jobs;
-//    });
-//  }
-
-  buildJobTimeline() {
-    if (professionalCategoriesList == null) {
+  buildProfessionalTitlesGrid() {
+    if (professionalTitlesList == null) {
       return circularProgress();
-    } else if (professionalCategoriesList.isEmpty) {
-//      return buildUsersToFollow();
+    } else if (professionalTitlesList.isEmpty) {
+      return Center(
+        child: Icon(
+          Icons.move_to_inbox,
+          size: 160.0,
+        ),
+      );
     } else {
       return buildCategoriesGrid();
-    }
-  }
-
-  buildCardTimeline() {
-    if (professionalCategoriesList == null) {
-      return circularProgress();
-    } else if (professionalCategoriesList.isEmpty) {
-//      return buildUsersToFollow();
-    } else {
-      return ListView(children: cards);
     }
   }
 
@@ -156,7 +121,7 @@ class _JobTimelineState extends State<JobTimeline> {
   buildCategoriesGrid() {
     if (isLoading) {
       return linearProgress();
-    } else if (professionalCategoriesList.isEmpty) {
+    } else if (professionalTitlesList.isEmpty) {
       return Container(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -178,8 +143,9 @@ class _JobTimelineState extends State<JobTimeline> {
       );
     } else if (true) {
       List<GridTile> gridTiles = [];
-      professionalCategoriesList.forEach((category) {
-        gridTiles.add(GridTile(child: Text(category)));
+      professionalTitlesList.forEach((professionalTitle) {
+        gridTiles.add(
+            GridTile(child: TitleButton(professionalTitle: professionalTitle)));
       });
       return GridView.count(
         crossAxisCount: 3,
@@ -191,11 +157,6 @@ class _JobTimelineState extends State<JobTimeline> {
         children: gridTiles,
       );
     }
-//    } else if (selectedTab == "list") {
-//      return Column(
-//        children: posts,
-//      );
-//    }
   }
 
   @override
@@ -204,13 +165,23 @@ class _JobTimelineState extends State<JobTimeline> {
       key: _scaffoldKey,
       appBar: header(context, isAppTitle: true),
       body: RefreshIndicator(
-        onRefresh: () => getCategoriesList(),
-        child: buildJobTimeline(),
+        onRefresh: () => getProfessionalTitlesList(),
+        child: buildProfessionalTitlesGrid(),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showUploadJobPage(context, currentUser: currentUser),
+        onPressed: () => showUploadJobScreen(context, currentUser: currentUser),
         child: Icon(Icons.add),
       ),
     );
   }
+}
+
+showProfessionalTitlesScreen(BuildContext context, {String category}) {
+  return Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProfessionalTitlesScreen(
+          professionalTitle: category,
+        ),
+      ));
 }

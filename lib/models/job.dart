@@ -4,17 +4,18 @@ import 'package:khadamat/pages/home.dart';
 
 class Job {
   final String jobId;
-  final String jobTitle;
-  final String category;
-  final String subCategory;
   final String jobOwnerId;
   final String jobOwnerName;
+  final String ownerEmail;
+  final bool isOwnerFreelancer;
+  final String professionalTitle;
+  final String professionalCategory;
+  final String jobDescription;
   final String location;
-  final String description;
-  final String mediaUrl;
+  final String dateRange;
+  final String jobPhotoUrl;
   final String price;
-  final String schedule;
-  final Timestamp timestamp;
+  final Timestamp createdAt;
   final Map applications;
   final bool isCompleted;
   final bool isVacant;
@@ -22,41 +23,43 @@ class Job {
 
   Job({
     this.jobId,
-    this.jobTitle,
-    this.category,
-    this.subCategory,
     this.jobOwnerId,
     this.jobOwnerName,
+    this.isOwnerFreelancer,
+    this.ownerEmail,
+    this.professionalCategory,
+    this.professionalTitle,
+    this.jobDescription,
     this.location,
-    this.description,
-    this.mediaUrl,
+    this.dateRange,
+    this.jobPhotoUrl,
     this.price,
-    this.schedule,
-    this.timestamp,
     this.applications,
     this.isVacant,
     this.isOnGoing,
     this.isCompleted,
+    this.createdAt,
   });
 
   factory Job.fromDocument(DocumentSnapshot doc) {
     return Job(
       jobId: doc['jobId'],
-      jobTitle: doc['jobTitle'],
-      category: doc['category'],
-      subCategory: doc['subCategory'],
       jobOwnerId: doc['jobOwnerId'],
       jobOwnerName: doc['jobOwnerName'],
+      isOwnerFreelancer: doc['isOwnerFreelancer'],
+      ownerEmail: doc['ownerEmail'],
+      professionalCategory: doc['professionalCategory'],
+      professionalTitle: doc['professionalTitle'],
+      jobDescription: doc['jobDescription'],
       location: doc['location'],
-      description: doc['description'],
-      mediaUrl: doc['mediaUrl'],
+      dateRange: doc['dateRange'],
+      jobPhotoUrl: doc['jobPhotoUrl'],
       price: doc['price'],
-      schedule: doc['schedule'],
-      timestamp: doc['timestamp'],
       applications: doc['applications'],
       isVacant: doc['isVacant'],
       isOnGoing: doc['isOnGoing'],
       isCompleted: doc['isCompleted'],
+      createdAt: doc['createdAt'],
     );
   }
   int getApplicationsCount() {
@@ -129,13 +132,13 @@ class Job {
         .setData({
       "type": "apply",
       "jobId": jobId,
-      "jobTitle": jobTitle,
+      "professionalTitle": professionalTitle,
       "jobOwnerName": jobOwnerName,
       "jobOwnerId": jobOwnerId,
       "applicantId": currentUser.id,
       "applicantName": currentUser.username,
       "userProfileImg": currentUser.photoUrl,
-      "timestamp": currentTimestamp,
+      "createdAt": FieldValue.serverTimestamp(),
       "applications": applications,
     });
     activityFeedRef
@@ -145,12 +148,12 @@ class Job {
         .setData({
       "type": "apply",
       "jobId": jobId,
-      "jobTitle": jobTitle,
+      "googleName": professionalTitle,
       "applicantName": currentUser.username,
       "applicantId": currentUser.id,
       "jobOwnerName": jobOwnerName,
       "jobOwnerId": jobOwnerId,
-      "timestamp": currentTimestamp,
+      "createdAt": FieldValue.serverTimestamp(),
       "applications": applications,
     });
   }
@@ -166,14 +169,14 @@ class Job {
 //          .setData({
 //        "type": "apply",
 //        "jobId": jobId,
-//        "jobTitle": jobTitle,
+//        "professionalTitle": professionalTitle,
 //        "jobOwnerName": currentUser.username,
 //        "category": category,
 //        "subCategory": category,
 //        "userId": currentUser.id,
 //        "userProfileImg": currentUser.photoUrl,
 //        "mediaUrl": mediaUrl,
-//        "timestamp": currentTimestamp,
+//        "createdAt": FieldValue.serverTimestamp(),
 //        "applications": applications,
 //      });
 //    }
@@ -227,12 +230,12 @@ class Job {
         .setData({
       "type": "accept",
       "jobId": jobId,
-      "jobTitle": jobTitle,
+      "ProfessionalTitle": professionalTitle,
       "jobOwnerName": jobOwnerName,
       "jobOwnerId": jobOwnerId,
       "applicantName": applicantName,
       "applicantId": applicantId,
-      "timestamp": currentTimestamp,
+      "createdAt": FieldValue.serverTimestamp(),
       "applications": applications,
     });
   }
@@ -246,12 +249,12 @@ class Job {
         .setData({
       "type": "accept",
       "jobId": jobId,
-      "jobTitle": jobTitle,
+      "professionalTitle": professionalTitle,
       "jobOwnerName": jobOwnerName,
       "jobOwnerId": jobOwnerId,
       "applicantName": applicantName,
       "applicantId": applicantId,
-      "timestamp": currentTimestamp,
+      "createdAt": FieldValue.serverTimestamp(),
       "applications": applications,
     });
   }
@@ -265,12 +268,12 @@ class Job {
         .setData({
       "type": "reject",
       "jobId": jobId,
-      "jobTitle": jobTitle,
+      "professionalTitle": professionalTitle,
       "jobOwnerName": jobOwnerName,
       "jobOwnerId": jobOwnerId,
       "applicantName": applicantName,
       "applicantId": applicantId,
-      "timestamp": currentTimestamp,
+      "createdAt": FieldValue.serverTimestamp(),
       "applications": applications,
     });
 
@@ -281,12 +284,12 @@ class Job {
         .setData({
       "type": "reject",
       "jobId": jobId,
-      "jobTitle": jobTitle,
+      "professionalTitle": professionalTitle,
       "jobOwnerName": jobOwnerName,
       "jobOwnerId": jobOwnerId,
       "applicantId": applicantId,
       "applicantName": applicantName,
-      "timestamp": currentTimestamp,
+      "createdAt": FieldValue.serverTimestamp(),
       "applications": applications,
     });
   }
@@ -310,9 +313,9 @@ class Job {
       "jobOwnerName": jobOwnerName,
       "applicantId": applicantId,
       "applicantName": applicantName,
-      "jobTitle": category,
+      "professionalTitle": professionalTitle,
       "applications": applications,
-      "timestamp": currentTimestamp,
+      "createdAt": FieldValue.serverTimestamp(),
     });
     // Create a userJobs reference in firestore to store a reference to point to
     // the message ids for the job jobOwner that can be used to list the messages.
@@ -326,9 +329,9 @@ class Job {
       "jobOwnerName": jobOwnerName,
       "applicantId": applicantId,
       "applicantName": applicantName,
-      "jobTitle": category,
+      "professionalTitle": professionalTitle,
       "applications": applications,
-      "timestamp": currentTimestamp,
+      "createdAt": FieldValue.serverTimestamp(),
     });
   }
 }

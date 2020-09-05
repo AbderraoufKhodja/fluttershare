@@ -243,7 +243,7 @@ class _PostState extends State<Post> {
         "userProfileImg": currentUser.photoUrl,
         "postId": postId,
         "mediaUrl": mediaUrl,
-        "timestamp": currentTimestamp,
+        "createdAt": FieldValue.serverTimestamp(),
       });
     }
   }

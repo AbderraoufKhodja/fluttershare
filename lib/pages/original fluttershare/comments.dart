@@ -42,7 +42,7 @@ class CommentsState extends State<Comments> {
         stream: commentsRef
             .document(postId)
             .collection('comments')
-            .orderBy("timestamp", descending: false)
+            .orderBy("createdAt", descending: false)
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -62,7 +62,7 @@ class CommentsState extends State<Comments> {
     commentsRef.document(postId).collection("comments").add({
       "username": currentUser.username,
       "comment": commentController.text,
-      "timestamp": currentTimestamp,
+      "createdAt": FieldValue.serverTimestamp(),
       "avatarUrl": currentUser.photoUrl,
       "userId": currentUser.id,
     });
@@ -71,7 +71,7 @@ class CommentsState extends State<Comments> {
       activityFeedRef.document(postOwnerId).collection('feedItems').add({
         "type": "comment",
         "commentData": commentController.text,
-        "timestamp": currentTimestamp,
+        "createdAt": FieldValue.serverTimestamp(),
         "postId": postId,
         "userId": currentUser.id,
         "username": currentUser.username,

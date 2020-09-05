@@ -7,6 +7,7 @@ class CustomTextFormField extends StatelessWidget {
   final Function onTap;
   final Function(String text) validator;
   final TextStyle style;
+  final int maxLines;
 
   final bool readOnly;
 
@@ -18,6 +19,7 @@ class CustomTextFormField extends StatelessWidget {
     this.validator,
     this.readOnly = false,
     this.style,
+    this.maxLines = 1,
   });
 
   @override
@@ -38,6 +40,7 @@ class CustomTextFormField extends StatelessWidget {
             ),
             onSaved: (newValue) => controller.text = newValue,
             validator: validator,
+            maxLines: maxLines,
           ),
           trailing: trailing,
         ),
