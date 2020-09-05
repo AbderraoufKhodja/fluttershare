@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:khadamat/constants.dart';
@@ -25,11 +26,12 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
           SnackBar(content: Text("Welcome $username!"));
       usersRef.document(widget.googleUser.id).setData({
         "id": widget.googleUser.id,
-        "displayName": widget.googleUser.displayName,
+        "googleName": widget.googleUser.displayName,
         "photoUrl": widget.googleUser.photoUrl,
         "email": widget.googleUser.email,
         "username": username,
         "isFreelancer": false,
+        "createdAt": FieldValue.serverTimestamp(),
       }).then((value) {
         Timer(Duration(seconds: 1), () {
           Navigator.pop(context, true);

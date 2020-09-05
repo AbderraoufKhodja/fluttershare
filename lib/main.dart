@@ -20,7 +20,8 @@ class MyApp extends StatelessWidget {
       title: 'Khadamat',
       theme: ThemeData(
         primarySwatch: Colors.grey,
-        accentColor: Colors.white,
+        accentColor: Colors.black,
+        backgroundColor: Colors.white,
       ),
       debugShowCheckedModeBanner: false,
       home: Home(),

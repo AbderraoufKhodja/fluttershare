@@ -5,22 +5,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
+import 'package:khadamat/models/review.dart';
 import 'package:khadamat/models/user.dart';
+import 'package:khadamat/pages/create_freelance_account.dart';
 import 'package:khadamat/pages/edit_profile.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/messages_screen.dart';
-import 'package:khadamat/pages/upload_card.dart';
-import 'package:khadamat/widgets/business_card.dart';
 import 'package:khadamat/widgets/post.dart';
 import 'package:khadamat/widgets/post_tile.dart';
 import 'package:khadamat/widgets/progress.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class Profile extends StatefulWidget {
   final String profileId;
   final Job job;
   final String profileName;
+  final bool isFreelancer;
 
-  Profile({this.profileId, this.job, this.profileName});
+  Profile({this.profileId, this.job, this.profileName, this.isFreelancer});
 
   @override
   _ProfileState createState() => _ProfileState();
@@ -28,66 +30,109 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final String currentUserId = currentUser?.id;
-  String postOrientation = "grid";
+  String selectedTab = "info";
   bool isHired = false;
   bool isLoading = false;
   bool isApplicationResponse = false;
   int postCount = 0;
-  int hireCount = 0;
-  int followingCount = 0;
+  int completedJobsCount = 0;
+  int evaluation;
   List<Post> posts = [];
 
   @override
   void initState() {
     super.initState();
     getProfilePosts();
-    getHires();
-    getHired();
+    getEvaluation();
+    getCompletedJobsCount();
     checkIfHired();
     checkIfApplicationResponse();
   }
 
   @override
   Widget build(BuildContext context) {
+    return widget.isFreelancer
+        ? buildFreelancerScreen(context)
+        : buildClientScreen(context);
+  }
+
+  Scaffold buildClientScreen(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
-//      appBar: header(context, titleText: "Profile"),
-      body: ListView(
+      backgroundColor: Colors.black,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          buildProfileHeader(),
-//          buildProfileCard(),
-          Divider(),
-          buildTogglePostOrientation(),
-          Divider(
-            height: 0.0,
+          SizedBox(),
+          Container(
+            height: MediaQuery.of(context).size.height * 3 / 5,
+            width: double.infinity,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30.0),
+                    topRight: Radius.circular(30.0)),
+                color: Colors.white),
+            child: buildButton(
+                text: kCreateCard,
+                function: () => showCreateFreelanceAccount(context,
+                    firestoreUser: currentUser)),
           ),
-          buildProfilePosts(),
         ],
       ),
-      appBar: isApplicationResponse
-          ? AppBar(
-              actions: [
-                Expanded(
-                    child: buildButton(
-                  text: kReject,
-                  fillColor: Colors.red,
-                  function: handleRejectApplication,
-                )),
-                Expanded(
-                    child: buildButton(
-                  text: kAccept,
-                  fillColor: Colors.green,
-                  function: () {
-                    handleAcceptApplication();
-                    setState(() {
-                      isApplicationResponse = false;
-                    });
-                    showMessageScreen(context);
-                  },
-                )),
-              ],
-            )
-          : null,
+    );
+  }
+
+  SafeArea buildFreelancerScreen(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
+        appBar: isApplicationResponse ? buildAcceptAppBar(context) : null,
+        body: Column(
+          children: [
+            buildProfileHeader(),
+            Container(
+              height: MediaQuery.of(context).size.height * 3 / 5,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30.0),
+                      topRight: Radius.circular(30.0)),
+                  color: Colors.white),
+              child: Column(
+                children: [
+                  buildToggleTab(),
+                  Divider(height: 0.0, indent: 30.0, endIndent: 30.0),
+                  buildContent(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  AppBar buildAcceptAppBar(BuildContext context) {
+    return AppBar(
+      actions: [
+        Expanded(
+            child: buildButton(
+          text: kReject,
+          fillColor: Colors.red,
+          function: handleRejectApplication,
+        )),
+        Expanded(
+            child: buildButton(
+          text: kAccept,
+          fillColor: Colors.green,
+          function: () {
+            handleAcceptApplication();
+            setState(() {
+              isApplicationResponse = false;
+            });
+            showMessageScreen(context);
+          },
+        )),
+      ],
     );
   }
 
@@ -102,23 +147,25 @@ class _ProfileState extends State<Profile> {
     });
   }
 
-  getHires() async {
-    QuerySnapshot snapshot = await hiresRef
+  getEvaluation() async {
+    QuerySnapshot snapshot = await reviewsRef
         .document(widget.profileId)
-        .collection('userHires')
+        .collection('userReviews')
         .getDocuments();
     setState(() {
-      hireCount = snapshot.documents.length;
+      // TODO implement review evaluation logic
+      evaluation = snapshot.documents.length;
     });
   }
 
-  getHired() async {
-    QuerySnapshot snapshot = await hiresRef
+  getCompletedJobsCount() async {
+    QuerySnapshot snapshot = await usersRef
         .document(widget.profileId)
-        .collection('userFollowing')
+        .collection("userJobs")
+        .where("isCompleted", isEqualTo: true)
         .getDocuments();
     setState(() {
-      followingCount = snapshot.documents.length;
+      completedJobsCount = snapshot.documents.length;
     });
   }
 
@@ -169,14 +216,6 @@ class _ProfileState extends State<Profile> {
             builder: (context) => EditProfile(currentUserId: currentUserId)));
   }
 
-  createCard() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                CreateFreelanceAccount(firestoreUser: currentUser)));
-  }
-
   Container buildButton(
       {String text, Color fillColor = Colors.blue, Function function}) {
     return Container(
@@ -211,12 +250,12 @@ class _ProfileState extends State<Profile> {
     bool isProfileOwner = currentUserId == widget.profileId;
     if (isProfileOwner) {
       return buildButton(
-        text: "Edit Profile",
+        text: kEditProfile,
         function: editProfile,
       );
     } else if (!isHired) {
       return buildButton(
-        text: "Hire",
+        text: kHire,
         function: handleHireUser,
       );
     }
@@ -328,7 +367,68 @@ class _ProfileState extends State<Profile> {
         future: usersRef.document(widget.profileId).get(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return circularProgress();
+            return Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                children: <Widget>[
+                  linearProgress(),
+                  Row(
+                    children: <Widget>[
+                      CircleAvatar(
+                        radius: 40.0,
+                        backgroundImage:
+                            CachedNetworkImageProvider(kBlankProfileUrl),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          children: <Widget>[
+                            Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                buildCountColumn("posts", 0),
+                                buildCountColumn(KCompletedJobsCount, 0),
+                                buildCountColumn(KEvaluation, 0),
+                              ],
+                            ),
+                            buildButton(text: ""),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.only(top: 12.0),
+                    child: Text(
+                      "",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.only(top: 4.0),
+                    child: Text(
+                      "",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.only(top: 2.0),
+                    child: Text(
+                      "",
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
           User user = User.fromDocument(snapshot.data);
           return Padding(
@@ -341,7 +441,7 @@ class _ProfileState extends State<Profile> {
                       radius: 40.0,
                       backgroundColor: Theme.of(context).primaryColor,
                       backgroundImage:
-                          CachedNetworkImageProvider(user.photoUrl),
+                          CachedNetworkImageProvider(user.professionalPhoto),
                     ),
                     Expanded(
                       flex: 1,
@@ -352,16 +452,12 @@ class _ProfileState extends State<Profile> {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
                               buildCountColumn("posts", postCount),
-                              buildCountColumn("hires", hireCount),
-                              buildCountColumn("following", followingCount),
+                              buildCountColumn(
+                                  KCompletedJobsCount, completedJobsCount),
+                              buildCountColumn(KEvaluation, evaluation),
                             ],
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              buildProfileButton(),
-                            ],
-                          ),
+                          buildProfileButton(),
                         ],
                       ),
                     ),
@@ -382,7 +478,7 @@ class _ProfileState extends State<Profile> {
                   alignment: Alignment.centerLeft,
                   padding: EdgeInsets.only(top: 4.0),
                   child: Text(
-                    user.displayName,
+                    user.googleName,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
@@ -392,7 +488,7 @@ class _ProfileState extends State<Profile> {
                   alignment: Alignment.centerLeft,
                   padding: EdgeInsets.only(top: 2.0),
                   child: Text(
-                    user.bio,
+                    user.personalBio ?? "",
                   ),
                 ),
               ],
@@ -401,27 +497,110 @@ class _ProfileState extends State<Profile> {
         });
   }
 
-  buildProfileCard() {
+  FutureBuilder buildProfileInfo() {
     return FutureBuilder(
-        future: cardsRef.document(widget.profileId).get(),
+        future: usersRef.document(widget.profileId).get(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return circularProgress();
-          }
-          print(snapshot.data);
+          if (!snapshot.hasData) return linearProgress();
           DocumentSnapshot doc = snapshot.data;
           if (doc.exists) {
-            BusinessCard card = BusinessCard.fromDocument(doc);
-            return card;
+            User user = User.fromDocument(doc);
+            //TODO implement professional profile interface
+            return Expanded(
+              child: ListView(
+                children: [
+                  buildProfileInfoField(label: kUsername, text: user.username),
+                  buildProfileInfoField(label: kEmail, text: user.email),
+                  buildProfileInfoField(
+                      label: kPersonalBio, text: user.personalBio),
+                  buildProfileInfoField(label: kGender, text: user.gender),
+                  buildProfileInfoField(label: kLocation, text: user.location),
+                  buildProfileInfoField(
+                      label: kBirthDate, text: user.birthDate),
+                  buildProfileInfoField(
+                      label: kProfessionalCategory,
+                      text: user.professionalCategory),
+                  buildProfileInfoField(
+                      label: kProfessionalTitle, text: user.professionalTitle),
+                  buildProfileInfoField(
+                      label: kProfessionalDescription,
+                      text: user.professionalDescription),
+                  buildProfileInfoField(label: kKeyWords, text: user.keyWords),
+                  buildProfileInfoField(label: kDiploma, text: user.diploma),
+                  buildProfileInfoField(label: kLicence, text: user.licence),
+                  buildProfileInfoField(
+                      label: kCertification, text: user.certification),
+                  buildProfileInfoField(label: kLanguage, text: user.language),
+                  buildProfileInfoField(
+                      label: kExperience, text: user.experience),
+                  buildProfileInfoField(
+                      label: kInternship, text: user.internship),
+                  buildProfileInfoField(
+                      label: kCompetence, text: user.competence),
+                  buildProfileInfoField(
+                      label: kAchievement, text: user.achievement),
+                  buildProfileInfoField(
+                      label: kRecommendation, text: user.recommendation),
+                  buildProfileInfoField(
+                      label: kCreatedAt,
+                      text: timeago.format(user.createdAt.toDate())),
+                ],
+              ),
+            );
           } else {
-            return buildButton(text: "Create card", function: createCard);
+            return linearProgress();
           }
         });
   }
 
-  buildProfilePosts() {
+  Column buildProfileInfoField(
+      {@required String label, @required String text}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.all(10.0),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(15.0))),
+          child: Row(
+            children: [
+              Text(
+                "$label ",
+                style: kTextStyleProfileInfoHeader,
+              ),
+              Text(
+                "$text",
+                style: kTextStyleProfileInfo,
+              ),
+            ],
+          ),
+        ),
+        Divider(height: 0.0, indent: 30.0, endIndent: 30.0),
+      ],
+    );
+  }
+
+  buildProfileReviews() {
+    return FutureBuilder(
+        future: reviewsRef.document(widget.profileId).get(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return linearProgress();
+          }
+          DocumentSnapshot doc = snapshot.data;
+          if (doc.exists) {
+            Review review = Review.fromDocument(doc);
+            //TODO implement professional profile interface
+            return Center(child: Text(review.toString()));
+          } else {
+            return Center(child: Text(kHasNoReview));
+          }
+        });
+  }
+
+  buildProfileGallery() {
     if (isLoading) {
-      return circularProgress();
+      return linearProgress();
     } else if (posts.isEmpty) {
       return Container(
         child: Column(
@@ -442,7 +621,7 @@ class _ProfileState extends State<Profile> {
           ],
         ),
       );
-    } else if (postOrientation == "grid") {
+    } else if (true) {
       List<GridTile> gridTiles = [];
       posts.forEach((post) {
         gridTiles.add(GridTile(child: PostTile(post)));
@@ -456,35 +635,42 @@ class _ProfileState extends State<Profile> {
         physics: NeverScrollableScrollPhysics(),
         children: gridTiles,
       );
-    } else if (postOrientation == "list") {
+    } else if (selectedTab == "list") {
       return Column(
         children: posts,
       );
     }
   }
 
-  setPostOrientation(String postOrientation) {
+  setTab(String label) {
     setState(() {
-      this.postOrientation = postOrientation;
+      this.selectedTab = label;
     });
   }
 
-  buildTogglePostOrientation() {
+  buildToggleTab() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         IconButton(
-          onPressed: () => setPostOrientation("grid"),
-          icon: Icon(Icons.grid_on),
-          color: postOrientation == 'grid'
-              ? Theme.of(context).primaryColor
+          onPressed: () => setTab("info"),
+          icon: Icon(Icons.info),
+          color: selectedTab == 'info'
+              ? Theme.of(context).accentColor
               : Theme.of(context).primaryColor,
         ),
         IconButton(
-          onPressed: () => setPostOrientation("list"),
+          onPressed: () => setTab("review"),
           icon: Icon(Icons.list),
-          color: postOrientation == 'list'
-              ? Theme.of(context).primaryColor
+          color: selectedTab == 'review'
+              ? Theme.of(context).accentColor
+              : Theme.of(context).primaryColor,
+        ),
+        IconButton(
+          onPressed: () => setTab("gallery"),
+          icon: Icon(Icons.grid_on),
+          color: selectedTab == 'gallery'
+              ? Theme.of(context).accentColor
               : Theme.of(context).primaryColor,
         ),
       ],
@@ -517,10 +703,19 @@ class _ProfileState extends State<Profile> {
           widget.job.jobOwnerId != widget.profileId;
     });
   }
+
+  buildContent() {
+    if (selectedTab == "info") return buildProfileInfo();
+    if (selectedTab == "review") return buildProfileReviews();
+    if (selectedTab == "gallery") return buildProfileGallery();
+  }
 }
 
 showProfile(BuildContext context,
-    {@required String profileId, @required String profileName, Job job}) {
+    {@required String profileId,
+    @required String profileName,
+    @required bool isFreelancer,
+    Job job}) {
   Navigator.push(
     context,
     MaterialPageRoute(

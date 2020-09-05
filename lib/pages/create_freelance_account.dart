@@ -400,7 +400,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   uploadUsersProfessionalInfo(String mediaUrl) {
     usersRef.document(user.id).setData({
       "id": user.id,
-      "displayName": user.displayName,
+      "googleName": user.googleName,
       "photoUrl": user.photoUrl,
       "email": user.email,
       "isFreelancer": true,
@@ -413,8 +413,8 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       "professionalCategory": professionalCategory,
       "professionalTitle": professionalTitleController.text,
       "professionalDescription": professionalDescriptionController.text,
-      "keyWords": "$keyWord1Controller;$keyWord2Controller;"
-          "$keyWord3Controller;$keyWord4Controller;",
+      "keyWords": "${keyWord1Controller.text};${keyWord2Controller.text};"
+          "${keyWord3Controller.text};${keyWord4Controller.text};",
       "diploma": diplomaController.text,
       "licence": licenceController.text,
       "certification": certificationController.text,
@@ -424,7 +424,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       "competence": competenceController.text,
       "achievement": achievementController.text,
       "recommendation": recommendationController.text,
-      "timestamp": FieldValue.serverTimestamp(),
+      "createdAt": FieldValue.serverTimestamp(),
     });
   }
 
@@ -437,7 +437,8 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
         isUploading = true;
       });
       if (file != null) await compressImage();
-      String mediaUrl = file == null ? "" : await uploadImage(file);
+      String mediaUrl =
+          file == null ? kBlankProfileUrl : await uploadImage(file);
       uploadUsersProfessionalInfo(mediaUrl);
       clearControllers();
       clearImage();
@@ -785,6 +786,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                   .then((_) {
                 setState(() {
                   professionalTitle = controller.text;
+                  professionalTitleController.text = professionalTitle;
                 });
                 Navigator.pop(context);
                 controller.clear();
@@ -946,7 +948,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       {StateSetter setState, String professionalCategory}) async {
     if (professionalCategory.isNotEmpty) {
       await categoriesRef.document(professionalCategory).setData({});
-      getCategoriesList();
+      await getCategoriesList();
     }
   }
 
@@ -958,7 +960,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
           .collection("professionalTitles")
           .document(professionalTitle)
           .setData({});
-      getProfessionalTitlesList(setState);
+      await getProfessionalTitlesList(setState);
     }
   }
 

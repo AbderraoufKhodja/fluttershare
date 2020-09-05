@@ -19,7 +19,7 @@ class _SearchState extends State<Search>
 
   handleSearch(String query) {
     Future<QuerySnapshot> users = usersRef
-        .where("displayName", isGreaterThanOrEqualTo: query)
+        .where("googleName", isGreaterThanOrEqualTo: query)
         .getDocuments();
     setState(() {
       searchResultsFuture = users;
@@ -133,7 +133,7 @@ class UserResult extends StatelessWidget {
                 backgroundImage: CachedNetworkImageProvider(user.photoUrl),
               ),
               title: Text(
-                user.displayName,
+                user.googleName,
                 style:
                     TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),

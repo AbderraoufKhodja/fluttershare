@@ -189,9 +189,12 @@ class _HomeState extends State<Home> {
           JobTimeline(currentUser: currentUser),
 //          CreateAccount(),
           JobActivityFeed(),
-          UploadJob(currentUser: currentUser),
+//          UploadJob(currentUser: currentUser),
           Search(),
-          Profile(profileId: currentUser?.id),
+          Profile(
+            profileId: currentUser?.id,
+            isFreelancer: currentUser.isFreelancer,
+          ),
         ],
         controller: pageController,
         onPageChanged: onPageChanged,
@@ -213,10 +216,10 @@ class _HomeState extends State<Home> {
             icon: Icon(OMIcons.notificationsActive),
             activeIcon: Icon(Icons.notifications_active, size: 40.0),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(OMIcons.photoCamera),
-            activeIcon: Icon(Icons.photo_camera, size: 40.0),
-          ),
+//          BottomNavigationBarItem(
+//            icon: Icon(OMIcons.photoCamera),
+//            activeIcon: Icon(Icons.photo_camera, size: 40.0),
+//          ),
           BottomNavigationBarItem(
             icon: Icon(OMIcons.search),
             activeIcon: Icon(Icons.search, size: 40.0),

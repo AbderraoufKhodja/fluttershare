@@ -16,11 +16,11 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  TextEditingController displayNameController = TextEditingController();
+  TextEditingController googleNameController = TextEditingController();
   TextEditingController bioController = TextEditingController();
   bool isLoading = false;
   User user;
-  bool _displayNameValid = true;
+  bool _googleNameValid = true;
   bool _bioValid = true;
 
   @override
@@ -35,14 +35,14 @@ class _EditProfileState extends State<EditProfile> {
     });
     DocumentSnapshot doc = await usersRef.document(widget.currentUserId).get();
     user = User.fromDocument(doc);
-    displayNameController.text = user.displayName;
-    bioController.text = user.bio;
+    googleNameController.text = user.googleName;
+    bioController.text = user.personalBio;
     setState(() {
       isLoading = false;
     });
   }
 
-  Column buildDisplayNameField() {
+  Column buildGoogleNameField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -53,10 +53,10 @@ class _EditProfileState extends State<EditProfile> {
               style: TextStyle(color: Theme.of(context).primaryColor),
             )),
         TextField(
-          controller: displayNameController,
+          controller: googleNameController,
           decoration: InputDecoration(
             hintText: "Update Display Name",
-            errorText: _displayNameValid ? null : "Display Name too short",
+            errorText: _googleNameValid ? null : "Display Name too short",
           ),
         )
       ],
@@ -87,18 +87,18 @@ class _EditProfileState extends State<EditProfile> {
 
   updateProfileData() {
     setState(() {
-      displayNameController.text.trim().length < 3 ||
-              displayNameController.text.isEmpty
-          ? _displayNameValid = false
-          : _displayNameValid = true;
+      googleNameController.text.trim().length < 3 ||
+              googleNameController.text.isEmpty
+          ? _googleNameValid = false
+          : _googleNameValid = true;
       bioController.text.trim().length > 100
           ? _bioValid = false
           : _bioValid = true;
     });
 
-    if (_displayNameValid && _bioValid) {
+    if (_googleNameValid && _bioValid) {
       usersRef.document(widget.currentUserId).updateData({
-        "displayName": displayNameController.text,
+        "googleName": googleNameController.text,
         "bio": bioController.text,
       });
       SnackBar snackbar = SnackBar(content: Text("Profile updated!"));
@@ -156,7 +156,7 @@ class _EditProfileState extends State<EditProfile> {
                         padding: EdgeInsets.all(16.0),
                         child: Column(
                           children: <Widget>[
-                            buildDisplayNameField(),
+                            buildGoogleNameField(),
                             buildBioField(),
                           ],
                         ),

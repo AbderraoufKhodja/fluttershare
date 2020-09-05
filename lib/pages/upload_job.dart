@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:khadamat/categories.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/home.dart';
@@ -31,10 +30,12 @@ class _UploadJobState extends State<UploadJob>
   TextEditingController locationController = TextEditingController();
   TextEditingController jobTitleController = TextEditingController();
   // Todo initialize cat and subcat for firebase call
-  String category;
-  String subCategory;
+  String professionalCategory;
+  String professionalTitle;
   TextEditingController priceController = TextEditingController();
   TextEditingController scheduleController = TextEditingController();
+  List<String> professionalCategoriesList = [""];
+  List<String> professionalTitlesList = [""];
 
   File file;
   bool isUploading = false;
@@ -183,8 +184,8 @@ class _UploadJobState extends State<UploadJob>
     String mediaUrl = file == null ? "" : await uploadJobImage(file);
     createJobInFirestore(
       jobTitle: jobTitleController.text,
-      category: category,
-      subCategory: subCategory,
+      category: professionalCategory,
+      subCategory: professionalTitle,
       mediaUrl: mediaUrl,
       location: locationController.text,
       description: captionController.text,
@@ -316,7 +317,7 @@ class _UploadJobState extends State<UploadJob>
               ),
             ),
             title: DropdownButton<String>(
-                value: this.category,
+                value: this.professionalCategory,
                 icon: Container(
                   child: Icon(Icons.arrow_downward),
                 ),
@@ -332,11 +333,10 @@ class _UploadJobState extends State<UploadJob>
                 ),
                 onChanged: (String val) {
                   setState(() {
-                    this.category = val;
-                    calIndex = categoryList.indexOf(val);
+                    this.professionalCategory = val;
                   });
                 },
-                items: categoryList
+                items: professionalCategoriesList
                     .map((category) => DropdownMenuItem<String>(
                           value: category,
                           child: Text(
@@ -359,7 +359,7 @@ class _UploadJobState extends State<UploadJob>
               textAlign: TextAlign.start,
             ),
             title: DropdownButton<String>(
-                value: this.subCategory,
+                value: this.professionalTitle,
                 icon: Container(
                   child: Icon(Icons.arrow_downward),
                 ),
@@ -375,10 +375,10 @@ class _UploadJobState extends State<UploadJob>
                 ),
                 onChanged: (String val) {
                   setState(() {
-                    this.subCategory = val;
+                    this.professionalTitle = val;
                   });
                 },
-                items: subCategoryList[calIndex]
+                items: professionalTitlesList
                     .map((subCategory) => DropdownMenuItem(
                           value: subCategory,
                           child: Text(
@@ -457,4 +457,13 @@ class _UploadJobState extends State<UploadJob>
   }
 
   bool get wantKeepAlive => true;
+}
+
+showUploadJobPage(BuildContext context, {@required User currentUser}) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => UploadJob(currentUser: currentUser),
+    ),
+  );
 }

@@ -34,7 +34,6 @@ class _JobActivityFeedState extends State<JobActivityFeed> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
       appBar: AppBar(
 //        leading: IconButton(
 //          icon: Icon(Icons.card_travel),
