@@ -8,6 +8,7 @@ class Job {
   final String jobOwnerName;
   final String ownerEmail;
   final bool isOwnerFreelancer;
+  final String jobTitle;
   final String professionalTitle;
   final String professionalCategory;
   final String jobDescription;
@@ -19,7 +20,7 @@ class Job {
   final Map applications;
   final bool isCompleted;
   final bool isVacant;
-  final bool isOnGoing;
+  bool isOnGoing;
 
   Job({
     this.jobId,
@@ -27,6 +28,7 @@ class Job {
     this.jobOwnerName,
     this.isOwnerFreelancer,
     this.ownerEmail,
+    this.jobTitle,
     this.professionalCategory,
     this.professionalTitle,
     this.jobDescription,
@@ -48,6 +50,7 @@ class Job {
       jobOwnerName: doc['jobOwnerName'],
       isOwnerFreelancer: doc['isOwnerFreelancer'],
       ownerEmail: doc['ownerEmail'],
+      jobTitle: doc['jobTitle'],
       professionalCategory: doc['professionalCategory'],
       professionalTitle: doc['professionalTitle'],
       jobDescription: doc['jobDescription'],
@@ -132,12 +135,14 @@ class Job {
         .setData({
       "type": "apply",
       "jobId": jobId,
+      "jobTitle": jobTitle,
       "professionalTitle": professionalTitle,
       "jobOwnerName": jobOwnerName,
       "jobOwnerId": jobOwnerId,
       "applicantId": currentUser.id,
       "applicantName": currentUser.username,
       "userProfileImg": currentUser.photoUrl,
+      "read": false,
       "createdAt": FieldValue.serverTimestamp(),
       "applications": applications,
     });
@@ -148,11 +153,13 @@ class Job {
         .setData({
       "type": "apply",
       "jobId": jobId,
-      "googleName": professionalTitle,
+      "jobTitle": jobTitle,
+      "professionalTitle": professionalTitle,
       "applicantName": currentUser.username,
       "applicantId": currentUser.id,
       "jobOwnerName": jobOwnerName,
       "jobOwnerId": jobOwnerId,
+      "read": false,
       "createdAt": FieldValue.serverTimestamp(),
       "applications": applications,
     });
@@ -182,25 +189,31 @@ class Job {
 //    }
 //  }
 
-  removeApplyFromActivityFeed() {
+  Future<void> removeApplyFromActivityFeed() async {
     activityFeedRef
         .document(jobOwnerId)
         .collection("feedItems")
-        .document(jobId)
-        .get()
-        .then((doc) {
-      if (doc.exists) {
-        doc.reference.delete();
+        .where("jobId", isEqualTo: jobId)
+        .where("type", isEqualTo: "apply")
+        .getDocuments()
+        .then((snapshot) {
+      if (snapshot.documents.isNotEmpty) {
+        snapshot.documents.forEach((doc) {
+          doc.reference.delete();
+        });
       }
     });
     activityFeedRef
         .document(currentUser.id)
         .collection("feedItems")
-        .document(jobId)
-        .get()
-        .then((doc) {
-      if (doc.exists) {
-        doc.reference.delete();
+        .where("jobId", isEqualTo: jobId)
+        .where("type", isEqualTo: "apply")
+        .getDocuments()
+        .then((snapshot) {
+      if (snapshot.documents.isNotEmpty) {
+        snapshot.documents.forEach((doc) {
+          doc.reference.delete();
+        });
       }
     });
   }
@@ -208,130 +221,188 @@ class Job {
   handleEditJob() {
     //TODO implement
   }
-  // an jobOwner action
-  // TODO: handle futures for acceptation confirmation.
-  addAcceptToActivityFeed(
-      {@required String applicantId,
-      @required String applicantName,
-      String jobOwnerId}) async {
-    notifyOwnerAccept(jobOwnerId, applicantName, applicantId);
 
-    notifyApplicantAccept(applicantId, jobOwnerId, applicantName);
-
+  Future<void> handleAcceptApplication({
+    @required String applicantId,
+    @required String applicantName,
+  }) async {
+    updateJobInfo(applicantName: applicantName, isAccept: true);
+    addOwnerAcceptFeed(applicantName: applicantName, applicantId: applicantId);
+    addApplicantAcceptFeed(
+        applicantId: applicantId, applicantName: applicantName);
     handleOpenChat(applicantId: applicantId, applicantName: applicantName);
   }
 
-  Future<void> notifyApplicantAccept(
-      String applicantId, String jobOwnerId, String applicantName) {
-    return activityFeedRef
+  Future<void> addApplicantAcceptFeed(
+      {@required String applicantId, @required String applicantName}) async {
+    return await activityFeedRef
         .document(applicantId)
         .collection("feedItems")
-        .document(jobId)
+        .document()
         .setData({
       "type": "accept",
       "jobId": jobId,
+      "jobTitle": jobTitle,
       "ProfessionalTitle": professionalTitle,
       "jobOwnerName": jobOwnerName,
       "jobOwnerId": jobOwnerId,
       "applicantName": applicantName,
       "applicantId": applicantId,
+      "read": false,
       "createdAt": FieldValue.serverTimestamp(),
       "applications": applications,
     });
   }
 
-  Future<void> notifyOwnerAccept(
-      String jobOwnerId, String applicantName, String applicantId) {
-    return activityFeedRef
+  Future<void> addOwnerAcceptFeed(
+      {@required String applicantId, @required String applicantName}) async {
+    return await activityFeedRef
         .document(jobOwnerId)
         .collection("feedItems")
-        .document(jobId)
+        .document()
         .setData({
       "type": "accept",
       "jobId": jobId,
+      "jobTitle": jobTitle,
       "professionalTitle": professionalTitle,
       "jobOwnerName": jobOwnerName,
       "jobOwnerId": jobOwnerId,
       "applicantName": applicantName,
       "applicantId": applicantId,
+      "read": false,
       "createdAt": FieldValue.serverTimestamp(),
       "applications": applications,
     });
   }
 
-  addRejectToActivityFeed(
+  handleRejectApplication(
       {@required String applicantId, @required String applicantName}) {
-    activityFeedRef
-        .document(jobOwnerId)
-        .collection("feedItems")
-        .document(jobId)
-        .setData({
-      "type": "reject",
-      "jobId": jobId,
-      "professionalTitle": professionalTitle,
-      "jobOwnerName": jobOwnerName,
-      "jobOwnerId": jobOwnerId,
-      "applicantName": applicantName,
-      "applicantId": applicantId,
-      "createdAt": FieldValue.serverTimestamp(),
-      "applications": applications,
-    });
+    updateJobInfo(applicantName: applicantName, isAccept: false);
+    addOwnerRejectFeed(applicantName: applicantName, applicantId: applicantId);
+    addApplicantRejectFeed(
+        applicantId: applicantId, applicantName: applicantName);
+  }
 
-    activityFeedRef
+  Future<void> addApplicantRejectFeed(
+      {@required String applicantId, @required String applicantName}) async {
+    return await activityFeedRef
         .document(applicantId)
         .collection("feedItems")
-        .document(jobId)
+        .document()
         .setData({
       "type": "reject",
       "jobId": jobId,
+      "jobTitle": jobTitle,
       "professionalTitle": professionalTitle,
       "jobOwnerName": jobOwnerName,
       "jobOwnerId": jobOwnerId,
       "applicantId": applicantId,
       "applicantName": applicantName,
+      "read": false,
       "createdAt": FieldValue.serverTimestamp(),
       "applications": applications,
     });
   }
 
-  handleOpenChat({String applicantId, String applicantName}) {
+  Future<void> addOwnerRejectFeed(
+      {@required String applicantName, @required String applicantId}) async {
+    return await activityFeedRef
+        .document(jobOwnerId)
+        .collection("feedItems")
+        .document()
+        .setData({
+      "type": "reject",
+      "jobId": jobId,
+      "jobTitle": jobTitle,
+      "professionalTitle": professionalTitle,
+      "jobOwnerName": jobOwnerName,
+      "jobOwnerId": jobOwnerId,
+      "applicantName": applicantName,
+      "applicantId": applicantId,
+      "read": false,
+      "createdAt": FieldValue.serverTimestamp(),
+      "applications": applications,
+    });
+  }
+
+  Future<void> updateJobInfo(
+      {@required String applicantName, @required bool isAccept}) async {
+    jobsRef.document(jobId).updateData({
+      'applications.$applicantName': isAccept,
+      'isOnGoing': isAccept,
+    }).then((value) {
+      applications[applicantName] = isAccept;
+      isOnGoing = isAccept;
+    });
+  }
+
+  Future<void> handleOpenChat(
+      {String applicantId, String applicantName}) async {
     // Create a messaging reference in firestore
-    messagesRef
+    createMessageReference();
+    // Create a userJobs reference in firestore to store a reference to point to
+    // the message ids for the applicant that can be used to list the messages.
+    createApplicantJob(applicantName: applicantName, applicantId: applicantId);
+    // Create a userJobs reference in firestore to store a reference to point to
+    // the message ids for the job jobOwner that can be used to list the messages.
+    createOwnerJob(applicantId: applicantId, applicantName: applicantName);
+  }
+
+  Future<void> createOwnerJob(
+      {@required String applicantId, @required String applicantName}) async {
+    return await usersRef
+        .document(jobOwnerId)
+        .collection("userJobs")
+        .document(jobId)
+        .setData({
+      "jobId": jobId,
+      "jobTitle": jobTitle,
+      "jobOwnerId": jobOwnerId,
+      "jobOwnerName": jobOwnerName,
+      "applicantId": applicantId,
+      "applicantName": applicantName,
+      "professionalTitle": professionalTitle,
+      "read": false,
+      "createdAt": FieldValue.serverTimestamp(),
+      "applications": applications,
+    });
+  }
+
+  Future<void> createApplicantJob(
+      {@required String applicantId, @required String applicantName}) async {
+    return await usersRef
+        .document(applicantId)
+        .collection("userJobs")
+        .document(jobId)
+        .setData({
+      "jobId": jobId,
+      "jobTitle": jobTitle,
+      "jobOwnerId": jobOwnerId,
+      "jobOwnerName": jobOwnerName,
+      "applicantId": applicantId,
+      "applicantName": applicantName,
+      "professionalTitle": professionalTitle,
+      "read": false,
+      "createdAt": FieldValue.serverTimestamp(),
+      "applications": applications,
+    });
+  }
+
+  Future<void> createMessageReference() async {
+    return await messagesRef
         .document(jobId)
         .collection("messages")
         .document()
         .setData({"type": "open"});
-    // Create a userJobs reference in firestore to store a reference to point to
-    // the message ids for the applicant that can be used to list the messages.
-    usersRef
-        .document(applicantId)
-        .collection("userJobs")
-        .document(jobId)
-        .setData({
-      "jobId": jobId,
-      "jobOwnerId": jobOwnerId,
-      "jobOwnerName": jobOwnerName,
-      "applicantId": applicantId,
-      "applicantName": applicantName,
-      "professionalTitle": professionalTitle,
-      "applications": applications,
-      "createdAt": FieldValue.serverTimestamp(),
-    });
-    // Create a userJobs reference in firestore to store a reference to point to
-    // the message ids for the job jobOwner that can be used to list the messages.
-    usersRef
-        .document(jobOwnerId)
-        .collection("userJobs")
-        .document(jobId)
-        .setData({
-      "jobId": jobId,
-      "jobOwnerId": jobOwnerId,
-      "jobOwnerName": jobOwnerName,
-      "applicantId": applicantId,
-      "applicantName": applicantName,
-      "professionalTitle": professionalTitle,
-      "applications": applications,
-      "createdAt": FieldValue.serverTimestamp(),
-    });
+  }
+
+  Future<void> handleApplicantCompleteJob() async {
+    // TODO handleCompleteJob
+    print("handleApplicantCompleteJob");
+  }
+
+  Future<void> handleOwnerCompleteJob() async {
+    // TODO handleCompleteJob
+    print("handleOwnerCompleteJob");
   }
 }

@@ -25,6 +25,7 @@ class UploadJob extends StatefulWidget {
 
 class _UploadJobState extends State<UploadJob>
     with AutomaticKeepAliveClientMixin<UploadJob> {
+  TextEditingController jobTitleController = TextEditingController();
   TextEditingController locationController = TextEditingController();
   TextEditingController dateRangeController = TextEditingController();
   TextEditingController jobDescriptionController = TextEditingController();
@@ -42,10 +43,6 @@ class _UploadJobState extends State<UploadJob>
   List<String> countriesList = [""];
   List<String> administrativeAreasList = [""];
   List<String> subAdministrativeAreasList = [""];
-  TextEditingController keyWord1Controller = TextEditingController();
-  TextEditingController keyWord2Controller = TextEditingController();
-  TextEditingController keyWord3Controller = TextEditingController();
-  TextEditingController keyWord4Controller = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _categoryScaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -90,15 +87,39 @@ class _UploadJobState extends State<UploadJob>
                       ? GestureDetector(
                           onTap: () => selectImage(context),
                           child: Container(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.white,
+                                    spreadRadius: 0,
+                                  ),
+                                ]),
+                            margin: EdgeInsets.all(5.0),
+                            padding: EdgeInsets.all(10.0),
                             child: Icon(
                               Icons.add_a_photo,
-                              size: 50.0,
+                              size: 100.0,
                             ),
                           ),
                         )
-                      : CircleAvatar(
-                          radius: 50.0,
-                          backgroundImage: FileImage(file),
+                      : GestureDetector(
+                          onTap: () => selectImage(context),
+                          child: Container(
+                            height: 100.0,
+                            width: 100.0,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.0),
+                                image: DecorationImage(image: FileImage(file)),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.white,
+                                    spreadRadius: 0,
+                                  ),
+                                ]),
+                            margin: EdgeInsets.all(5.0),
+                            padding: EdgeInsets.all(10.0),
+                          ),
                         ),
                 ),
               ],
@@ -115,6 +136,14 @@ class _UploadJobState extends State<UploadJob>
                   children: <Widget>[
                     CustomTextFormField(
                         validator: (text) =>
+                            checkLength(text, label: kLocation),
+                        controller: jobTitleController,
+                        hint: kJobTitleHint,
+                        onTap: () {
+                          updateInstruction(kJobTitleInstruction);
+                        }),
+                    CustomTextFormField(
+                        validator: (text) =>
                             checkLocationAddress(text, label: kLocation),
                         controller: locationController,
                         hint: kLocation,
@@ -128,11 +157,11 @@ class _UploadJobState extends State<UploadJob>
                         validator: (text) =>
                             checkLength(text, label: kBirthDateController),
                         controller: dateRangeController,
-                        hint: kBirthDateController,
+                        hint: kDateRangeHint,
                         trailing: buildBirthDateGestureDetector(),
                         readOnly: true,
                         onTap: () {
-                          updateInstruction(kBirthDateInstruction);
+                          updateInstruction(kDateRangeInstruction);
                           showCalender();
                         }),
                     Row(
@@ -183,67 +212,11 @@ class _UploadJobState extends State<UploadJob>
                     CustomTextFormField(
                         validator: (text) =>
                             checkLength(text, label: kProfessionalDescription),
+                        enableInteractiveSelection: false,
                         controller: priceController,
+                        keyboardType: TextInputType.number,
                         hint: kPriceHint,
                         onTap: () => updateInstruction(kPriceInstruction)),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextFormField(
-                              validator: (text) =>
-                                  checkLength(text, label: kKeyWords),
-                              controller: keyWord1Controller,
-                              hint: "$kKeyWords 1",
-                              onTap: () =>
-                                  updateInstruction(kKeyWordsInstruction)),
-                        ),
-                        Container(
-                          height: 30,
-                          child: VerticalDivider(
-                            width: 2,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Expanded(
-                          child: CustomTextFormField(
-                              validator: (text) =>
-                                  checkLength(text, label: kKeyWords),
-                              controller: keyWord2Controller,
-                              hint: "$kKeyWords 2",
-                              onTap: () =>
-                                  updateInstruction(kKeyWordsInstruction)),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomTextFormField(
-                              validator: (text) =>
-                                  checkLength(text, label: kKeyWords),
-                              controller: keyWord3Controller,
-                              hint: "$kKeyWords 3",
-                              onTap: () =>
-                                  updateInstruction(kKeyWordsInstruction)),
-                        ),
-                        Container(
-                          height: 30,
-                          child: VerticalDivider(
-                            width: 2,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Expanded(
-                          child: CustomTextFormField(
-                              validator: (text) =>
-                                  checkLength(text, label: kKeyWords),
-                              controller: keyWord4Controller,
-                              hint: "$kKeyWords 4",
-                              onTap: () =>
-                                  updateInstruction(kKeyWordsInstruction)),
-                        ),
-                      ],
-                    ),
                     GestureDetector(
                       onTap: isUploading ? null : () => handleSubmit(),
                       child: Container(
@@ -306,6 +279,7 @@ class _UploadJobState extends State<UploadJob>
       "jobOwnerName": currentUser.username,
       "isOwnerFreelancer": currentUser.isFreelancer,
       "ownerEmail": currentUser.email,
+      "jobTitle": jobTitleController.text,
       "professionalCategory": professionalCategoryController.text,
       "professionalTitle": professionalTitleController.text,
       "jobDescription": jobDescriptionController.text,
@@ -313,8 +287,6 @@ class _UploadJobState extends State<UploadJob>
       "dateRange": dateRangeController.text,
       "jobPhotoUrl": jobPhotoUrl,
       "price": priceController.text,
-      "keyWords": "${keyWord1Controller.text};${keyWord2Controller.text};"
-          "${keyWord3Controller.text};${keyWord4Controller.text};",
       "applications": {},
       "isVacant": true,
       "isOnGoing": false,
@@ -447,7 +419,7 @@ class _UploadJobState extends State<UploadJob>
     final tempDir = await getTemporaryDirectory();
     final path = tempDir.path;
     Im.Image imageFile = Im.decodeImage(file.readAsBytesSync());
-    final compressedImageFile = File('$path/img_${currentUser.id}.jpg')
+    final compressedImageFile = File('$path/job_$jobId.jpg')
       ..writeAsBytesSync(Im.encodeJpg(imageFile, quality: 85));
     setState(() {
       file = compressedImageFile;
@@ -456,7 +428,7 @@ class _UploadJobState extends State<UploadJob>
 
   Future<String> uploadImage(imageFile) async {
     StorageUploadTask uploadCardTask =
-        storageRef.child("card_${currentUser.id}.jpg").putFile(imageFile);
+        storageRef.child("job_$jobId.jpg").putFile(imageFile);
     StorageTaskSnapshot storageSnap = await uploadCardTask.onComplete;
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     return downloadUrl;
@@ -467,10 +439,6 @@ class _UploadJobState extends State<UploadJob>
     locationController.clear();
     jobDescriptionController.clear();
     dateRangeController.clear();
-    keyWord1Controller.clear();
-    keyWord2Controller.clear();
-    keyWord3Controller.clear();
-    keyWord4Controller.clear();
   }
 
   buildBirthDateGestureDetector() {

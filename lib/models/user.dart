@@ -6,7 +6,6 @@ class User {
   String googleName;
   String photoUrl;
   String email;
-  String jobs;
   bool isFreelancer;
   String professionalPhoto;
   String personalBio;
@@ -34,7 +33,6 @@ class User {
     this.googleName,
     this.photoUrl,
     this.email,
-    this.jobs,
     this.isFreelancer,
     this.professionalPhoto,
     this.personalBio,
@@ -74,7 +72,6 @@ class User {
       googleName: doc['googleName'],
       photoUrl: doc['photoUrl'],
       email: doc['email'],
-      jobs: doc['jobs'],
       isFreelancer: doc['isFreelancer'],
       professionalPhoto: doc['professionalPhoto'],
       personalBio: doc['personalBio'],

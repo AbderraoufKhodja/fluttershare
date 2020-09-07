@@ -75,7 +75,7 @@ class _ProfessionalCategoriesScreenState
 //  buildUsersToFollow() {
 //    return StreamBuilder(
 //      stream:
-//          usersRef.orderBy('timestamp', descending: true).limit(30).snapshots(),
+//          usersRef.orderBy('createdAt', descending: true).limit(30).snapshots(),
 //      builder: (context, snapshot) {
 //        if (!snapshot.hasData) {
 //          return circularProgress();
@@ -152,7 +152,7 @@ class _ProfessionalCategoriesScreenState
           ],
         ),
       );
-    } else if (true) {
+    } else {
       List<GridTile> gridTiles = [];
       professionalCategoriesList.forEach((category) {
         gridTiles.add(

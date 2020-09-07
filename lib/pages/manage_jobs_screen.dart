@@ -7,15 +7,12 @@ import 'package:khadamat/pages/manage_job.dart';
 import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/progress.dart';
 
-class MainJobsScreen extends StatefulWidget {
-  final String title;
-
-  MainJobsScreen({@required this.title});
+class ManageJobsScreen extends StatefulWidget {
   @override
   _JobsScreen createState() => _JobsScreen();
 }
 
-class _JobsScreen extends State<MainJobsScreen> {
+class _JobsScreen extends State<ManageJobsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,30 +24,27 @@ class _JobsScreen extends State<MainJobsScreen> {
       ),
     );
   }
+}
 
-  buildListJobs() {
-    return StreamBuilder(
-        stream: getVacantJobsList(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return circularProgress();
-          }
-          List<JobContainer> messages = [];
-          snapshot.data.documents.forEach((doc) {
-            messages.add(JobContainer.fromDocument(doc));
-          });
-          return ListView(
-            children: messages,
-          );
+buildListJobs() {
+  return FutureBuilder(
+      future: usersRef
+          .document(currentUser.id)
+          .collection('userJobs')
+          .orderBy("createdAt", descending: false)
+          .getDocuments(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return circularProgress();
+        }
+        List<JobContainer> job = [];
+        snapshot.data.documents.forEach((doc) {
+          job.add(JobContainer.fromDocument(doc));
         });
-  }
-
-  Stream<QuerySnapshot> getVacantJobsList() {
-    return jobsRef
-        .where("professionalTitle", isEqualTo: widget.title)
-        .where("isVacant", isEqualTo: true)
-        .snapshots();
-  }
+        return ListView(
+          children: job,
+        );
+      });
 }
 
 class JobContainer extends StatelessWidget {
@@ -94,7 +88,7 @@ class JobContainer extends StatelessWidget {
               applicantName: applicantName,
               applicantId: applicantId),
           child: ListTile(
-            title: Text(professionalTitle ?? ""),
+            title: Text(professionalTitle),
             leading: CircleAvatar(
               backgroundImage: CachedNetworkImageProvider(kBlankProfileUrl),
             ),
@@ -107,10 +101,8 @@ class JobContainer extends StatelessWidget {
   }
 }
 
-showMainJobsScreen(BuildContext context, {String title}) {
+showManageJobsScreen(BuildContext context) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
-    return MainJobsScreen(
-      title: title,
-    );
+    return ManageJobsScreen();
   }));
 }

@@ -11,24 +11,27 @@ import 'package:timeago/timeago.dart' as timeago;
 class Messages extends StatefulWidget {
   final String jobId;
   final String professionalTitle;
+  final String jobTitle;
   final String jobOwnerId;
   final String jobOwnerName;
   final String applicantId;
   final String applicantName;
 
   Messages({
-    this.jobId,
-    this.professionalTitle,
-    this.jobOwnerId,
-    this.jobOwnerName,
-    this.applicantId,
-    this.applicantName,
+    @required this.jobId,
+    @required this.professionalTitle,
+    @required this.jobTitle,
+    @required this.jobOwnerId,
+    @required this.jobOwnerName,
+    @required this.applicantId,
+    @required this.applicantName,
   });
 
   @override
   MessagesState createState() => MessagesState(
         jobId: this.jobId,
         professionalTitle: this.professionalTitle,
+        jobTitle: this.jobTitle,
         jobOwnerId: this.jobOwnerId,
         jobOwnerName: this.jobOwnerName,
         applicantId: this.applicantId,
@@ -40,6 +43,7 @@ class MessagesState extends State<Messages> {
   TextEditingController messageController = TextEditingController();
   final String jobId;
   final String professionalTitle;
+  final String jobTitle;
   final String jobOwnerId;
   final String jobOwnerName;
   final String applicantId;
@@ -48,9 +52,10 @@ class MessagesState extends State<Messages> {
 
   MessagesState({
     this.jobId,
+    this.professionalTitle,
+    this.jobTitle,
     this.jobOwnerId,
     this.jobOwnerName,
-    this.professionalTitle,
     this.applicantId,
     this.applicantName,
   });
@@ -151,18 +156,23 @@ class MessagesState extends State<Messages> {
       if (currentUser.id == jobOwnerId)
         feedId = applicantId;
       else if (currentUser.id == applicantId) feedId = jobOwnerId;
+      print(feedId);
       activityFeedRef
           .document(feedId)
           .collection('feedItems')
-          .document(jobId)
+          .document(currentUser.id + jobId)
           .setData({
         "type": "message",
         "messageData": messageController.text,
         "jobId": jobId,
         "professionalTitle": professionalTitle,
+        "jobTitle": jobTitle,
+        "jobOwnerName": jobOwnerName,
+        "jobOwnerId": jobOwnerId,
         "applicantId": currentUser.id,
         "applicantName": currentUser.username,
-        "userProfileImg": currentUser.photoUrl,
+        "userProfileImg": currentUser.photoUrl ?? kBlankProfileUrl,
+        "read": false,
         "createdAt": FieldValue.serverTimestamp(),
       });
       messageController.clear();
@@ -203,10 +213,16 @@ class MessagesState extends State<Messages> {
   }
 
   confirmAcceptance() {
-    showManageJob(context, jobId: jobId, applicantId: applicantId);
+    showManageJob(context,
+        jobId: jobId, applicantId: applicantId, applicantName: applicantName);
+    Navigator.pop(context);
   }
 
-  cancelAcceptance() {}
+  cancelAcceptance() {
+    showManageJob(context,
+        jobId: jobId, applicantId: applicantId, applicantName: applicantName);
+    Navigator.pop(context);
+  }
 }
 
 class Message extends StatelessWidget {
@@ -214,14 +230,14 @@ class Message extends StatelessWidget {
   final String userId;
   final String avatarUrl;
   final String message;
-  final Timestamp timestamp;
+  final Timestamp createdAt;
 
   Message({
     this.username,
     this.userId,
     this.avatarUrl,
     this.message,
-    this.timestamp,
+    this.createdAt,
   });
 
   factory Message.fromDocument(DocumentSnapshot doc) {
@@ -229,8 +245,8 @@ class Message extends StatelessWidget {
       username: doc['username'],
       userId: doc['userId'],
       message: doc['message'],
-      timestamp: doc['timestamp'],
       avatarUrl: doc['avatarUrl'],
+      createdAt: doc['createdAt'],
     );
   }
 
@@ -251,8 +267,8 @@ class Message extends StatelessWidget {
         Container(
           padding: EdgeInsets.only(left: 4.0, right: 4.0, top: 3.0),
           child: Text(
-            timestamp != null
-                ? timeago.format(timestamp.toDate())
+            createdAt != null
+                ? timeago.format(createdAt.toDate())
                 : 'a moment ago',
             style: TextStyle(color: Colors.grey, fontSize: 11.0),
             textAlign: isCurrentUser ? TextAlign.right : TextAlign.left,
@@ -263,18 +279,23 @@ class Message extends StatelessWidget {
   }
 }
 
-showMessages(BuildContext context,
-    {String jobId,
-    String jobOwnerId,
-    String jobOwnerName,
-    String professionalTitle,
-    String applicantId,
-    String applicantName}) {
+showMessages(
+  BuildContext context, {
+  @required String jobId,
+  @required String professionalTitle,
+  @required String jobTitle,
+  @required String jobOwnerId,
+  @required String jobOwnerName,
+  @required String applicantId,
+  @required String applicantName,
+}) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
     return Messages(
       jobId: jobId,
-      jobOwnerId: jobOwnerId,
       professionalTitle: professionalTitle,
+      jobTitle: jobTitle,
+      jobOwnerId: jobOwnerId,
+      jobOwnerName: jobOwnerName,
       applicantId: applicantId,
       applicantName: applicantName,
     );

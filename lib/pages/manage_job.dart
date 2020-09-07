@@ -217,7 +217,9 @@ class _ManageJobState extends State<ManageJob> {
 }
 
 showManageJob(BuildContext context,
-    {@required String jobId, String applicantId, String applicantName}) {
+    {@required String jobId,
+    @required String applicantId,
+    @required String applicantName}) {
   Navigator.push(
     context,
     MaterialPageRoute(

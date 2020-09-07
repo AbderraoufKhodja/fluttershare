@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:khadamat/pages/home.dart';
 
 void main() {
-  // TODO: fix timestamp bug
+  // TODO: fix createdAt bug
 //  WidgetsFlutterBinding.ensureInitialized();
-//  Firestore.instance.settings(timestampsInSnapshotsEnabled: true).then((_) {
+//  Firestore.instance.settings(createdAtsInSnapshotsEnabled: true).then((_) {
 //    print("Timestamps enabled in snapshot\n");
 //  }, onError: () {
-//    print("Error in enabling timestamps in snapshot\n");
+//    print("Error in enabling createdAts in snapshot\n");
 //  });
   runApp(MyApp());
 }

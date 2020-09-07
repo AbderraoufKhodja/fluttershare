@@ -51,7 +51,7 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.isFreelancer
+    return widget.isFreelancer ?? false
         ? buildFreelancerScreen(context)
         : buildClientScreen(context);
   }
@@ -118,18 +118,24 @@ class _ProfileState extends State<Profile> {
             child: buildButton(
           text: kReject,
           fillColor: Colors.red,
-          function: handleRejectApplication,
+          function: () {
+            toggleIsLoading();
+            handleRejectApplication().then((value) {
+              toggleIsLoading();
+              Navigator.pop(context);
+            });
+          },
         )),
         Expanded(
             child: buildButton(
           text: kAccept,
           fillColor: Colors.green,
           function: () {
+            toggleIsLoading();
             handleAcceptApplication();
-            setState(() {
-              isApplicationResponse = false;
-            });
-            showMessageScreen(context);
+            toggleIsLoading();
+            showMessagesScreen(context);
+            Navigator.pop(context);
           },
         )),
       ],
@@ -176,7 +182,7 @@ class _ProfileState extends State<Profile> {
     QuerySnapshot snapshot = await postsRef
         .document(widget.profileId)
         .collection('userPosts')
-        .orderBy('timestamp', descending: true)
+        .orderBy('createdAt', descending: true)
         .getDocuments();
     setState(() {
       isLoading = false;
@@ -253,12 +259,13 @@ class _ProfileState extends State<Profile> {
         text: kEditProfile,
         function: editProfile,
       );
-    } else if (!isHired) {
+    } else if (!isHired && !isApplicationResponse) {
       return buildButton(
         text: kHire,
         function: handleHireUser,
       );
-    }
+    } else
+      return Container();
 //    else if (isApplicationResponse) {
 //      return buildButton(
 //        text: "Post a job",
@@ -283,9 +290,9 @@ class _ProfileState extends State<Profile> {
       }
     });
     // remove following
-    followingRef
+    hiresRef
         .document(currentUserId)
-        .collection('userFollowing')
+        .collection('userHires')
         .document(widget.profileId)
         .get()
         .then((doc) {
@@ -677,30 +684,26 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  handleRejectApplication() {
-    jobsRef.document(widget.job.jobId).updateData({
-      'applications.${widget.profileId}': FieldValue.delete()
-    }).then((value) => widget.job.applications.remove(widget.profileId));
-    widget.job.addRejectToActivityFeed(
-        applicantId: widget.profileId, applicantName: widget.profileName);
+  Future<void> handleRejectApplication() async {
+    widget.job.handleRejectApplication(
+      applicantId: widget.profileId,
+      applicantName: widget.profileName,
+    );
   }
 
-  handleAcceptApplication() async {
-    await jobsRef
-        .document(widget.job.jobId)
-        .updateData({'applications.${widget.profileId}': true}).then(
-            (value) => widget.job.applications[widget.profileId] = true);
-    widget.job.addAcceptToActivityFeed(
-        applicantId: widget.profileId,
-        applicantName: widget.profileName,
-        jobOwnerId: widget.job.jobOwnerId);
+  Future<void> handleAcceptApplication() async {
+    widget.job.handleAcceptApplication(
+      applicantId: widget.profileId,
+      applicantName: widget.profileName,
+    );
   }
 
   checkIfApplicationResponse() {
     setState(() {
       isApplicationResponse = widget.job != null &&
           widget.job.applications[widget.profileId] == null &&
-          widget.job.jobOwnerId != widget.profileId;
+          widget.job.jobOwnerId != widget.profileId &&
+          widget.job.jobOwnerId == currentUserId;
     });
   }
 
@@ -708,6 +711,12 @@ class _ProfileState extends State<Profile> {
     if (selectedTab == "info") return buildProfileInfo();
     if (selectedTab == "review") return buildProfileReviews();
     if (selectedTab == "gallery") return buildProfileGallery();
+  }
+
+  void toggleIsLoading() {
+    setState(() {
+      isLoading = !isLoading;
+    });
   }
 }
 
@@ -722,6 +731,7 @@ showProfile(BuildContext context,
       builder: (context) => Profile(
         profileId: profileId,
         profileName: profileName,
+        isFreelancer: isFreelancer,
         job: job,
       ),
     ),

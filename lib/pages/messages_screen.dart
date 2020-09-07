@@ -27,12 +27,12 @@ class MessagesScreenState extends State<MessagesScreen> {
 }
 
 buildListMessages() {
-  return StreamBuilder(
-      stream: usersRef
+  return FutureBuilder(
+      future: usersRef
           .document(currentUser.id)
           .collection('userJobs')
           .orderBy("createdAt", descending: false)
-          .snapshots(),
+          .getDocuments(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return circularProgress();
@@ -49,37 +49,41 @@ buildListMessages() {
 
 class MessageContainer extends StatelessWidget {
   final String jobId;
+  final String professionalTitle;
+  final String jobTitle;
   final String jobOwnerId;
   final String jobOwnerName;
   final String applicantId;
   final String applicantName;
-  final String professionalTitle;
   final Map applications;
 
   MessageContainer({
     this.jobId,
+    this.professionalTitle,
+    this.jobTitle,
     this.jobOwnerId,
     this.jobOwnerName,
     this.applicantId,
     this.applicantName,
-    this.professionalTitle,
     this.applications,
   });
 
   factory MessageContainer.fromDocument(DocumentSnapshot doc) {
     return MessageContainer(
       jobId: doc['jobId'],
+      professionalTitle: doc['professionalTitle'],
+      jobTitle: doc['jobTitle'],
       jobOwnerId: doc['jobOwnerId'],
       jobOwnerName: doc['jobOwnerName'],
       applicantId: doc['applicantId'],
       applicantName: doc['applicantName'],
-      professionalTitle: doc['professionalTitle'],
       applications: doc['applications'],
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    print(jobOwnerName);
     return Column(
       children: <Widget>[
         GestureDetector(
@@ -89,7 +93,8 @@ class MessageContainer extends StatelessWidget {
               jobOwnerName: jobOwnerName,
               applicantId: applicantId,
               applicantName: applicantName,
-              professionalTitle: professionalTitle),
+              professionalTitle: professionalTitle,
+              jobTitle: jobTitle),
           child: ListTile(
             title: Text(professionalTitle),
             leading: CircleAvatar(
@@ -104,7 +109,7 @@ class MessageContainer extends StatelessWidget {
   }
 }
 
-showMessageScreen(BuildContext context) {
+showMessagesScreen(BuildContext context) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
     return MessagesScreen();
   }));

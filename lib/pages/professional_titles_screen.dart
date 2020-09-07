@@ -64,7 +64,7 @@ class _ProfessionalTitlesScreenState extends State<ProfessionalTitlesScreen> {
 //  buildUsersToFollow() {
 //    return StreamBuilder(
 //      stream:
-//          usersRef.orderBy('timestamp', descending: true).limit(30).snapshots(),
+//          usersRef.orderBy('createdAt', descending: true).limit(30).snapshots(),
 //      builder: (context, snapshot) {
 //        if (!snapshot.hasData) {
 //          return circularProgress();

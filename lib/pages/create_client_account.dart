@@ -34,7 +34,11 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
         "createdAt": FieldValue.serverTimestamp(),
       }).then((value) {
         Timer(Duration(seconds: 1), () {
-          Navigator.pop(context, true);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Home(),
+              ));
         });
         _scaffoldKey.currentState.showSnackBar(welcomeSnackbar);
       }, onError: (err) {

@@ -5,7 +5,6 @@ import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/create_freelance_account.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/jobs_screen.dart';
 import 'package:khadamat/widgets/custom_button.dart';
 import 'package:khadamat/widgets/custom_image.dart';
 import 'package:khadamat/widgets/custom_list_tile.dart';
@@ -21,6 +20,9 @@ class JobCard extends StatefulWidget {
 
 class _JobCardState extends State<JobCard> {
   final Job job;
+  int maxLines = 2;
+
+  bool isShowDetail = false;
 
   _JobCardState({this.job});
 
@@ -59,6 +61,196 @@ class _JobCardState extends State<JobCard> {
     );
   }
 
+  buildJobHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: CircleAvatar(
+            backgroundImage: CachedNetworkImageProvider(kBlankProfileUrl),
+            backgroundColor: Theme.of(context).primaryColor,
+          ),
+          title: GestureDetector(
+            onTap: () => showJobCard(context, job: widget.job),
+            child: Text(
+              job.jobOwnerName ?? "",
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          subtitle: Text(
+              "${job.createdAt != null ? timeago.format(job.createdAt.toDate()) : "a moment ago"}"
+              " | ${applicationsCount.toString()} applied"),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                onPressed: showDetails,
+                icon: Icon(Icons.arrow_drop_down_circle),
+              ),
+              isJobOwner
+                  ? IconButton(
+                      onPressed: () => handleDeleteJob(context),
+                      icon: Icon(Icons.more_vert),
+                    )
+                  : isApplied
+                      ? Icon(Icons.bookmark)
+                      : Icon(Icons.bookmark_border),
+            ],
+          ),
+        ),
+        Padding(padding: EdgeInsets.only(top: 5.0, left: 5.0)),
+      ],
+    );
+  }
+
+  void showDetails() {
+    setState(() {
+      isShowDetail = !isShowDetail;
+    });
+  }
+
+  buildJobContent() {
+    return IntrinsicHeight(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            flex: 1,
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                isShowDetail
+                    ? cachedNetworkImage(job.jobPhotoUrl)
+                    : Container(),
+                CustomListTile(
+                  description: job.jobTitle,
+                  icon: Icon(
+                    Icons.work,
+                    color: Colors.blueGrey,
+                  ),
+                  maxLines: isShowDetail ? 10 : 2,
+                ),
+                CustomListTile(
+                  description: job.professionalTitle,
+                  icon: Icon(
+                    Icons.work,
+                    color: Colors.blueGrey,
+                  ),
+                  maxLines: isShowDetail ? 10 : 2,
+                ),
+                CustomListTile(
+                  description: job.jobDescription,
+                  icon: Icon(
+                    Icons.description,
+                    color: Colors.blueGrey,
+                  ),
+                  maxLines: isShowDetail ? 10 : 2,
+                ),
+                CustomListTile(
+                  description: job.location,
+                  icon: Icon(
+                    Icons.my_location,
+                    color: Colors.blueGrey,
+                  ),
+                  maxLines: isShowDetail ? 10 : 2,
+                ),
+                CustomListTile(
+                  description: job.dateRange,
+                  icon: Icon(
+                    Icons.schedule,
+                    color: Colors.blueGrey,
+                  ),
+                  maxLines: isShowDetail ? 10 : 2,
+                ),
+              ],
+            ),
+          ),
+          isShowDetail
+              ? Container()
+              : job.jobPhotoUrl.isEmpty
+                  ? Container()
+                  : Row(
+                      children: [
+                        VerticalDivider(
+                          color: Colors.black,
+                        ),
+                        Container(
+                          height: 100.0,
+                          width: 100.0,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                          child: cachedNetworkImage(job.jobPhotoUrl),
+                        ),
+                      ],
+                    ),
+        ],
+      ),
+    );
+  }
+
+  buildJobFooter() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        isJobOwner
+            ? job.isOnGoing
+                ? Expanded(
+                    child: CustomButton(
+                      text: kCompleteJob,
+                      function: handleOwnerCompleteJob,
+                    ),
+                  )
+                : Expanded(
+                    child: CustomButton(
+                      text: kEditJob,
+                      function: handleOwnerEditJob,
+                    ),
+                  )
+            : job.isOnGoing
+                ? Expanded(
+                    child: CustomButton(
+                      text: kCompleteJob,
+                      function: handleApplicantCompleteJob,
+                    ),
+                  )
+                : Expanded(
+                    child: CustomButton(
+                      text: isApplied ? kUnapply : kApply,
+                      function: () async {
+                        if (!currentUser.isFreelancer) showCreateCard(context);
+                        if (currentUser.isFreelancer) {
+                          job.handleApplyJob();
+                          setState(() {
+                            applicationsCount += isApplied ? -1 : 1;
+                            isApplied = !isApplied;
+                          });
+                        }
+                      },
+                    ),
+                  ),
+        Expanded(
+          child: Container(
+            alignment: Alignment.centerRight,
+            margin: EdgeInsets.only(right: 10.0),
+            child: Text(
+              "${job.price ?? ""} $kCurrency",
+              style: TextStyle(
+                color: Colors.green,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   // Note: To delete job, jobOwnerId and currentUserId must be equal, so they can be used interchangeably
   handleDeleteJob(BuildContext parentContext) {
     return showDialog(
@@ -84,159 +276,16 @@ class _JobCardState extends State<JobCard> {
         });
   }
 
-  buildJobHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(kBlankProfileUrl),
-            backgroundColor: Theme.of(context).primaryColor,
-          ),
-          title: GestureDetector(
-            child: Text(
-              job.jobOwnerName,
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          subtitle: Text(
-              "${job.createdAt != null ? timeago.format(job.createdAt.toDate()) : "a moment ago"}"
-              " | ${applicationsCount.toString()} applied"),
-          trailing: Column(
-            children: [
-              isJobOwner
-                  ? IconButton(
-                      onPressed: () => handleDeleteJob(context),
-                      icon: Icon(Icons.more_vert),
-                    )
-                  : isApplied
-                      ? Icon(Icons.bookmark)
-                      : Icon(Icons.bookmark_border),
-            ],
-          ),
-        ),
-        Padding(padding: EdgeInsets.only(top: 5.0, left: 5.0)),
-      ],
-    );
-  }
-
-  buildJobContent() {
-    return IntrinsicHeight(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            flex: 1,
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomListTile(
-                  description: job.professionalCategory,
-                  icon: Icon(
-                    Icons.work,
-                    color: Colors.blueGrey,
-                  ),
-                ),
-                CustomListTile(
-                  description: job.jobDescription,
-                  icon: Icon(
-                    Icons.description,
-                    color: Colors.blueGrey,
-                  ),
-                  maxLines: 2,
-                ),
-                CustomListTile(
-                  description: job.location,
-                  icon: Icon(
-                    Icons.my_location,
-                    color: Colors.blueGrey,
-                  ),
-                ),
-                CustomListTile(
-                  description: job.dateRange,
-                  icon: Icon(
-                    Icons.schedule,
-                    color: Colors.blueGrey,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          VerticalDivider(
-            color: Colors.black,
-          ),
-          job.jobPhotoUrl.isEmpty
-              ? Text("")
-              : Container(
-                  height: 100.0,
-                  width: 100.0,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5.0),
-                  ),
-                  child: cachedNetworkImage(job.jobPhotoUrl),
-                ),
-        ],
-      ),
-    );
-  }
-
-  buildJobFooter() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-//        Expanded(
-//          child: CustomButton(
-//            text: "Message",
-//            function: () => print("Message"),
-//          ),
-//        ),
-        isJobOwner
-            ? Expanded(
-                child: CustomButton(
-                  text: kEditJob,
-                  function: handleEditJobForm,
-                ),
-              )
-            : Expanded(
-                child: CustomButton(
-                  text: isApplied ? kUnapply : kApply,
-                  function: () async {
-                    if (!currentUser.isFreelancer) showCreateCard(context);
-                    if (currentUser.isFreelancer) {
-                      job.handleApplyJob();
-                      setState(() {
-                        applicationsCount += isApplied ? -1 : 1;
-                        isApplied = !isApplied;
-                      });
-                    }
-                  },
-                ),
-              ),
-        Expanded(
-          child: Container(
-            alignment: Alignment.centerRight,
-            margin: EdgeInsets.only(right: 10.0),
-            child: Text(
-              "${job.price} DA",
-              style: TextStyle(
-                color: Colors.green,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  handleEditJobForm() {
-    print("job.handleEditJob()");
+  handleOwnerEditJob() {
     job.handleEditJob();
+  }
+
+  handleOwnerCompleteJob() {
+    job.handleOwnerCompleteJob();
+  }
+
+  handleApplicantCompleteJob() {
+    job.handleApplicantCompleteJob();
   }
 
   showCreateCard(BuildContext parentContext) async {
@@ -268,14 +317,8 @@ class _JobCardState extends State<JobCard> {
   }
 }
 
-showDetails(BuildContext context,
-// TODO: fix this
-    {String jobId,
-    String jobOwnerId,
-    String mediaUrl}) {
+showJobCard(BuildContext context, {@required Job job}) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
-    return JobsScreen(
-//      job: job,
-        );
+    return SafeArea(child: Scaffold(body: JobCard(job)));
   }));
 }

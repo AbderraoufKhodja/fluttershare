@@ -172,6 +172,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                         validator: (text) =>
                             checkLocationAddress(text, label: kLocation),
                         controller: locationController,
+                        enableInteractiveSelection: false,
                         hint: kLocation,
                         readOnly: true,
                         trailing: buildLocationButton(),

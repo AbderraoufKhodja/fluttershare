@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/create_account.dart';
-import 'package:khadamat/pages/job_activity_feed.dart';
+import 'package:khadamat/pages/activity_feed.dart';
 import 'package:khadamat/pages/professional_categories_screen.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/pages/search.dart';
@@ -26,9 +26,7 @@ final reviewsRef = Firestore.instance.collection('reviews');
 final messagesRef = Firestore.instance.collection('messages');
 final activityFeedRef = Firestore.instance.collection('feeds');
 final hiresRef = Firestore.instance.collection('hires');
-final followingRef = Firestore.instance.collection('following');
 final timelineRef = Firestore.instance.collection('timeline');
-final jobTimelineRef = Firestore.instance.collection('timeline');
 User currentUser;
 
 class Home extends StatefulWidget {
@@ -185,8 +183,7 @@ class _HomeState extends State<Home> {
       body: PageView(
         children: <Widget>[
           ProfessionalCategoriesScreen(currentUser: currentUser),
-//          CreateAccount(),
-          JobActivityFeed(),
+          ActivityFeed(),
 //          UploadJob(currentUser: currentUser),
           Search(),
           Profile(

@@ -8,8 +8,11 @@ class CustomTextFormField extends StatelessWidget {
   final Function(String text) validator;
   final TextStyle style;
   final int maxLines;
+  final keyboardType;
 
   final bool readOnly;
+
+  final bool enableInteractiveSelection;
 
   CustomTextFormField({
     @required this.controller,
@@ -20,6 +23,8 @@ class CustomTextFormField extends StatelessWidget {
     this.readOnly = false,
     this.style,
     this.maxLines = 1,
+    this.keyboardType = TextInputType.text,
+    this.enableInteractiveSelection = true,
   });
 
   @override
@@ -30,10 +35,12 @@ class CustomTextFormField extends StatelessWidget {
       children: [
         ListTile(
           title: TextFormField(
+            enableInteractiveSelection: enableInteractiveSelection,
             readOnly: readOnly,
             onTap: onTap,
             controller: controller,
             style: style,
+            keyboardType: keyboardType,
             decoration: InputDecoration(
               hintText: hint,
               border: InputBorder.none,
