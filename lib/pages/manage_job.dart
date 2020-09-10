@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
 import 'package:khadamat/constants.dart';
@@ -7,33 +9,35 @@ import 'package:khadamat/widgets/progress.dart';
 
 class ManageJob extends StatefulWidget {
   final String jobId;
-  final String applicantId;
-  final String applicantName;
-  ManageJob({this.jobId, this.applicantId, this.applicantName});
+  ManageJob({
+    @required this.jobId,
+  });
 
   @override
   _ManageJobState createState() => _ManageJobState();
 }
 
 class _ManageJobState extends State<ManageJob> {
+  List<Choice> choices = [];
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  TextEditingController priceController = TextEditingController();
-  TextEditingController locationController = TextEditingController();
   TextEditingController professionalTitleController = TextEditingController();
-  TextEditingController jobScheduleController = TextEditingController();
+  TextEditingController jobDescriptionController = TextEditingController();
+  TextEditingController locationController = TextEditingController();
+  TextEditingController dateRangeController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
   Job job;
   bool isLoading = false;
-  bool hasApplicant = false;
-  bool _priceValid = true;
-  bool _locationValid = true;
   bool _professionalTitleValid = true;
-  bool _jobScheduleValid = true;
+  bool _jobDescriptionValid = true;
+  bool _locationValid = true;
+  bool _dateRangeValid = true;
+  bool _priceValid = true;
 
   @override
   void initState() {
     super.initState();
     getJob();
-    checkIfHasApplicant();
+    setAppBarMenu();
   }
 
   @override
@@ -48,6 +52,19 @@ class _ManageJobState extends State<ManageJob> {
             color: Colors.black,
           ),
         ),
+        actions: [
+          PopupMenuButton<Choice>(
+            onSelected: (selected) => selected.onTap(),
+            itemBuilder: (BuildContext context) {
+              return choices.map((Choice choice) {
+                return PopupMenuItem<Choice>(
+                  value: choice,
+                  child: Text(choice.title),
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       body: isLoading
           ? circularProgress()
@@ -61,21 +78,11 @@ class _ManageJobState extends State<ManageJob> {
                         child: Column(
                           children: <Widget>[
                             buildProfessionalTitleField(),
-                            buildPriceField(),
+                            buildJobDescriptionField(),
                             buildLocationField(),
-                            buildJobScheduleField(),
+                            buildJobDateRangeTextField(),
+                            buildPriceField(),
                           ],
-                        ),
-                      ),
-                      RaisedButton(
-                        onPressed: updateJobData,
-                        child: Text(
-                          kUpdateJob,
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.bold,
-                          ),
                         ),
                       ),
                     ],
@@ -92,10 +99,12 @@ class _ManageJobState extends State<ManageJob> {
     });
     DocumentSnapshot doc = await jobsRef.document(widget.jobId).get();
     job = Job.fromDocument(doc);
+    jobDescriptionController.text = job.jobDescription;
+    professionalTitleController.text = job.professionalTitle;
     priceController.text = job.price;
     locationController.text = job.location;
-    professionalTitleController.text = job.professionalTitle;
-    jobScheduleController.text = job.dateRange;
+    dateRangeController.text = job.dateRange;
+    priceController.text = job.price;
     setState(() {
       isLoading = false;
     });
@@ -115,7 +124,7 @@ class _ManageJobState extends State<ManageJob> {
           controller: priceController,
           decoration: InputDecoration(
             hintText: kPriceHintText,
-            errorText: _priceValid ? null : kPriceErrorText,
+            errorText: _priceValid ? null : kDateRangeText,
           ),
         )
       ],
@@ -134,30 +143,53 @@ class _ManageJobState extends State<ManageJob> {
             )),
         TextField(
           controller: professionalTitleController,
+          readOnly: true,
           decoration: InputDecoration(
             hintText: kProfessionalTitleHint,
-            errorText: _professionalTitleValid ? null : kPriceErrorText,
+            errorText: _professionalTitleValid ? null : kDateRangeText,
           ),
         )
       ],
     );
   }
 
-  Column buildJobScheduleField() {
+  Column buildJobDescriptionField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Padding(
             padding: EdgeInsets.only(top: 12.0),
             child: Text(
-              kJobSchedule,
+              kJobDescription,
               style: TextStyle(color: Theme.of(context).primaryColor),
             )),
         TextField(
-          controller: jobScheduleController,
+          controller: jobDescriptionController,
+          readOnly: true,
           decoration: InputDecoration(
-            hintText: kJobScheduleHint,
-            errorText: _jobScheduleValid ? null : kPriceErrorText,
+            hintText: kJobDescriptionHint,
+            errorText: _jobDescriptionValid ? null : kDateRangeText,
+          ),
+        )
+      ],
+    );
+  }
+
+  Column buildJobDateRangeTextField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+            padding: EdgeInsets.only(top: 12.0),
+            child: Text(
+              kDateRange,
+              style: TextStyle(color: Theme.of(context).primaryColor),
+            )),
+        TextField(
+          controller: dateRangeController,
+          decoration: InputDecoration(
+            hintText: kDateRangeHint,
+            errorText: _dateRangeValid ? null : kDateRangeText,
           ),
         )
       ],
@@ -186,7 +218,7 @@ class _ManageJobState extends State<ManageJob> {
     );
   }
 
-  updateJobData() {
+  Future<void> handleRequestUpdateJobTerms() async {
     setState(() {
       priceController.text.trim().length < 3 || priceController.text.isEmpty
           ? _priceValid = false
@@ -197,36 +229,146 @@ class _ManageJobState extends State<ManageJob> {
     });
 
     if (_priceValid && _locationValid) {
-      jobsRef.document(widget.jobId).updateData({
-        "price": priceController.text,
-        "location": locationController.text,
-        "applications.${widget.applicantId}": true,
+      job
+          .requestUpdateJobTermsFeed(
+        requestOwnerName: currentUser.username,
+        requestOwnerId: currentUser.id,
+        newPrice: priceController.text,
+        newLocation: locationController.text,
+        newDateRange: dateRangeController.text,
+      )
+          .then((value) {
+        SnackBar snackbar = SnackBar(content: Text(kJobUpdatedRequested));
+        _scaffoldKey.currentState.showSnackBar(snackbar);
+        Timer(Duration(seconds: 2), () => Navigator.pop(context));
       });
-      SnackBar snackbar = SnackBar(content: Text(kJobUpdated));
-      _scaffoldKey.currentState.showSnackBar(snackbar);
     }
+  }
+
+  Future<void> handleAcceptUpdateJobTerms() async {
+    job.acceptUpdateJobTerms(
+      requestOwnerName: currentUser.username,
+      requestOwnerId: currentUser.id,
+      newPrice: priceController.text,
+      newLocation: locationController.text,
+      newDateRange: dateRangeController.text,
+    );
+  }
+
+  Future<void> handleRejectUpdateJobTerms() async {
+    job.rejectUpdateJobTerms(
+      requestOwnerName: currentUser.username,
+      requestOwnerId: currentUser.id,
+      newPrice: priceController.text,
+      newLocation: locationController.text,
+      newDateRange: dateRangeController.text,
+    );
   }
 
   cancel() {
     Navigator.pop(context);
   }
 
-  checkIfHasApplicant() {
-    hasApplicant = widget.applicantId != null;
+  Future<void> handleDeleteJob() async {
+    job.freelancerDeleteJob();
+    job.ownerDeleteJob();
+  }
+
+  Future<void> handleCompleteJob() async {
+    final bool isTimeValid = Timestamp.now()
+            .toDate()
+            .difference(job.jobFreelancerEnrollmentDate.toDate())
+            .inHours >
+        24;
+    if (isTimeValid) {
+      showDisposeDialogue(context);
+      job.freelancerCompleteJob();
+    } else {
+      SnackBar snackbar = SnackBar(content: Text(kLessThan24Hours));
+      Scaffold.of(context).showSnackBar(snackbar);
+    }
+    job.ownerCompleteJob();
+  }
+
+  setAppBarMenu() {
+    choices = [
+      Choice(title: kRequestUpdateJobTerms, onTap: handleRequestUpdateJobTerms),
+      Choice(title: kDeleteJob, onTap: handleDeleteJob),
+      Choice(title: kCompleteJob, onTap: handleCompleteJob),
+      Choice(
+          title: kDisposeCurrentFreelancer,
+          onTap: handleDisposeCurrentFreelancer),
+      Choice(title: kSignalAbuse, onTap: signalAbuse),
+      Choice(title: kMore, onTap: showMoreOptions),
+    ];
+  }
+
+  showMoreOptions() {
+    print("showMoreOptions");
+  }
+
+  signalAbuse() {
+    print("signalAbuse");
+  }
+
+  handleDisposeCurrentFreelancer() {
+    showDisposeDialogue(context);
+    job.disposeCurrentFreelancerAndDeleteJob();
+  }
+
+  showDisposeDialogue(BuildContext parentContext) {
+    return showDialog(
+        context: parentContext,
+        builder: (context) {
+          return Container(
+            color: Colors.blue,
+            height: 20,
+            width: 30,
+          );
+        });
+  }
+}
+
+class Choice {
+  Choice({this.title, this.onTap});
+
+  final Function onTap;
+  final String title;
+}
+
+class ChoiceCard extends StatelessWidget {
+  const ChoiceCard({Key key, this.choice}) : super(key: key);
+  final Choice choice;
+
+  @override
+  Widget build(BuildContext context) {
+    final TextStyle textStyle = Theme.of(context).textTheme.headline4;
+    return Card(
+      color: Colors.white,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text(choice.title, style: textStyle),
+          ],
+        ),
+      ),
+    );
   }
 }
 
 showManageJob(BuildContext context,
     {@required String jobId,
-    @required String applicantId,
-    @required String applicantName}) {
+    @required String jobFreelancerId,
+    @required String jobFreelancerName,
+    @required String jobOwnerId,
+    bool hasRequest = false}) {
   Navigator.push(
     context,
     MaterialPageRoute(
       builder: (context) => ManageJob(
         jobId: jobId,
-        applicantId: applicantId,
-        applicantName: applicantName,
       ),
     ),
   );

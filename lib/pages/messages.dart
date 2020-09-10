@@ -14,8 +14,8 @@ class Messages extends StatefulWidget {
   final String jobTitle;
   final String jobOwnerId;
   final String jobOwnerName;
-  final String applicantId;
-  final String applicantName;
+  final String jobFreelancerId;
+  final String jobFreelancerName;
 
   Messages({
     @required this.jobId,
@@ -23,8 +23,8 @@ class Messages extends StatefulWidget {
     @required this.jobTitle,
     @required this.jobOwnerId,
     @required this.jobOwnerName,
-    @required this.applicantId,
-    @required this.applicantName,
+    @required this.jobFreelancerId,
+    @required this.jobFreelancerName,
   });
 
   @override
@@ -34,8 +34,8 @@ class Messages extends StatefulWidget {
         jobTitle: this.jobTitle,
         jobOwnerId: this.jobOwnerId,
         jobOwnerName: this.jobOwnerName,
-        applicantId: this.applicantId,
-        applicantName: this.applicantName,
+        jobFreelancerId: this.jobFreelancerId,
+        jobFreelancerName: this.jobFreelancerName,
       );
 }
 
@@ -46,8 +46,8 @@ class MessagesState extends State<Messages> {
   final String jobTitle;
   final String jobOwnerId;
   final String jobOwnerName;
-  final String applicantId;
-  final String applicantName;
+  final String jobFreelancerId;
+  final String jobFreelancerName;
   bool isJobOwner = false;
 
   MessagesState({
@@ -56,8 +56,8 @@ class MessagesState extends State<Messages> {
     this.jobTitle,
     this.jobOwnerId,
     this.jobOwnerName,
-    this.applicantId,
-    this.applicantName,
+    this.jobFreelancerId,
+    this.jobFreelancerName,
   });
   @override
   void initState() {
@@ -154,8 +154,8 @@ class MessagesState extends State<Messages> {
       });
       String feedId = jobOwnerId;
       if (currentUser.id == jobOwnerId)
-        feedId = applicantId;
-      else if (currentUser.id == applicantId) feedId = jobOwnerId;
+        feedId = jobFreelancerId;
+      else if (currentUser.id == jobFreelancerId) feedId = jobOwnerId;
       print(feedId);
       activityFeedRef
           .document(feedId)
@@ -169,8 +169,8 @@ class MessagesState extends State<Messages> {
         "jobTitle": jobTitle,
         "jobOwnerName": jobOwnerName,
         "jobOwnerId": jobOwnerId,
-        "applicantId": currentUser.id,
-        "applicantName": currentUser.username,
+        "jobFreelancerId": currentUser.id,
+        "jobFreelancerName": currentUser.username,
         "userProfileImg": currentUser.photoUrl ?? kBlankProfileUrl,
         "read": false,
         "createdAt": FieldValue.serverTimestamp(),
@@ -213,14 +213,26 @@ class MessagesState extends State<Messages> {
   }
 
   confirmAcceptance() {
-    showManageJob(context,
-        jobId: jobId, applicantId: applicantId, applicantName: applicantName);
+    showManageJob(
+      context,
+      jobId: jobId,
+      jobOwnerId: jobOwnerId,
+      jobFreelancerName: jobFreelancerName,
+      jobFreelancerId: jobFreelancerId,
+      hasRequest: false,
+    );
     Navigator.pop(context);
   }
 
   cancelAcceptance() {
-    showManageJob(context,
-        jobId: jobId, applicantId: applicantId, applicantName: applicantName);
+    showManageJob(
+      context,
+      jobId: jobId,
+      jobOwnerId: jobOwnerId,
+      jobFreelancerName: jobFreelancerName,
+      jobFreelancerId: jobFreelancerId,
+      hasRequest: false,
+    );
     Navigator.pop(context);
   }
 }
@@ -286,8 +298,8 @@ showMessages(
   @required String jobTitle,
   @required String jobOwnerId,
   @required String jobOwnerName,
-  @required String applicantId,
-  @required String applicantName,
+  @required String jobFreelancerId,
+  @required String jobFreelancerName,
 }) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
     return Messages(
@@ -296,8 +308,8 @@ showMessages(
       jobTitle: jobTitle,
       jobOwnerId: jobOwnerId,
       jobOwnerName: jobOwnerName,
-      applicantId: applicantId,
-      applicantName: applicantName,
+      jobFreelancerId: jobFreelancerId,
+      jobFreelancerName: jobFreelancerName,
     );
   }));
 }

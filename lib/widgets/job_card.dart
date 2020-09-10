@@ -71,14 +71,11 @@ class _JobCardState extends State<JobCard> {
             backgroundImage: CachedNetworkImageProvider(kBlankProfileUrl),
             backgroundColor: Theme.of(context).primaryColor,
           ),
-          title: GestureDetector(
-            onTap: () => showJobCard(context, job: widget.job),
-            child: Text(
-              job.jobOwnerName ?? "",
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
+          title: Text(
+            job.jobOwnerName ?? "",
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
             ),
           ),
           subtitle: Text(
@@ -105,12 +102,6 @@ class _JobCardState extends State<JobCard> {
         Padding(padding: EdgeInsets.only(top: 5.0, left: 5.0)),
       ],
     );
-  }
-
-  void showDetails() {
-    setState(() {
-      isShowDetail = !isShowDetail;
-    });
   }
 
   buildJobContent() {
@@ -216,14 +207,15 @@ class _JobCardState extends State<JobCard> {
                 ? Expanded(
                     child: CustomButton(
                       text: kCompleteJob,
-                      function: handleApplicantCompleteJob,
+                      function: handleFreelancerCompleteJob,
                     ),
                   )
                 : Expanded(
                     child: CustomButton(
                       text: isApplied ? kUnapply : kApply,
                       function: () async {
-                        if (!currentUser.isFreelancer) showCreateCard(context);
+                        if (!currentUser.isFreelancer)
+                          showCreateFreelanceProfile(context);
                         if (currentUser.isFreelancer) {
                           job.handleApplyJob();
                           setState(() {
@@ -277,23 +269,29 @@ class _JobCardState extends State<JobCard> {
   }
 
   handleOwnerEditJob() {
-    job.handleEditJob();
+    job.handleEditJob(context);
   }
 
   handleOwnerCompleteJob() {
-    job.handleOwnerCompleteJob();
+    job.ownerCompleteJob();
   }
 
-  handleApplicantCompleteJob() {
-    job.handleApplicantCompleteJob();
+  handleFreelancerCompleteJob() {
+    job.freelancerCompleteJob();
   }
 
-  showCreateCard(BuildContext parentContext) async {
+  void showDetails() {
+    setState(() {
+      isShowDetail = !isShowDetail;
+    });
+  }
+
+  showCreateFreelanceProfile(BuildContext parentContext) async {
     return showDialog(
         context: parentContext,
         builder: (context) {
           return SimpleDialog(
-            title: Text(kHasNoCard),
+            title: Text(kHasNoFreelanceAccount),
             children: <Widget>[
               SimpleDialogOption(
                   onPressed: () {
@@ -310,7 +308,7 @@ class _JobCardState extends State<JobCard> {
                   )),
               SimpleDialogOption(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(kReject)),
+                  child: Text(kCancel)),
             ],
           );
         });

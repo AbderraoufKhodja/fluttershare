@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/upload_job.dart';
-import 'package:khadamat/widgets/business_card.dart';
 import 'package:khadamat/widgets/category_button.dart';
 import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/progress.dart';
@@ -24,11 +23,8 @@ class _ProfessionalCategoriesScreenState
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   List<String> professionalCategoriesList;
   List<String> followingList = [];
-  List<BusinessCard> cards = [];
   String professionalCategory;
-
   bool isLoading = false;
-
   String selectedTab;
 
   @override
@@ -129,6 +125,7 @@ class _ProfessionalCategoriesScreenState
 //      },
 //    );
 //  }
+
   buildCategoriesGrid() {
     if (isLoading) {
       return linearProgress();
@@ -158,14 +155,18 @@ class _ProfessionalCategoriesScreenState
         gridTiles.add(
             GridTile(child: CategoryButton(professionalCategory: category)));
       });
-      return GridView.count(
-        crossAxisCount: 3,
-        childAspectRatio: 1.0,
-        mainAxisSpacing: 1.5,
-        crossAxisSpacing: 1.5,
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        children: gridTiles,
+      return ListView(
+        children: [
+          GridView.count(
+            crossAxisCount: 3,
+            childAspectRatio: 1.0,
+            mainAxisSpacing: 1.5,
+            crossAxisSpacing: 1.5,
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            children: gridTiles,
+          ),
+        ],
       );
     }
   }

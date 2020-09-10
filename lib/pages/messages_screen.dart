@@ -53,8 +53,8 @@ class MessageContainer extends StatelessWidget {
   final String jobTitle;
   final String jobOwnerId;
   final String jobOwnerName;
-  final String applicantId;
-  final String applicantName;
+  final String jobFreelancerId;
+  final String jobFreelancerName;
   final Map applications;
 
   MessageContainer({
@@ -63,8 +63,8 @@ class MessageContainer extends StatelessWidget {
     this.jobTitle,
     this.jobOwnerId,
     this.jobOwnerName,
-    this.applicantId,
-    this.applicantName,
+    this.jobFreelancerId,
+    this.jobFreelancerName,
     this.applications,
   });
 
@@ -75,8 +75,8 @@ class MessageContainer extends StatelessWidget {
       jobTitle: doc['jobTitle'],
       jobOwnerId: doc['jobOwnerId'],
       jobOwnerName: doc['jobOwnerName'],
-      applicantId: doc['applicantId'],
-      applicantName: doc['applicantName'],
+      jobFreelancerId: doc['jobFreelancerId'],
+      jobFreelancerName: doc['jobFreelancerName'],
       applications: doc['applications'],
     );
   }
@@ -91,8 +91,8 @@ class MessageContainer extends StatelessWidget {
               jobId: jobId,
               jobOwnerId: jobOwnerId,
               jobOwnerName: jobOwnerName,
-              applicantId: applicantId,
-              applicantName: applicantName,
+              jobFreelancerId: jobFreelancerId,
+              jobFreelancerName: jobFreelancerName,
               professionalTitle: professionalTitle,
               jobTitle: jobTitle),
           child: ListTile(

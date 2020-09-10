@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/upload_job.dart';
-import 'package:khadamat/widgets/business_card.dart';
 import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/progress.dart';
 import 'package:khadamat/widgets/title_button.dart';
@@ -22,7 +21,6 @@ class _ProfessionalTitlesScreenState extends State<ProfessionalTitlesScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   List<String> professionalTitlesList;
   List<String> followingList = [];
-  List<BusinessCard> cards = [];
 
   bool isLoading = false;
 
@@ -147,14 +145,18 @@ class _ProfessionalTitlesScreenState extends State<ProfessionalTitlesScreen> {
         gridTiles.add(
             GridTile(child: TitleButton(professionalTitle: professionalTitle)));
       });
-      return GridView.count(
-        crossAxisCount: 3,
-        childAspectRatio: 1.0,
-        mainAxisSpacing: 1.5,
-        crossAxisSpacing: 1.5,
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        children: gridTiles,
+      return ListView(
+        children: [
+          GridView.count(
+            crossAxisCount: 3,
+            childAspectRatio: 1.0,
+            mainAxisSpacing: 1.5,
+            crossAxisSpacing: 1.5,
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            children: gridTiles,
+          ),
+        ],
       );
     }
   }

@@ -54,7 +54,6 @@ class _ActivityFeedState extends State<ActivityFeed> {
           snapshot.data.documents.forEach((doc) {
             feedItems.add(ActivityFeedItem.fromDocument(doc));
           });
-          ;
           return ListView(
             children: feedItems,
           );
@@ -90,8 +89,15 @@ class ActivityFeedItem extends StatelessWidget {
   final String jobTitle;
   final String jobOwnerName;
   final String jobOwnerId;
+  final String jobFreelancerName;
+  final String jobFreelancerId;
   final String applicantName;
   final String applicantId;
+  final String requestOwnerId;
+  final String requestOwnerName;
+  final String newPrice;
+  final String newLocation;
+  final String newDateRange;
   final String userProfileImg;
   final String commentData;
   final Timestamp createdAt;
@@ -103,8 +109,15 @@ class ActivityFeedItem extends StatelessWidget {
     this.jobTitle,
     this.jobOwnerName,
     this.jobOwnerId,
+    this.jobFreelancerName,
+    this.jobFreelancerId,
     this.applicantName,
     this.applicantId,
+    this.requestOwnerName,
+    this.requestOwnerId,
+    this.newPrice,
+    this.newLocation,
+    this.newDateRange,
     this.userProfileImg,
     this.commentData,
     this.createdAt,
@@ -118,8 +131,15 @@ class ActivityFeedItem extends StatelessWidget {
       jobTitle: doc['jobTitle'],
       jobOwnerName: doc['jobOwnerName'],
       jobOwnerId: doc['jobOwnerId'],
+      jobFreelancerName: doc['jobFreelancerName'],
+      jobFreelancerId: doc['jobFreelancerId'],
       applicantName: doc['applicantName'],
       applicantId: doc['applicantId'],
+      requestOwnerName: doc['requestOwnerName'],
+      requestOwnerId: doc['requestOwnerId'],
+      newPrice: doc['newPrice'],
+      newLocation: doc['newLocation'],
+      newDateRange: doc['newDateRange'],
       userProfileImg: doc['userProfileImg'],
       createdAt: doc['createdAt'],
     );
@@ -147,10 +167,26 @@ class ActivityFeedItem extends StatelessWidget {
         else
           Scaffold.of(context).showSnackBar(snackbar);
       };
-    } else if (type == "accept") {
+      activityItemText = isJobOwner
+          ? "$jobFreelancerName applied to your job"
+          : "You have applied to $jobOwnerName's job";
+    } else if (type == "acceptApplication") {
       mediaPreview = Icon(Icons.check, color: Colors.green);
       onTap = () => showManageJob(context,
-          jobId: jobId, applicantId: applicantId, applicantName: applicantId);
+          jobId: jobId,
+          jobFreelancerName: jobFreelancerName,
+          jobFreelancerId: jobFreelancerId,
+          jobOwnerId: jobOwnerId,
+          hasRequest: false);
+      activityItemText = isJobOwner
+          ? "You have accepted $jobFreelancerName application."
+          : "$jobOwnerName accepted your application.";
+    } else if (type == "rejectApplication") {
+      mediaPreview = Icon(Icons.clear, color: Colors.red);
+      onTap = () {};
+      activityItemText = isJobOwner
+          ? "You have rejected $jobFreelancerName application."
+          : "$jobOwnerName rejected your application.";
     } else if (type == "message") {
       mediaPreview = Icon(Icons.message, color: Colors.blue);
       onTap = () => showMessages(
@@ -158,33 +194,50 @@ class ActivityFeedItem extends StatelessWidget {
             jobId: jobId,
             professionalTitle: professionalTitle,
             jobTitle: jobTitle,
-            applicantId: applicantId,
-            applicantName: applicantId,
-            jobOwnerId: jobOwnerId,
+            jobFreelancerName: jobFreelancerName,
+            jobFreelancerId: jobFreelancerId,
             jobOwnerName: jobOwnerName,
+            jobOwnerId: jobOwnerId,
           );
+      activityItemText = isJobOwner
+          ? "$kNewMessage $jobFreelancerName"
+          : "$kNewMessage $jobOwnerName";
+    } else if (type == "hire") {
+      mediaPreview = Icon(Icons.add, color: Colors.teal);
+      onTap = () {};
+      activityItemText = '$jobOwnerName $kHireNotification';
+    } else if (type == "open") {
+      mediaPreview = Icon(Icons.chat, color: Colors.teal);
+      onTap = () => showMessages(context,
+          jobId: jobId,
+          professionalTitle: professionalTitle,
+          jobTitle: jobTitle,
+          jobOwnerId: jobOwnerId,
+          jobOwnerName: jobOwnerName,
+          jobFreelancerId: jobFreelancerId,
+          jobFreelancerName: jobFreelancerName);
+      activityItemText = isJobOwner
+          ? '$kOpenChat $jobFreelancerName'
+          : '$kOpenChat $jobOwnerName';
+    } else if (type == 'updateTerms') {
+      mediaPreview = Icon(Icons.update, color: Colors.red);
+      onTap = () => showManageJob(context,
+          jobId: jobId,
+          jobFreelancerName: jobFreelancerName,
+          jobFreelancerId: jobFreelancerId,
+          jobOwnerId: jobOwnerId,
+          hasRequest: true);
+      activityItemText = isRequestOwner
+          ? "$kUpdateRequested"
+          : "$kUpdateRequestFrom $requestOwnerName.";
     } else {
       mediaPreview = Text('');
-    }
-
-    if (type == 'apply') {
-      activityItemText = isJobOwner
-          ? "$applicantName applied to your job"
-          : "You have applied to $jobOwnerName's job";
-    } else if (type == 'accept') {
-      activityItemText = isJobOwner
-          ? "You have accepted $applicantName application."
-          : "$jobOwnerName accepted your application.";
-    } else if (type == 'comment') {
-      activityItemText = 'replied: $commentData';
-    } else if (type == 'message') {
-      activityItemText = isJobOwner
-          ? "You have a new message from $applicantName"
-          : "You have a new message from $jobOwnerName";
-    } else {
       activityItemText = "Error: Unknown type '$type'";
+      onTap = () {};
     }
   }
+
+  bool get isRequestOwner => requestOwnerId == currentUser.id;
 
   @override
   Widget build(BuildContext context) {
@@ -218,7 +271,7 @@ class ActivityFeedItem extends StatelessWidget {
             subtitle: Text(
               createdAt != null
                   ? timeago.format(createdAt.toDate())
-                  : "a moment ago",
+                  : kAMomentAGo,
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
             ),

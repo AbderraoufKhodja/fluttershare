@@ -19,10 +19,9 @@ import 'package:timeago/timeago.dart' as timeago;
 class Profile extends StatefulWidget {
   final String profileId;
   final Job job;
-  final String profileName;
   final bool isFreelancer;
 
-  Profile({this.profileId, this.job, this.profileName, this.isFreelancer});
+  Profile({this.profileId, this.job, this.isFreelancer});
 
   @override
   _ProfileState createState() => _ProfileState();
@@ -30,6 +29,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final String currentUserId = currentUser?.id;
+  User user;
   String selectedTab = "info";
   bool isHired = false;
   bool isLoading = false;
@@ -38,10 +38,30 @@ class _ProfileState extends State<Profile> {
   int completedJobsCount = 0;
   int evaluation;
   List<Post> posts = [];
-
+  String username = "";
+  String email = "";
+  String personalBio = "";
+  String gender = "";
+  String location = "";
+  String birthDate = "";
+  String professionalCategory = "";
+  String professionalTitle = "";
+  String professionalDescription = "";
+  String keyWords = "";
+  String diploma = "";
+  String licence = "";
+  String certification = "";
+  String language = "";
+  String experience = "";
+  String internship = "";
+  String competence = "";
+  String achievement = "";
+  String recommendation = "";
+  Timestamp createdAt = Timestamp.now();
   @override
   void initState() {
     super.initState();
+    getProfileInfo();
     getProfilePosts();
     getEvaluation();
     getCompletedJobsCount();
@@ -164,7 +184,7 @@ class _ProfileState extends State<Profile> {
     });
   }
 
-  getCompletedJobsCount() async {
+  Future<void> getCompletedJobsCount() async {
     QuerySnapshot snapshot = await usersRef
         .document(widget.profileId)
         .collection("userJobs")
@@ -175,17 +195,15 @@ class _ProfileState extends State<Profile> {
     });
   }
 
-  getProfilePosts() async {
-    setState(() {
-      isLoading = true;
-    });
+  Future<void> getProfilePosts() async {
+    toggleIsLoading();
     QuerySnapshot snapshot = await postsRef
         .document(widget.profileId)
         .collection('userPosts')
         .orderBy('createdAt', descending: true)
         .getDocuments();
+    toggleIsLoading();
     setState(() {
-      isLoading = false;
       postCount = snapshot.documents.length;
       posts = snapshot.documents.map((doc) => Post.fromDocument(doc)).toList();
     });
@@ -378,7 +396,7 @@ class _ProfileState extends State<Profile> {
               padding: EdgeInsets.all(16.0),
               child: Column(
                 children: <Widget>[
-                  linearProgress(),
+//                  linearProgress(),
                   Row(
                     children: <Widget>[
                       CircleAvatar(
@@ -504,60 +522,68 @@ class _ProfileState extends State<Profile> {
         });
   }
 
-  FutureBuilder buildProfileInfo() {
-    return FutureBuilder(
-        future: usersRef.document(widget.profileId).get(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return linearProgress();
-          DocumentSnapshot doc = snapshot.data;
-          if (doc.exists) {
-            User user = User.fromDocument(doc);
-            //TODO implement professional profile interface
-            return Expanded(
-              child: ListView(
-                children: [
-                  buildProfileInfoField(label: kUsername, text: user.username),
-                  buildProfileInfoField(label: kEmail, text: user.email),
-                  buildProfileInfoField(
-                      label: kPersonalBio, text: user.personalBio),
-                  buildProfileInfoField(label: kGender, text: user.gender),
-                  buildProfileInfoField(label: kLocation, text: user.location),
-                  buildProfileInfoField(
-                      label: kBirthDate, text: user.birthDate),
-                  buildProfileInfoField(
-                      label: kProfessionalCategory,
-                      text: user.professionalCategory),
-                  buildProfileInfoField(
-                      label: kProfessionalTitle, text: user.professionalTitle),
-                  buildProfileInfoField(
-                      label: kProfessionalDescription,
-                      text: user.professionalDescription),
-                  buildProfileInfoField(label: kKeyWords, text: user.keyWords),
-                  buildProfileInfoField(label: kDiploma, text: user.diploma),
-                  buildProfileInfoField(label: kLicence, text: user.licence),
-                  buildProfileInfoField(
-                      label: kCertification, text: user.certification),
-                  buildProfileInfoField(label: kLanguage, text: user.language),
-                  buildProfileInfoField(
-                      label: kExperience, text: user.experience),
-                  buildProfileInfoField(
-                      label: kInternship, text: user.internship),
-                  buildProfileInfoField(
-                      label: kCompetence, text: user.competence),
-                  buildProfileInfoField(
-                      label: kAchievement, text: user.achievement),
-                  buildProfileInfoField(
-                      label: kRecommendation, text: user.recommendation),
-                  buildProfileInfoField(
-                      label: kCreatedAt,
-                      text: timeago.format(user.createdAt.toDate())),
-                ],
-              ),
-            );
-          } else {
-            return linearProgress();
-          }
-        });
+  Expanded buildProfileInfo() {
+    return Expanded(
+      child: ListView(
+        children: [
+          buildProfileInfoField(label: kUsername, text: username),
+          buildProfileInfoField(label: kEmail, text: email),
+          buildProfileInfoField(label: kPersonalBio, text: personalBio),
+          buildProfileInfoField(label: kGender, text: gender),
+          buildProfileInfoField(label: kLocation, text: location),
+          buildProfileInfoField(label: kBirthDate, text: birthDate),
+          buildProfileInfoField(
+              label: kProfessionalCategory, text: professionalCategory),
+          buildProfileInfoField(
+              label: kProfessionalTitle, text: professionalTitle),
+          buildProfileInfoField(
+              label: kProfessionalDescription, text: professionalDescription),
+          buildProfileInfoField(label: kKeyWords, text: keyWords),
+          buildProfileInfoField(label: kDiploma, text: diploma),
+          buildProfileInfoField(label: kLicence, text: licence),
+          buildProfileInfoField(label: kCertification, text: certification),
+          buildProfileInfoField(label: kLanguage, text: language),
+          buildProfileInfoField(label: kExperience, text: experience),
+          buildProfileInfoField(label: kInternship, text: internship),
+          buildProfileInfoField(label: kCompetence, text: competence),
+          buildProfileInfoField(label: kAchievement, text: achievement),
+          buildProfileInfoField(label: kRecommendation, text: recommendation),
+          buildProfileInfoField(
+              label: kCreatedAt, text: timeago.format(createdAt.toDate())),
+        ],
+      ),
+    );
+  }
+
+  Future<void> getProfileInfo() async {
+    toggleIsLoading();
+    DocumentSnapshot snapshot = await usersRef.document(widget.profileId).get();
+    if (snapshot.exists) {
+      user = User.fromDocument(snapshot);
+      setState(() {
+        username = user.username;
+        email = user.email;
+        personalBio = user.personalBio;
+        gender = user.gender;
+        location = user.location;
+        birthDate = user.birthDate;
+        professionalCategory = user.professionalCategory;
+        professionalTitle = user.professionalTitle;
+        professionalDescription = user.professionalDescription;
+        keyWords = user.keyWords;
+        diploma = user.diploma;
+        licence = user.licence;
+        certification = user.certification;
+        language = user.language;
+        experience = user.experience;
+        internship = user.internship;
+        competence = user.competence;
+        achievement = user.achievement;
+        recommendation = user.recommendation;
+        createdAt = user.createdAt;
+      });
+    }
+    toggleIsLoading();
   }
 
   Column buildProfileInfoField(
@@ -570,14 +596,17 @@ class _ProfileState extends State<Profile> {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(15.0))),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 "$label ",
                 style: kTextStyleProfileInfoHeader,
               ),
-              Text(
-                "$text",
-                style: kTextStyleProfileInfo,
+              Expanded(
+                child: Text(
+                  "$text",
+                  style: kTextStyleProfileInfo,
+                ),
               ),
             ],
           ),
@@ -686,15 +715,16 @@ class _ProfileState extends State<Profile> {
 
   Future<void> handleRejectApplication() async {
     widget.job.handleRejectApplication(
-      applicantId: widget.profileId,
-      applicantName: widget.profileName,
-    );
+        applicantId: user.id,
+        applicantName: user.username,
+        applicantEmail: user.email);
   }
 
   Future<void> handleAcceptApplication() async {
     widget.job.handleAcceptApplication(
-      applicantId: widget.profileId,
-      applicantName: widget.profileName,
+      applicantId: user.id,
+      applicantName: user.username,
+      applicantEmail: user.email,
     );
   }
 
@@ -730,7 +760,6 @@ showProfile(BuildContext context,
     MaterialPageRoute(
       builder: (context) => Profile(
         profileId: profileId,
-        profileName: profileName,
         isFreelancer: isFreelancer,
         job: job,
       ),

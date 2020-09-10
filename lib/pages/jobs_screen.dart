@@ -51,6 +51,7 @@ class _JobsScreen extends State<JobsScreen> {
     return jobsRef
         .where("professionalTitle", isEqualTo: widget.title)
         .where("isVacant", isEqualTo: true)
+        .orderBy("createdAt", descending: true)
         .snapshots();
   }
 }

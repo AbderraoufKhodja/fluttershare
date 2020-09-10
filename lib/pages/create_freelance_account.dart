@@ -593,7 +593,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
 
   Future<String> uploadImage(imageFile) async {
     StorageUploadTask uploadCardTask =
-        storageRef.child("card_${user.id}.jpg").putFile(imageFile);
+        storageRef.child("freelancer_${user.id}.jpg").putFile(imageFile);
     StorageTaskSnapshot storageSnap = await uploadCardTask.onComplete;
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     return downloadUrl;

@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:khadamat/constants.dart';
+import 'package:khadamat/models/job.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/custom_text_form_field.dart';
@@ -74,9 +75,12 @@ class _UploadJobState extends State<UploadJob>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                    padding: EdgeInsets.only(left: 25.0),
-                    child: Text(instruction)),
+                Flexible(
+                  child: Container(
+                    padding: EdgeInsets.all(10.0),
+                    child: Text(instruction),
+                  ),
+                ),
                 Container(
                   margin:
                       EdgeInsets.symmetric(vertical: 30.0, horizontal: 25.0),
@@ -272,29 +276,6 @@ class _UploadJobState extends State<UploadJob>
       return null;
   }
 
-  uploadJob(String jobPhotoUrl) {
-    jobsRef.document(jobId).setData({
-      "jobId": jobId,
-      "jobOwnerId": currentUser.id,
-      "jobOwnerName": currentUser.username,
-      "isOwnerFreelancer": currentUser.isFreelancer,
-      "ownerEmail": currentUser.email,
-      "jobTitle": jobTitleController.text,
-      "professionalCategory": professionalCategoryController.text,
-      "professionalTitle": professionalTitleController.text,
-      "jobDescription": jobDescriptionController.text,
-      "location": locationController.text,
-      "dateRange": dateRangeController.text,
-      "jobPhotoUrl": jobPhotoUrl,
-      "price": priceController.text,
-      "applications": {},
-      "isVacant": true,
-      "isOnGoing": false,
-      "isCompleted": false,
-      "createdAt": FieldValue.serverTimestamp(),
-    });
-  }
-
   handleSubmit() async {
     final form = _formKey.currentState;
     print("form.validate() ;${form.validate()}");
@@ -306,7 +287,30 @@ class _UploadJobState extends State<UploadJob>
       if (file != null) await compressImage();
       String jobPhotoUrl =
           file == null ? kBlankProfileUrl : await uploadImage(file);
-      uploadJob(jobPhotoUrl);
+      Job(
+        jobId: jobId,
+        jobOwnerId: currentUser.id,
+        jobOwnerName: currentUser.username,
+        jobOwnerEmail: currentUser.email,
+        jobFreelancerId: "",
+        jobFreelancerName: "",
+        jobFreelancerEmail: "",
+        isOwnerFreelancer: currentUser.isFreelancer,
+        jobTitle: jobTitleController.text,
+        professionalCategory: professionalCategoryController.text,
+        professionalTitle: professionalTitleController.text,
+        jobDescription: jobDescriptionController.text,
+        location: locationController.text,
+        dateRange: dateRangeController.text,
+        jobPhotoUrl: jobPhotoUrl,
+        price: priceController.text,
+        applications: {},
+        isVacant: true,
+        isOnGoing: false,
+        isCompleted: false,
+        hasUpdateTermsRequest: false,
+        createdAt: Timestamp.now(),
+      ).createJob(update: false);
       clearControllers();
       setState(() {
         clearImage();

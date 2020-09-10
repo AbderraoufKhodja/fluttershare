@@ -51,8 +51,8 @@ class JobContainer extends StatelessWidget {
   final String jobId;
   final String jobOwnerId;
   final String jobOwnerName;
-  final String applicantId;
-  final String applicantName;
+  final String jobFreelancerId;
+  final String jobFreelancerName;
   final String professionalTitle;
   final Map applications;
 
@@ -60,8 +60,8 @@ class JobContainer extends StatelessWidget {
     this.jobId,
     this.jobOwnerId,
     this.jobOwnerName,
-    this.applicantId,
-    this.applicantName,
+    this.jobFreelancerId,
+    this.jobFreelancerName,
     this.professionalTitle,
     this.applications,
   });
@@ -71,8 +71,8 @@ class JobContainer extends StatelessWidget {
       jobId: doc['jobId'],
       jobOwnerId: doc['jobOwnerId'],
       jobOwnerName: doc['jobOwnerName'],
-      applicantId: doc['applicantId'],
-      applicantName: doc['applicantName'],
+      jobFreelancerId: doc['jobFreelancerId'],
+      jobFreelancerName: doc['jobFreelancerName'],
       professionalTitle: doc['professionalTitle'],
       applications: doc['applications'],
     );
@@ -85,8 +85,10 @@ class JobContainer extends StatelessWidget {
         GestureDetector(
           onTap: () => showManageJob(context,
               jobId: jobId,
-              applicantName: applicantName,
-              applicantId: applicantId),
+              jobFreelancerName: jobFreelancerName,
+              jobFreelancerId: jobFreelancerId,
+              hasRequest: false,
+              jobOwnerId: jobOwnerId),
           child: ListTile(
             title: Text(professionalTitle),
             leading: CircleAvatar(

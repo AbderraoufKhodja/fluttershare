@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/profile.dart';
@@ -126,11 +127,17 @@ class UserResult extends StatelessWidget {
       child: Column(
         children: <Widget>[
           GestureDetector(
-            onTap: () => showProfile(context, profileId: user.id),
+            onTap: () => showProfile(
+              context,
+              profileId: user.id,
+              isFreelancer: user.isFreelancer,
+              profileName: user.username,
+            ),
             child: ListTile(
               leading: CircleAvatar(
                 backgroundColor: Theme.of(context).primaryColor,
-                backgroundImage: CachedNetworkImageProvider(user.photoUrl),
+                backgroundImage: CachedNetworkImageProvider(
+                    user.photoUrl ?? kBlankProfileUrl),
               ),
               title: Text(
                 user.googleName,
