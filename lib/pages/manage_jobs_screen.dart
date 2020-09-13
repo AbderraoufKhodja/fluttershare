@@ -83,12 +83,7 @@ class JobContainer extends StatelessWidget {
     return Column(
       children: <Widget>[
         GestureDetector(
-          onTap: () => showManageJob(context,
-              jobId: jobId,
-              jobFreelancerName: jobFreelancerName,
-              jobFreelancerId: jobFreelancerId,
-              hasRequest: false,
-              jobOwnerId: jobOwnerId),
+          onTap: () => showManageJob(context, jobId: jobId),
           child: ListTile(
             title: Text(professionalTitle),
             leading: CircleAvatar(

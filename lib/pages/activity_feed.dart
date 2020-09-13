@@ -44,21 +44,22 @@ class _ActivityFeedState extends State<ActivityFeed> {
         ],
       ),
       body: Container(
-          child: StreamBuilder(
-        stream: getActivityFeed(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return circularProgress();
-          }
-          List<ActivityFeedItem> feedItems = [];
-          snapshot.data.documents.forEach((doc) {
-            feedItems.add(ActivityFeedItem.fromDocument(doc));
-          });
-          return ListView(
-            children: feedItems,
-          );
-        },
-      )),
+        child: StreamBuilder(
+          stream: getActivityFeed(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return circularProgress();
+            }
+            List<ActivityFeedItem> feedItems = [];
+            snapshot.data.documents.forEach((doc) {
+              feedItems.add(ActivityFeedItem.fromDocument(doc));
+            });
+            return ListView(
+              children: feedItems,
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -101,6 +102,7 @@ class ActivityFeedItem extends StatelessWidget {
   final String userProfileImg;
   final String commentData;
   final Timestamp createdAt;
+  final DocumentReference feedReference;
 
   ActivityFeedItem({
     this.type,
@@ -121,6 +123,7 @@ class ActivityFeedItem extends StatelessWidget {
     this.userProfileImg,
     this.commentData,
     this.createdAt,
+    this.feedReference,
   });
 
   factory ActivityFeedItem.fromDocument(DocumentSnapshot doc) {
@@ -142,6 +145,7 @@ class ActivityFeedItem extends StatelessWidget {
       newDateRange: doc['newDateRange'],
       userProfileImg: doc['userProfileImg'],
       createdAt: doc['createdAt'],
+      feedReference: doc.reference,
     );
   }
 
@@ -162,9 +166,10 @@ class ActivityFeedItem extends StatelessWidget {
       mediaPreview = Icon(Icons.mail, color: Colors.blue);
       onTap = () async {
         DocumentSnapshot doc = await jobsRef.document(jobId).get();
-        if (doc.exists)
-          showJobCard(context, job: Job.fromDocument(doc));
-        else
+        if (doc.exists) {
+          Job job = Job.fromDocument(doc);
+          if (job.isVacant) showJobCard(context, job: job);
+        } else
           Scaffold.of(context).showSnackBar(snackbar);
       };
       activityItemText = isJobOwner
@@ -172,70 +177,81 @@ class ActivityFeedItem extends StatelessWidget {
           : "You have applied to $jobOwnerName's job";
     } else if (type == "acceptApplication") {
       mediaPreview = Icon(Icons.check, color: Colors.green);
-      onTap = () => showManageJob(context,
-          jobId: jobId,
-          jobFreelancerName: jobFreelancerName,
-          jobFreelancerId: jobFreelancerId,
-          jobOwnerId: jobOwnerId,
-          hasRequest: false);
+      onTap = () {
+        showManageJob(context, jobId: jobId);
+        markAsRead();
+      };
       activityItemText = isJobOwner
           ? "You have accepted $jobFreelancerName application."
           : "$jobOwnerName accepted your application.";
     } else if (type == "rejectApplication") {
       mediaPreview = Icon(Icons.clear, color: Colors.red);
-      onTap = () {};
+      onTap = () {
+        markAsRead();
+      };
       activityItemText = isJobOwner
           ? "You have rejected $jobFreelancerName application."
           : "$jobOwnerName rejected your application.";
     } else if (type == "message") {
       mediaPreview = Icon(Icons.message, color: Colors.blue);
-      onTap = () => showMessages(
-            context,
-            jobId: jobId,
-            professionalTitle: professionalTitle,
-            jobTitle: jobTitle,
-            jobFreelancerName: jobFreelancerName,
-            jobFreelancerId: jobFreelancerId,
-            jobOwnerName: jobOwnerName,
-            jobOwnerId: jobOwnerId,
-          );
+      onTap = () {
+        showMessages(
+          context,
+          jobId: jobId,
+          professionalTitle: professionalTitle,
+          jobTitle: jobTitle,
+          jobFreelancerName: jobFreelancerName,
+          jobFreelancerId: jobFreelancerId,
+          jobOwnerName: jobOwnerName,
+          jobOwnerId: jobOwnerId,
+        );
+        markAsRead();
+      };
       activityItemText = isJobOwner
           ? "$kNewMessage $jobFreelancerName"
           : "$kNewMessage $jobOwnerName";
     } else if (type == "hire") {
       mediaPreview = Icon(Icons.add, color: Colors.teal);
-      onTap = () {};
+      onTap = () {
+        markAsRead();
+      };
       activityItemText = '$jobOwnerName $kHireNotification';
     } else if (type == "open") {
       mediaPreview = Icon(Icons.chat, color: Colors.teal);
-      onTap = () => showMessages(context,
-          jobId: jobId,
-          professionalTitle: professionalTitle,
-          jobTitle: jobTitle,
-          jobOwnerId: jobOwnerId,
-          jobOwnerName: jobOwnerName,
-          jobFreelancerId: jobFreelancerId,
-          jobFreelancerName: jobFreelancerName);
+      onTap = () {
+        showMessages(context,
+            jobId: jobId,
+            professionalTitle: professionalTitle,
+            jobTitle: jobTitle,
+            jobOwnerId: jobOwnerId,
+            jobOwnerName: jobOwnerName,
+            jobFreelancerId: jobFreelancerId,
+            jobFreelancerName: jobFreelancerName);
+        markAsRead();
+      };
       activityItemText = isJobOwner
           ? '$kOpenChat $jobFreelancerName'
           : '$kOpenChat $jobOwnerName';
     } else if (type == 'updateTerms') {
       mediaPreview = Icon(Icons.update, color: Colors.red);
-      onTap = () => showManageJob(context,
-          jobId: jobId,
-          jobFreelancerName: jobFreelancerName,
-          jobFreelancerId: jobFreelancerId,
-          jobOwnerId: jobOwnerId,
-          hasRequest: true);
+      onTap = () {
+        showManageJob(context, jobId: jobId);
+        markAsRead();
+      };
+
       activityItemText = isRequestOwner
           ? "$kUpdateRequested"
           : "$kUpdateRequestFrom $requestOwnerName.";
     } else {
       mediaPreview = Text('');
       activityItemText = "Error: Unknown type '$type'";
-      onTap = () {};
+      onTap = () {
+        markAsRead();
+      };
     }
   }
+
+  Future<void> markAsRead() => feedReference.updateData({"read": true});
 
   bool get isRequestOwner => requestOwnerId == currentUser.id;
 

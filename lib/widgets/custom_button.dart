@@ -5,6 +5,7 @@ class CustomButton extends StatelessWidget {
   final Function function;
   final Color fillColor;
   final double padding;
+  final double margin;
   final double heightFactor;
   final double widthFactor;
 
@@ -15,6 +16,7 @@ class CustomButton extends StatelessWidget {
     this.padding = 0,
     this.heightFactor = 1,
     this.widthFactor = 1,
+    this.margin = 0,
   });
 
   @override
@@ -23,6 +25,7 @@ class CustomButton extends StatelessWidget {
       onPressed: function,
       child: Container(
         padding: EdgeInsets.all(padding),
+        margin: EdgeInsets.all(margin),
         width: MediaQuery.of(context).size.width * (1 / 3) * widthFactor,
         height: MediaQuery.of(context).size.height * (1 / 18) * heightFactor,
         child: Text(

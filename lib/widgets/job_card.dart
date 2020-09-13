@@ -190,7 +190,7 @@ class _JobCardState extends State<JobCard> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         isJobOwner
-            ? job.isOnGoing
+            ? !job.isVacant
                 ? Expanded(
                     child: CustomButton(
                       text: kCompleteJob,
@@ -203,7 +203,7 @@ class _JobCardState extends State<JobCard> {
                       function: handleOwnerEditJob,
                     ),
                   )
-            : job.isOnGoing
+            : !job.isVacant
                 ? Expanded(
                     child: CustomButton(
                       text: kCompleteJob,
@@ -217,7 +217,9 @@ class _JobCardState extends State<JobCard> {
                         if (!currentUser.isFreelancer)
                           showCreateFreelanceProfile(context);
                         if (currentUser.isFreelancer) {
-                          job.handleApplyJob();
+                          job.handleApplyJob(
+                              applicantName: currentUser.username,
+                              applicantId: currentUserId);
                           setState(() {
                             applicationsCount += isApplied ? -1 : 1;
                             isApplied = !isApplied;

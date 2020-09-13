@@ -213,14 +213,7 @@ class MessagesState extends State<Messages> {
   }
 
   confirmAcceptance() {
-    showManageJob(
-      context,
-      jobId: jobId,
-      jobOwnerId: jobOwnerId,
-      jobFreelancerName: jobFreelancerName,
-      jobFreelancerId: jobFreelancerId,
-      hasRequest: false,
-    );
+    showManageJob(context, jobId: jobId);
     Navigator.pop(context);
   }
 
@@ -228,10 +221,6 @@ class MessagesState extends State<Messages> {
     showManageJob(
       context,
       jobId: jobId,
-      jobOwnerId: jobOwnerId,
-      jobFreelancerName: jobFreelancerName,
-      jobFreelancerId: jobFreelancerId,
-      hasRequest: false,
     );
     Navigator.pop(context);
   }

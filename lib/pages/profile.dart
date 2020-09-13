@@ -27,7 +27,8 @@ class Profile extends StatefulWidget {
   _ProfileState createState() => _ProfileState();
 }
 
-class _ProfileState extends State<Profile> {
+class _ProfileState extends State<Profile>
+    with AutomaticKeepAliveClientMixin<Profile> {
   final String currentUserId = currentUser?.id;
   User user;
   String selectedTab = "info";
@@ -733,7 +734,10 @@ class _ProfileState extends State<Profile> {
       isApplicationResponse = widget.job != null &&
           widget.job.applications[widget.profileId] == null &&
           widget.job.jobOwnerId != widget.profileId &&
-          widget.job.jobOwnerId == currentUserId;
+          widget.job.jobOwnerId == currentUserId &&
+          widget.job.isVacant == true &&
+          widget.job.isOwnerCompleted == false &&
+          widget.job.isRetrieved == false;
     });
   }
 
@@ -748,6 +752,9 @@ class _ProfileState extends State<Profile> {
       isLoading = !isLoading;
     });
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 showProfile(BuildContext context,

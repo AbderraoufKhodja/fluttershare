@@ -295,6 +295,7 @@ class _UploadJobState extends State<UploadJob>
         jobFreelancerId: "",
         jobFreelancerName: "",
         jobFreelancerEmail: "",
+        jobFreelancerEnrollmentDate: null,
         isOwnerFreelancer: currentUser.isFreelancer,
         jobTitle: jobTitleController.text,
         professionalCategory: professionalCategoryController.text,
@@ -305,11 +306,13 @@ class _UploadJobState extends State<UploadJob>
         jobPhotoUrl: jobPhotoUrl,
         price: priceController.text,
         applications: {},
+        hasFreelancerUpdateRequest: false,
+        hasOwnerUpdateRequest: false,
         isVacant: true,
-        isOnGoing: false,
-        isCompleted: false,
-        hasUpdateTermsRequest: false,
-        createdAt: Timestamp.now(),
+        isOwnerCompleted: false,
+        isFreelancerCompleted: false,
+        createdAt: null,
+        isRetrieved: false,
       ).createJob(update: false);
       clearControllers();
       setState(() {

@@ -19,7 +19,8 @@ class ProfessionalCategoriesScreen extends StatefulWidget {
 }
 
 class _ProfessionalCategoriesScreenState
-    extends State<ProfessionalCategoriesScreen> {
+    extends State<ProfessionalCategoriesScreen>
+    with AutomaticKeepAliveClientMixin<ProfessionalCategoriesScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   List<String> professionalCategoriesList;
   List<String> followingList = [];
@@ -186,4 +187,7 @@ class _ProfessionalCategoriesScreenState
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
