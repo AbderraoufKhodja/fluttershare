@@ -292,10 +292,6 @@ class _UploadJobState extends State<UploadJob>
         jobOwnerId: currentUser.id,
         jobOwnerName: currentUser.username,
         jobOwnerEmail: currentUser.email,
-        jobFreelancerId: "",
-        jobFreelancerName: "",
-        jobFreelancerEmail: "",
-        jobFreelancerEnrollmentDate: null,
         isOwnerFreelancer: currentUser.isFreelancer,
         jobTitle: jobTitleController.text,
         professionalCategory: professionalCategoryController.text,
@@ -311,9 +307,8 @@ class _UploadJobState extends State<UploadJob>
         isVacant: true,
         isOwnerCompleted: false,
         isFreelancerCompleted: false,
-        createdAt: null,
         isRetrieved: false,
-      ).createJob(update: false);
+      ).createJob();
       clearControllers();
       setState(() {
         clearImage();

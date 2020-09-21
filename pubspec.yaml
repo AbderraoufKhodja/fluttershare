@@ -38,6 +38,7 @@ dependencies:
   eva_icons_flutter:
   outline_material_icons:
   bubble: ^1.1.9+1
+  flutter_rating_bar: ^3.0.1+1
 
 dev_dependencies:
   flutter_test:
@@ -57,6 +58,7 @@ flutter:
       fonts:
         - asset: assets/fonts/ReemKufi-Regular.ttf
   assets:
+    - assets/images/freelancer.jpg
     - assets/images/google_signin_button.png
     - assets/images/upload.svg
     - assets/images/search.svg

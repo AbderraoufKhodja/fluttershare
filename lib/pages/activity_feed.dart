@@ -7,6 +7,7 @@ import 'package:khadamat/pages/manage_job.dart';
 import 'package:khadamat/pages/manage_jobs_screen.dart';
 import 'package:khadamat/pages/messages.dart';
 import 'package:khadamat/pages/messages_screen.dart';
+import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/widgets/job_card.dart';
 import 'package:khadamat/widgets/progress.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -168,12 +169,18 @@ class ActivityFeedItem extends StatelessWidget {
         DocumentSnapshot doc = await jobsRef.document(jobId).get();
         if (doc.exists) {
           Job job = Job.fromDocument(doc);
-          if (job.isVacant) showJobCard(context, job: job);
+          if (job.isVacant)
+            showProfile(
+              context,
+              profileId: applicantId,
+              profileName: applicantName,
+              job: job,
+            );
         } else
           Scaffold.of(context).showSnackBar(snackbar);
       };
       activityItemText = isJobOwner
-          ? "$jobFreelancerName applied to your job"
+          ? "$applicantName applied to your job"
           : "You have applied to $jobOwnerName's job";
     } else if (type == "acceptApplication") {
       mediaPreview = Icon(Icons.check, color: Colors.green);

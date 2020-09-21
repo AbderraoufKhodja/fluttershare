@@ -5,6 +5,7 @@ import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/create_freelance_account.dart';
 import 'package:khadamat/pages/home.dart';
+import 'package:khadamat/pages/manage_job.dart';
 import 'package:khadamat/widgets/custom_button.dart';
 import 'package:khadamat/widgets/custom_image.dart';
 import 'package:khadamat/widgets/custom_list_tile.dart';
@@ -190,44 +191,30 @@ class _JobCardState extends State<JobCard> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         isJobOwner
-            ? !job.isVacant
-                ? Expanded(
-                    child: CustomButton(
-                      text: kCompleteJob,
-                      function: handleOwnerCompleteJob,
-                    ),
-                  )
-                : Expanded(
-                    child: CustomButton(
-                      text: kEditJob,
-                      function: handleOwnerEditJob,
-                    ),
-                  )
-            : !job.isVacant
-                ? Expanded(
-                    child: CustomButton(
-                      text: kCompleteJob,
-                      function: handleFreelancerCompleteJob,
-                    ),
-                  )
-                : Expanded(
-                    child: CustomButton(
-                      text: isApplied ? kUnapply : kApply,
-                      function: () async {
-                        if (!currentUser.isFreelancer)
-                          showCreateFreelanceProfile(context);
-                        if (currentUser.isFreelancer) {
-                          job.handleApplyJob(
-                              applicantName: currentUser.username,
-                              applicantId: currentUserId);
-                          setState(() {
-                            applicationsCount += isApplied ? -1 : 1;
-                            isApplied = !isApplied;
-                          });
-                        }
-                      },
-                    ),
-                  ),
+            ? Expanded(
+                child: CustomButton(
+                  text: kManage,
+                  function: () => showManageJob(context, jobId: job.jobId),
+                ),
+              )
+            : Expanded(
+                child: CustomButton(
+                  text: isApplied ? kUnapply : kApply,
+                  function: () async {
+                    if (!currentUser.isFreelancer)
+                      showCreateFreelanceProfile(context);
+                    if (currentUser.isFreelancer) {
+                      job.handleApplyJob(
+                          applicantName: currentUser.username,
+                          applicantId: currentUserId);
+                      setState(() {
+                        applicationsCount += isApplied ? -1 : 1;
+                        isApplied = !isApplied;
+                      });
+                    }
+                  },
+                ),
+              ),
         Expanded(
           child: Container(
             alignment: Alignment.centerRight,
@@ -268,18 +255,6 @@ class _JobCardState extends State<JobCard> {
             ],
           );
         });
-  }
-
-  handleOwnerEditJob() {
-    job.handleEditJob(context);
-  }
-
-  handleOwnerCompleteJob() {
-    job.ownerCompleteJob();
-  }
-
-  handleFreelancerCompleteJob() {
-    job.freelancerCompleteJob();
   }
 
   void showDetails() {

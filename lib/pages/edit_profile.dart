@@ -1,14 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import "package:flutter/material.dart";
+import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/progress.dart';
 
 class EditProfile extends StatefulWidget {
-  final String currentUserId;
+  final String profileId;
 
-  EditProfile({this.currentUserId});
+  EditProfile({this.profileId});
 
   @override
   _EditProfileState createState() => _EditProfileState();
@@ -29,11 +31,91 @@ class _EditProfileState extends State<EditProfile> {
     getUser();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text(
+          "Edit Profile",
+          style: TextStyle(
+            color: Colors.black,
+          ),
+        ),
+        actions: <Widget>[
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(
+              Icons.done,
+              size: 30.0,
+              color: Colors.green,
+            ),
+          ),
+        ],
+      ),
+      body: isLoading
+          ? circularProgress()
+          : ListView(
+              children: <Widget>[
+                Container(
+                  child: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: 16.0,
+                          bottom: 8.0,
+                        ),
+                        child: CircleAvatar(
+                          radius: 50.0,
+                          backgroundImage: CachedNetworkImageProvider(
+                              user.photoUrl ?? kBlankProfileUrl),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Column(
+                          children: <Widget>[
+                            buildGoogleNameField(),
+                            buildBioField(),
+                          ],
+                        ),
+                      ),
+                      RaisedButton(
+                        onPressed: updateProfileData,
+                        child: Text(
+                          "Update Profile",
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: FlatButton.icon(
+                          onPressed: logout,
+                          icon: Icon(Icons.cancel, color: Colors.red),
+                          label: Text(
+                            "Logout",
+                            style: TextStyle(color: Colors.red, fontSize: 20.0),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+
   getUser() async {
     setState(() {
       isLoading = true;
     });
-    DocumentSnapshot doc = await usersRef.document(widget.currentUserId).get();
+    DocumentSnapshot doc = await usersRef.document(widget.profileId).get();
     user = User.fromDocument(doc);
     googleNameController.text = user.googleName;
     bioController.text = user.personalBio;
@@ -97,7 +179,7 @@ class _EditProfileState extends State<EditProfile> {
     });
 
     if (_googleNameValid && _bioValid) {
-      usersRef.document(widget.currentUserId).updateData({
+      usersRef.document(widget.profileId).updateData({
         "googleName": googleNameController.text,
         "bio": bioController.text,
       });
@@ -110,84 +192,12 @@ class _EditProfileState extends State<EditProfile> {
     await googleSignIn.signOut();
     Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
   }
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text(
-          "Edit Profile",
-          style: TextStyle(
-            color: Colors.black,
-          ),
-        ),
-        actions: <Widget>[
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(
-              Icons.done,
-              size: 30.0,
-              color: Colors.green,
-            ),
-          ),
-        ],
-      ),
-      body: isLoading
-          ? circularProgress()
-          : ListView(
-              children: <Widget>[
-                Container(
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: 16.0,
-                          bottom: 8.0,
-                        ),
-                        child: CircleAvatar(
-                          radius: 50.0,
-                          backgroundImage:
-                              CachedNetworkImageProvider(user.photoUrl),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Column(
-                          children: <Widget>[
-                            buildGoogleNameField(),
-                            buildBioField(),
-                          ],
-                        ),
-                      ),
-                      RaisedButton(
-                        onPressed: updateProfileData,
-                        child: Text(
-                          "Update Profile",
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: FlatButton.icon(
-                          onPressed: logout,
-                          icon: Icon(Icons.cancel, color: Colors.red),
-                          label: Text(
-                            "Logout",
-                            style: TextStyle(color: Colors.red, fontSize: 20.0),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-    );
-  }
+showEditProfile(BuildContext context) {
+  return Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditProfile(),
+      ));
 }

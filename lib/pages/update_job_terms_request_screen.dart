@@ -1,116 +1,216 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/custom_button.dart';
-import 'package:khadamat/widgets/custom_field.dart';
 import 'package:khadamat/widgets/header.dart';
 
-class UpdateJobTermsRequestScreen extends StatelessWidget {
+class UpdateJobTermsScreenRequest extends StatefulWidget {
   final Job job;
-  final String newJobDescription;
-  final String newPrice;
-  final String newLocation;
-  final String newDateRange;
-  UpdateJobTermsRequestScreen({
+
+  UpdateJobTermsScreenRequest({
     @required this.job,
-    @required this.newJobDescription,
-    @required this.newPrice,
-    @required this.newLocation,
-    @required this.newDateRange,
   });
+
+  @override
+  _UpdateJobTermsScreenRequestState createState() =>
+      _UpdateJobTermsScreenRequestState();
+}
+
+class _UpdateJobTermsScreenRequestState
+    extends State<UpdateJobTermsScreenRequest> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  TextEditingController jobDescriptionController = TextEditingController();
+  TextEditingController locationController = TextEditingController();
+  TextEditingController dateRangeController = TextEditingController();
+  TextEditingController priceController = TextEditingController();
+
+  bool _jobDescriptionValid = true;
+  bool _locationValid = true;
+  bool _dateRangeValid = true;
+  bool _priceValid = true;
+
+  Job get job => widget.job;
+
+  @override
+  void initState() {
+    super.initState();
+    updateController();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: header(
         context,
-        titleText: kUpdateConfirmCancel,
+        titleText: kRequestUpdateJobTerms,
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: ListView(
+        padding: EdgeInsets.all(10.0),
         children: [
-          Expanded(
-            child: ListView(
-              children: [
-                CustomField(
-                  text: kNewJobDescription,
-                  label: newJobDescription,
-                ),
-                CustomField(
-                  text: kNewLocation,
-                  label: newLocation,
-                ),
-                CustomField(
-                  text: kNewDateRange,
-                  label: newDateRange,
-                ),
-                CustomField(
-                  text: kNewPrice,
-                  label: newPrice,
-                ),
-              ],
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              CustomButton(
-                margin: 10.0,
-                text: kAccept,
-                function: () async {
-                  await handleAcceptUpdateJobTerms();
-                  Navigator.pop(context);
-                },
-              ),
-              CustomButton(
-                margin: 10.0,
-                text: kReject,
-                function: () async {
-                  await handleRejectUpdateJobTerms();
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 10,
-          )
+          buildUpdateButtons(),
+          buildJobDescriptionField(),
+          buildLocationField(),
+          buildJobDateRangeTextField(),
+          buildPriceField(),
         ],
       ),
     );
   }
 
-  Future<void> handleAcceptUpdateJobTerms() {
-    return job.acceptUpdateJobTerms(
-      decisionOwnerId: currentUser.id,
-      decisionOwnerName: currentUser.username,
+  Column buildPriceField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+            padding: EdgeInsets.only(top: 12.0),
+            child: Text(
+              kJobPrice,
+              style: TextStyle(color: Theme.of(context).primaryColor),
+            )),
+        TextField(
+          controller: priceController,
+          decoration: InputDecoration(
+            hintText: kPriceHintText,
+            errorText: _priceValid ? null : kDateRangeText,
+          ),
+        )
+      ],
     );
   }
 
-  Future<void> handleRejectUpdateJobTerms() async {
-    return job.rejectUpdateJobTerms(
-      decisionOwnerName: currentUser.username,
-      decisionOwnerId: currentUser.id,
+  Column buildJobDescriptionField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+            padding: EdgeInsets.only(top: 12.0),
+            child: Text(
+              kJobDescription,
+              style: TextStyle(color: Theme.of(context).primaryColor),
+            )),
+        TextField(
+          controller: jobDescriptionController,
+          decoration: InputDecoration(
+            hintText: kJobDescriptionHint,
+            errorText: _jobDescriptionValid ? null : kDateRangeText,
+          ),
+        )
+      ],
     );
+  }
+
+  Column buildJobDateRangeTextField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+            padding: EdgeInsets.only(top: 12.0),
+            child: Text(
+              kDateRange,
+              style: TextStyle(color: Theme.of(context).primaryColor),
+            )),
+        TextField(
+          controller: dateRangeController,
+          decoration: InputDecoration(
+            hintText: kDateRangeHint,
+            errorText: _dateRangeValid ? null : kDateRangeText,
+          ),
+        )
+      ],
+    );
+  }
+
+  Column buildLocationField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(top: 12.0),
+          child: Text(
+            kLocationField,
+            style: TextStyle(color: Theme.of(context).primaryColor),
+          ),
+        ),
+        TextField(
+          controller: locationController,
+          decoration: InputDecoration(
+            hintText: kUpdateLocationHint,
+            errorText: _locationValid ? null : kLocationErrorText,
+          ),
+        )
+      ],
+    );
+  }
+
+  Row buildUpdateButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        CustomButton(
+            text: kSubmitRequest,
+            function: () {
+              handleRequestUpdateJobTerms();
+            }),
+        CustomButton(text: kCancel, function: () {}),
+      ],
+    );
+  }
+
+  void updateController() {
+    setState(() {
+      jobDescriptionController.text = job.jobDescription;
+      locationController.text = job.location;
+      dateRangeController.text = job.dateRange;
+      priceController.text = job.price;
+    });
+  }
+
+  Future<void> handleRequestUpdateJobTerms() async {
+    setState(() {
+      priceController.text.trim().length < 3 || priceController.text.isEmpty
+          ? _priceValid = false
+          : _priceValid = true;
+      locationController.text.trim().length > 100
+          ? _locationValid = false
+          : _locationValid = true;
+    });
+
+    if (_priceValid &&
+        _locationValid &&
+        !job.hasOwnerUpdateRequest &&
+        !job.hasFreelancerUpdateRequest) {
+      await job
+          .requestUpdateJobTermsFeed(
+        requestOwnerName: currentUser.username,
+        requestOwnerId: currentUser.id,
+        newJobDescription: jobDescriptionController.text,
+        newPrice: priceController.text,
+        newLocation: locationController.text,
+        newDateRange: dateRangeController.text,
+      )
+          .then((value) {
+        SnackBar snackbar = SnackBar(content: Text(kJobUpdatedRequested));
+        _scaffoldKey.currentState.showSnackBar(snackbar);
+        Timer(Duration(seconds: 2), () => Navigator.pop(context));
+      });
+    }
   }
 }
 
-Future<void> showUpdateTermsScreen(
+Future<void> showUpdateJobTermsRequestScreen(
   BuildContext context, {
   @required Job job,
-  @required String newJobDescription,
-  @required String newPrice,
-  @required String newLocation,
-  @required String newDateRange,
 }) {
   return Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => UpdateJobTermsRequestScreen(
-            job: job,
-            newJobDescription: newJobDescription,
-            newPrice: newPrice,
-            newLocation: newLocation,
-            newDateRange: newDateRange),
+        builder: (context) => UpdateJobTermsScreenRequest(
+          job: job,
+        ),
       ));
 }

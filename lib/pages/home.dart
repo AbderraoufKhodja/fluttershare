@@ -184,7 +184,6 @@ class _HomeState extends State<Home> {
           Search(),
           Profile(
             profileId: currentUser?.id,
-            isFreelancer: currentUser.isFreelancer,
           ),
         ],
         controller: pageController,
@@ -228,6 +227,9 @@ class _HomeState extends State<Home> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
+          image: DecorationImage(
+              image: AssetImage("assets/images/freelancer.jpg"),
+              fit: BoxFit.cover),
           gradient: LinearGradient(
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
@@ -247,8 +249,9 @@ class _HomeState extends State<Home> {
               style: TextStyle(
                 fontFamily: "ReemKufi-Regular",
                 fontSize: 90.0,
-                color: Colors.white,
+                color: Colors.black,
               ),
+              textAlign: TextAlign.center,
             ),
             GestureDetector(
               onTap: login,

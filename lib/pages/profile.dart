@@ -19,9 +19,8 @@ import 'package:timeago/timeago.dart' as timeago;
 class Profile extends StatefulWidget {
   final String profileId;
   final Job job;
-  final bool isFreelancer;
 
-  Profile({this.profileId, this.job, this.isFreelancer});
+  Profile({this.profileId, this.job});
 
   @override
   _ProfileState createState() => _ProfileState();
@@ -29,57 +28,54 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile>
     with AutomaticKeepAliveClientMixin<Profile> {
-  final String currentUserId = currentUser?.id;
   User user;
   String selectedTab = "info";
   bool isHired = false;
   bool isLoading = false;
-  bool isApplicationResponse = false;
   int postCount = 0;
   int completedJobsCount = 0;
   int evaluation;
   List<Post> posts = [];
-  String username = "";
-  String email = "";
-  String personalBio = "";
-  String gender = "";
-  String location = "";
-  String birthDate = "";
-  String professionalCategory = "";
-  String professionalTitle = "";
-  String professionalDescription = "";
-  String keyWords = "";
-  String diploma = "";
-  String licence = "";
-  String certification = "";
-  String language = "";
-  String experience = "";
-  String internship = "";
-  String competence = "";
-  String achievement = "";
-  String recommendation = "";
-  Timestamp createdAt = Timestamp.now();
+
+  bool get isApplicationResponse {
+    return job != null &&
+        job.applications[widget.profileId] == null &&
+        job.jobOwnerId != widget.profileId &&
+        job.jobOwnerId == currentUser.id &&
+        job.isVacant == true &&
+        job.isOwnerCompleted == false &&
+        job.isRetrieved == false;
+  }
+
+  Job get job => widget.job;
+
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   void initState() {
     super.initState();
-    getProfileInfo();
     getProfilePosts();
     getEvaluation();
     getCompletedJobsCount();
     checkIfHired();
-    checkIfApplicationResponse();
   }
 
   @override
   Widget build(BuildContext context) {
-    return widget.isFreelancer ?? false
-        ? buildFreelancerScreen(context)
-        : buildClientScreen(context);
+    return FutureBuilder(
+        future: usersRef.document(widget.profileId).get(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return linearProgress();
+          user = User.fromDocument(snapshot.data);
+          return user.isFreelancer
+              ? buildFreelancerScreen(context)
+              : buildClientScreen(context);
+        });
   }
 
   Scaffold buildClientScreen(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -105,287 +101,32 @@ class _ProfileState extends State<Profile>
   SafeArea buildFreelancerScreen(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
         appBar: isApplicationResponse ? buildAcceptAppBar(context) : null,
         body: Column(
           children: [
             buildProfileHeader(),
-            Container(
-              height: MediaQuery.of(context).size.height * 3 / 5,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30.0),
-                      topRight: Radius.circular(30.0)),
-                  color: Colors.white),
-              child: Column(
-                children: [
-                  buildToggleTab(),
-                  Divider(height: 0.0, indent: 30.0, endIndent: 30.0),
-                  buildContent(),
-                ],
+            Expanded(
+              child: Container(
+                height: MediaQuery.of(context).size.height * 3 / 5,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30.0),
+                        topRight: Radius.circular(30.0)),
+                    color: Colors.white),
+                child: Column(
+                  children: [
+                    buildToggleTab(),
+                    Divider(height: 0.0, indent: 30.0, endIndent: 30.0),
+                    buildContent(),
+                  ],
+                ),
               ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  AppBar buildAcceptAppBar(BuildContext context) {
-    return AppBar(
-      actions: [
-        Expanded(
-            child: buildButton(
-          text: kReject,
-          fillColor: Colors.red,
-          function: () {
-            toggleIsLoading();
-            handleRejectApplication().then((value) {
-              toggleIsLoading();
-              Navigator.pop(context);
-            });
-          },
-        )),
-        Expanded(
-            child: buildButton(
-          text: kAccept,
-          fillColor: Colors.green,
-          function: () {
-            toggleIsLoading();
-            handleAcceptApplication();
-            toggleIsLoading();
-            showMessagesScreen(context);
-            Navigator.pop(context);
-          },
-        )),
-      ],
-    );
-  }
-
-  checkIfHired() async {
-    DocumentSnapshot doc = await jobsRef
-        .document(widget.profileId)
-        .collection("userJobs")
-        .document("widget.job.jobId")
-        .get();
-    setState(() {
-      isHired = doc.exists;
-    });
-  }
-
-  getEvaluation() async {
-    QuerySnapshot snapshot = await reviewsRef
-        .document(widget.profileId)
-        .collection('userReviews')
-        .getDocuments();
-    setState(() {
-      // TODO implement review evaluation logic
-      evaluation = snapshot.documents.length;
-    });
-  }
-
-  Future<void> getCompletedJobsCount() async {
-    QuerySnapshot snapshot = await usersRef
-        .document(widget.profileId)
-        .collection("userJobs")
-        .where("isCompleted", isEqualTo: true)
-        .getDocuments();
-    setState(() {
-      completedJobsCount = snapshot.documents.length;
-    });
-  }
-
-  Future<void> getProfilePosts() async {
-    toggleIsLoading();
-    QuerySnapshot snapshot = await postsRef
-        .document(widget.profileId)
-        .collection('userPosts')
-        .orderBy('createdAt', descending: true)
-        .getDocuments();
-    toggleIsLoading();
-    setState(() {
-      postCount = snapshot.documents.length;
-      posts = snapshot.documents.map((doc) => Post.fromDocument(doc)).toList();
-    });
-  }
-
-  Column buildCountColumn(String label, int count) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Text(
-          count.toString(),
-          style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold),
-        ),
-        Container(
-          margin: EdgeInsets.only(top: 4.0),
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Theme.of(context).primaryColor,
-              fontSize: 15.0,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  editProfile() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => EditProfile(currentUserId: currentUserId)));
-  }
-
-  Container buildButton(
-      {String text, Color fillColor = Colors.blue, Function function}) {
-    return Container(
-      padding: EdgeInsets.only(top: 2.0),
-      child: FlatButton(
-        onPressed: function,
-        child: Container(
-          width: 200.0,
-          height: 27.0,
-          child: Text(
-            text,
-            style: TextStyle(
-              color: isHired ? Colors.black : Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: fillColor,
-            border: Border.all(
-              color: fillColor,
-            ),
-            borderRadius: BorderRadius.circular(5.0),
-          ),
-        ),
-      ),
-    );
-  }
-
-  buildProfileButton() {
-    // viewing your own profile - should show edit profile button
-    bool isProfileOwner = currentUserId == widget.profileId;
-    if (isProfileOwner) {
-      return buildButton(
-        text: kEditProfile,
-        function: editProfile,
-      );
-    } else if (!isHired && !isApplicationResponse) {
-      return buildButton(
-        text: kHire,
-        function: handleHireUser,
-      );
-    } else
-      return Container();
-//    else if (isApplicationResponse) {
-//      return buildButton(
-//        text: "Post a job",
-//        function: handleUnfollowUser,
-//      );
-//    }
-  }
-
-  handleUnfollowUser() {
-    setState(() {
-      isHired = false;
-    });
-    // remove hire
-    hiresRef
-        .document(widget.profileId)
-        .collection('userHires')
-        .document(currentUserId)
-        .get()
-        .then((doc) {
-      if (doc.exists) {
-        doc.reference.delete();
-      }
-    });
-    // remove following
-    hiresRef
-        .document(currentUserId)
-        .collection('userHires')
-        .document(widget.profileId)
-        .get()
-        .then((doc) {
-      if (doc.exists) {
-        doc.reference.delete();
-      }
-    });
-    // delete activity feed item for them
-    activityFeedRef
-        .document(widget.profileId)
-        .collection('feedItems')
-        .document(currentUserId)
-        .get()
-        .then((doc) {
-      if (doc.exists) {
-        doc.reference.delete();
-      }
-    });
-  }
-
-  handleHireUser() {
-    // TODO implement hire function
-
-    setState(() {
-      isHired = true;
-    });
-    // Make auth user hire of THAT user (update THEIR hires collection)
-    hiresRef
-        .document(widget.profileId)
-        .collection('userHires')
-        .document(currentUserId)
-        .setData({});
-
-    jobsRef
-        .document(currentUserId)
-        .collection("userJobs")
-        .document(widget.job.jobId)
-        .collection("application")
-        .document(widget.profileId)
-        .setData({
-      "accepted": true,
-    });
-    // Put THAT user on YOUR following collection (update your following collection)
-//    followingRef
-//        .document(currentUserId)
-//        .collection('userFollowing')
-//        .document(widget.profileId)
-//        .setData({});
-    // add activity feed item for that user to notify about new hire (us)
-    activityFeedRef
-        .document(widget.profileId)
-        .collection('feedItems')
-        .document(currentUserId)
-        .setData({
-      "type": "accepted",
-      "jobOwnerId": widget.profileId,
-      "username": currentUser.username,
-      "userId": currentUserId,
-      "userProfileImg": currentUser.photoUrl,
-      "createdAt": FieldValue.serverTimestamp(),
-    });
-
-    activityFeedRef
-        .document(currentUserId)
-        .collection('feedItems')
-        .document(widget.profileId)
-        .setData({
-      "type": "accept",
-      "jobOwnerId": widget.profileId,
-      "username": currentUser.username,
-      "userId": currentUserId,
-      "userProfileImg": currentUser.photoUrl,
-      "createdAt": FieldValue.serverTimestamp(),
-    });
   }
 
   buildProfileHeader() {
@@ -414,43 +155,14 @@ class _ProfileState extends State<Profile>
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: <Widget>[
                                 buildCountColumn("posts", 0),
-                                buildCountColumn(KCompletedJobsCount, 0),
+                                buildCountColumn(kJobsCount, 0),
                                 buildCountColumn(KEvaluation, 0),
                               ],
                             ),
-                            buildButton(text: ""),
                           ],
                         ),
                       ),
                     ],
-                  ),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.only(top: 12.0),
-                    child: Text(
-                      "",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.0,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.only(top: 4.0),
-                    child: Text(
-                      "",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.only(top: 2.0),
-                    child: Text(
-                      "",
-                    ),
                   ),
                 ],
               ),
@@ -467,7 +179,7 @@ class _ProfileState extends State<Profile>
                       radius: 40.0,
                       backgroundColor: Theme.of(context).primaryColor,
                       backgroundImage: CachedNetworkImageProvider(
-                          user.professionalPhoto ?? ""),
+                          user.professionalPhoto ?? kBlankProfileUrl),
                     ),
                     Expanded(
                       flex: 1,
@@ -478,8 +190,7 @@ class _ProfileState extends State<Profile>
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
                               buildCountColumn("posts", postCount),
-                              buildCountColumn(
-                                  KCompletedJobsCount, completedJobsCount),
+                              buildCountColumn(kJobsCount, completedJobsCount),
                               buildCountColumn(KEvaluation, evaluation),
                             ],
                           ),
@@ -527,64 +238,38 @@ class _ProfileState extends State<Profile>
     return Expanded(
       child: ListView(
         children: [
-          buildProfileInfoField(label: kUsername, text: username),
-          buildProfileInfoField(label: kEmail, text: email),
-          buildProfileInfoField(label: kPersonalBio, text: personalBio),
-          buildProfileInfoField(label: kGender, text: gender),
-          buildProfileInfoField(label: kLocation, text: location),
-          buildProfileInfoField(label: kBirthDate, text: birthDate),
+          buildProfileInfoField(label: kUsername, text: user.username),
+          buildProfileInfoField(label: kEmail, text: user.email),
+          buildProfileInfoField(label: kPersonalBio, text: user.personalBio),
+          buildProfileInfoField(label: kGender, text: user.gender),
+          buildProfileInfoField(label: kLocation, text: user.location),
+          buildProfileInfoField(label: kBirthDate, text: user.birthDate),
           buildProfileInfoField(
-              label: kProfessionalCategory, text: professionalCategory),
+              label: kProfessionalCategory, text: user.professionalCategory),
           buildProfileInfoField(
-              label: kProfessionalTitle, text: professionalTitle),
+              label: kProfessionalTitle, text: user.professionalTitle),
           buildProfileInfoField(
-              label: kProfessionalDescription, text: professionalDescription),
-          buildProfileInfoField(label: kKeyWords, text: keyWords),
-          buildProfileInfoField(label: kDiploma, text: diploma),
-          buildProfileInfoField(label: kLicence, text: licence),
-          buildProfileInfoField(label: kCertification, text: certification),
-          buildProfileInfoField(label: kLanguage, text: language),
-          buildProfileInfoField(label: kExperience, text: experience),
-          buildProfileInfoField(label: kInternship, text: internship),
-          buildProfileInfoField(label: kCompetence, text: competence),
-          buildProfileInfoField(label: kAchievement, text: achievement),
-          buildProfileInfoField(label: kRecommendation, text: recommendation),
+              label: kProfessionalDescription,
+              text: user.professionalDescription),
+          buildProfileInfoField(label: kKeyWords, text: user.keyWords),
+          buildProfileInfoField(label: kDiploma, text: user.diploma),
+          buildProfileInfoField(label: kLicence, text: user.licence),
           buildProfileInfoField(
-              label: kCreatedAt, text: timeago.format(createdAt.toDate())),
+              label: kCertification, text: user.certification),
+          buildProfileInfoField(label: kLanguage, text: user.language),
+          buildProfileInfoField(label: kExperience, text: user.experience),
+          buildProfileInfoField(label: kInternship, text: user.internship),
+          buildProfileInfoField(label: kCompetence, text: user.competence),
+          buildProfileInfoField(label: kAchievement, text: user.achievement),
+          buildProfileInfoField(
+              label: kRecommendation, text: user.recommendation),
+          buildProfileInfoField(
+              label: kCreatedAt,
+              text: timeago.format(
+                  user.createdAt?.toDate() ?? Timestamp.now().toDate())),
         ],
       ),
     );
-  }
-
-  Future<void> getProfileInfo() async {
-    toggleIsLoading();
-    DocumentSnapshot snapshot = await usersRef.document(widget.profileId).get();
-    if (snapshot.exists) {
-      user = User.fromDocument(snapshot);
-      setState(() {
-        username = user.username;
-        email = user.email;
-        personalBio = user.personalBio;
-        gender = user.gender;
-        location = user.location;
-        birthDate = user.birthDate;
-        professionalCategory = user.professionalCategory;
-        professionalTitle = user.professionalTitle;
-        professionalDescription = user.professionalDescription;
-        keyWords = user.keyWords;
-        diploma = user.diploma;
-        licence = user.licence;
-        certification = user.certification;
-        language = user.language;
-        experience = user.experience;
-        internship = user.internship;
-        competence = user.competence;
-        achievement = user.achievement;
-        recommendation = user.recommendation;
-        createdAt = user.createdAt;
-      });
-    }
-    toggleIsLoading();
   }
 
   Column buildProfileInfoField(
@@ -679,12 +364,6 @@ class _ProfileState extends State<Profile>
     }
   }
 
-  setTab(String label) {
-    setState(() {
-      this.selectedTab = label;
-    });
-  }
-
   buildToggleTab() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -714,37 +393,245 @@ class _ProfileState extends State<Profile>
     );
   }
 
+  buildContent() {
+    if (selectedTab == "info") return buildProfileInfo();
+    if (selectedTab == "review") return buildProfileReviews();
+    if (selectedTab == "gallery") return buildProfileGallery();
+  }
+
+  AppBar buildAcceptAppBar(BuildContext context) {
+    return AppBar(
+      actions: [
+        Expanded(
+            child: buildButton(
+          text: kReject,
+          fillColor: Colors.red,
+          function: () {
+            toggleIsLoading();
+            handleRejectApplication().then((value) {
+              toggleIsLoading();
+              Navigator.pop(context);
+            });
+          },
+        )),
+        Expanded(
+            child: buildButton(
+          text: kAccept,
+          fillColor: Colors.green,
+          function: () {
+            toggleIsLoading();
+            handleAcceptApplication();
+            toggleIsLoading();
+            Navigator.pop(context);
+            showMessagesScreen(context);
+          },
+        )),
+      ],
+    );
+  }
+
+  Column buildCountColumn(String label, int count) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text(
+          count.toString(),
+          style: TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold),
+        ),
+        Container(
+          margin: EdgeInsets.only(top: 4.0),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
+              fontSize: 15.0,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  buildProfileButton() {
+    // viewing your own profile - should show edit profile button
+    bool isProfileOwner = currentUser.id == widget.profileId;
+    if (isProfileOwner) {
+      return buildButton(
+        text: kEditProfile,
+        function: () => showEditProfile(context),
+      );
+    } else if (!isHired && !isApplicationResponse) {
+      return buildButton(
+        text: kHire,
+        function: handleHireUser,
+      );
+    } else
+      return Container();
+//    else if (isApplicationResponse) {
+//      return buildButton(
+//        text: "Post a job",
+//        function: handleUnfollowUser,
+//      );
+//    }
+  }
+
+  Future<void> handleUnfollowUser() async {
+    setState(() {
+      isHired = false;
+    });
+    // remove hire
+    hiresRef
+        .document(widget.profileId)
+        .collection('userHires')
+        .document(currentUser.id)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+    // remove following
+    hiresRef
+        .document(currentUser.id)
+        .collection('userHires')
+        .document(widget.profileId)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+    // delete activity feed item for them
+    activityFeedRef
+        .document(widget.profileId)
+        .collection('feedItems')
+        .document(currentUser.id)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+  }
+
+  Future<void> handleHireUser() async {
+    // TODO implement hire function
+
+    setState(() {
+      isHired = true;
+    });
+    // Make auth user hire of THAT user (update THEIR hires collection)
+    hiresRef
+        .document(widget.profileId)
+        .collection('userHires')
+        .document(currentUser.id)
+        .setData({});
+
+    jobsRef
+        .document(currentUser.id)
+        .collection("userJobs")
+        .document(job.jobId)
+        .collection("application")
+        .document(widget.profileId)
+        .setData({
+      "accepted": true,
+    });
+    // Put THAT user on YOUR following collection (update your following collection)
+//    followingRef
+//        .document(currentUser.id)
+//        .collection('userFollowing')
+//        .document(widget.profileId)
+//        .setData({});
+    // add activity feed item for that user to notify about new hire (us)
+    activityFeedRef
+        .document(widget.profileId)
+        .collection('feedItems')
+        .document(currentUser.id)
+        .setData({
+      "type": "accepted",
+      "jobOwnerId": widget.profileId,
+      "username": currentUser.username,
+      "userId": currentUser.id,
+      "userProfileImg": currentUser.photoUrl,
+      "createdAt": FieldValue.serverTimestamp(),
+    });
+
+    activityFeedRef
+        .document(currentUser.id)
+        .collection('feedItems')
+        .document(widget.profileId)
+        .setData({
+      "type": "accept",
+      "jobOwnerId": widget.profileId,
+      "username": currentUser.username,
+      "userId": currentUser.id,
+      "userProfileImg": currentUser.photoUrl,
+      "createdAt": FieldValue.serverTimestamp(),
+    });
+  }
+
   Future<void> handleRejectApplication() async {
-    widget.job.handleRejectApplication(
+    return job.handleRejectApplication(
         applicantId: user.id,
         applicantName: user.username,
         applicantEmail: user.email);
   }
 
   Future<void> handleAcceptApplication() async {
-    widget.job.handleAcceptApplication(
+    return job.handleAcceptApplication(
       applicantId: user.id,
       applicantName: user.username,
       applicantEmail: user.email,
     );
   }
 
-  checkIfApplicationResponse() {
+  Future<void> checkIfHired() async {
+    DocumentSnapshot doc = await jobsRef
+        .document(widget.profileId)
+        .collection("userJobs")
+        .document("jobId")
+        .get();
     setState(() {
-      isApplicationResponse = widget.job != null &&
-          widget.job.applications[widget.profileId] == null &&
-          widget.job.jobOwnerId != widget.profileId &&
-          widget.job.jobOwnerId == currentUserId &&
-          widget.job.isVacant == true &&
-          widget.job.isOwnerCompleted == false &&
-          widget.job.isRetrieved == false;
+      isHired = doc.exists;
     });
   }
 
-  buildContent() {
-    if (selectedTab == "info") return buildProfileInfo();
-    if (selectedTab == "review") return buildProfileReviews();
-    if (selectedTab == "gallery") return buildProfileGallery();
+  Future<void> getEvaluation() async {
+    QuerySnapshot snapshot = await reviewsRef
+        .document(widget.profileId)
+        .collection('userReviews')
+        .getDocuments();
+    setState(() {
+      // TODO implement review evaluation logic
+      evaluation = snapshot.documents.length;
+    });
+  }
+
+  Future<void> getCompletedJobsCount() async {
+    QuerySnapshot snapshot = await usersRef
+        .document(widget.profileId)
+        .collection("userJobs")
+        .where("isCompleted", isEqualTo: true)
+        .getDocuments();
+    setState(() {
+      completedJobsCount = snapshot.documents.length;
+    });
+  }
+
+  Future<void> getProfilePosts() async {
+    toggleIsLoading();
+    QuerySnapshot snapshot = await postsRef
+        .document(widget.profileId)
+        .collection('userPosts')
+        .orderBy('createdAt', descending: true)
+        .getDocuments();
+    toggleIsLoading();
+    setState(() {
+      postCount = snapshot.documents.length;
+      posts = snapshot.documents.map((doc) => Post.fromDocument(doc)).toList();
+    });
   }
 
   void toggleIsLoading() {
@@ -753,21 +640,49 @@ class _ProfileState extends State<Profile>
     });
   }
 
-  @override
-  bool get wantKeepAlive => true;
+  setTab(String label) {
+    setState(() {
+      this.selectedTab = label;
+    });
+  }
+
+  Container buildButton(
+      {String text, Color fillColor = Colors.blue, Function function}) {
+    return Container(
+      padding: EdgeInsets.only(top: 2.0),
+      child: FlatButton(
+        onPressed: function,
+        child: Container(
+          width: 200.0,
+          height: 27.0,
+          child: Text(
+            text,
+            style: TextStyle(
+              color: isHired ? Colors.black : Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: fillColor,
+            border: Border.all(
+              color: fillColor,
+            ),
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 showProfile(BuildContext context,
-    {@required String profileId,
-    @required String profileName,
-    @required bool isFreelancer,
-    Job job}) {
+    {@required String profileId, @required String profileName, Job job}) {
   Navigator.push(
     context,
     MaterialPageRoute(
       builder: (context) => Profile(
         profileId: profileId,
-        isFreelancer: isFreelancer,
         job: job,
       ),
     ),

@@ -16,7 +16,7 @@ class DismissFreelancerScreen extends StatelessWidget {
       key: _scaffoldKey,
       appBar: header(
         context,
-        titleText: kDisposeCurrentFreelancer,
+        titleText: kDismissCurrentFreelancer,
       ),
       body: Container(),
     );

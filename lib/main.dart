@@ -21,7 +21,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.grey,
         accentColor: Colors.black,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.white70,
+        scaffoldBackgroundColor: Colors.white.withOpacity(0.97),
       ),
       debugShowCheckedModeBanner: false,
       home: Home(),

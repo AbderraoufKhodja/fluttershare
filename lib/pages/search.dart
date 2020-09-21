@@ -130,7 +130,6 @@ class UserResult extends StatelessWidget {
             onTap: () => showProfile(
               context,
               profileId: user.id,
-              isFreelancer: user.isFreelancer,
               profileName: user.username,
             ),
             child: ListTile(

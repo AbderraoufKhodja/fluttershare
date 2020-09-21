@@ -15,27 +15,52 @@ class CustomField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(15.0))),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "$label ",
-                style: kTextStyleProfileInfoHeader,
-              ),
-              Expanded(
-                child: Text(
-                  "$text",
-                  style: kTextStyleProfileInfo,
+        Column(
+          children: [
+            Container(
+              margin: EdgeInsets.only(bottom: 15.0),
+              padding: EdgeInsets.only(top: 5.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(10.0),
                 ),
+                color: Colors.grey.withOpacity(0.5),
+                border: Border.all(color: Colors.grey.withOpacity(0.5)),
               ),
-            ],
-          ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 5.0,
+                      ),
+                      Text(
+                        "$label ",
+                        style: kTextStyleProfileInfoHeader,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 5.0),
+                  Container(
+                    padding: EdgeInsets.all(10.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(10.0),
+                          bottomRight: Radius.circular(10.0)),
+                      color: Colors.white,
+                    ),
+                    child: Text(
+                      "$text",
+                      style: kTextStyleProfileInfo,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        Divider(height: 0.0, indent: 30.0, endIndent: 30.0),
       ],
     );
   }
