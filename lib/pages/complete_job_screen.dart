@@ -5,7 +5,7 @@ import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/custom_button.dart';
-import 'package:khadamat/widgets/custom_text_form_field.dart';
+import 'package:khadamat/widgets/custom_text_field.dart';
 import 'package:khadamat/widgets/header.dart';
 
 class CompleteJobScreen extends StatefulWidget {
@@ -22,11 +22,13 @@ class CompleteJobScreen extends StatefulWidget {
 class _CompleteJobScreenState extends State<CompleteJobScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController reviewController = TextEditingController();
-  double jobQualityRating;
-  double mannersRating;
-  double timeManagementRating;
+  double freelancerWorkQuality;
+  double freelancerManners;
+  double freelancerTimeManagement;
+  double ownerRating;
 
-  bool get isJobOwner => job.jobOwnerId == currentUser.id;
+  bool get isJobFreelancer => currentUser.id == job.jobFreelancerId;
+  bool get isJobOwner => currentUser.id == job.jobOwnerId;
   Job get job => widget.job;
 
   @override
@@ -45,7 +47,7 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
               child: ListView(
                 children: [
                   buildRatingColumn(),
-                  buildReviewColumn(),
+                  CustomTextField(label: kReview, controller: reviewController),
                 ],
               ),
             ),
@@ -63,78 +65,34 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
     );
   }
 
-  Column buildReviewColumn() {
-    return Column(
-      children: [
-        Container(
-          margin: EdgeInsets.only(bottom: 15.0),
-          padding: EdgeInsets.only(top: 5.0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(
-              Radius.circular(10.0),
-            ),
-            color: Colors.grey.withOpacity(0.5),
-            border: Border.all(color: Colors.grey.withOpacity(0.5)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 5.0,
-                  ),
-                  Text(kReview),
-                ],
-              ),
-              SizedBox(height: 5.0),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(10.0),
-                      bottomRight: Radius.circular(10.0)),
-                  color: Colors.white,
-                ),
-                child: CustomTextFormField(
-                  controller: reviewController,
-                  hint: null,
-                  maxLines: 7,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   Column buildRatingColumn() {
     return Column(
       children: [
-        buildRatingBar(
-          title: kFreelancerWorkQuality,
-          onRatingUpdate: (rating) => jobQualityRating = rating,
-        ),
-        isJobFreelancer
+        isJobOwner
             ? Column(
                 children: [
                   buildRatingBar(
+                    title: kFreelancerWorkQuality,
+                    onRatingUpdate: (rating) => freelancerWorkQuality = rating,
+                  ),
+                  buildRatingBar(
                     title: kFreelancerManners,
-                    onRatingUpdate: (rating) => mannersRating = rating,
+                    onRatingUpdate: (rating) => freelancerManners = rating,
                   ),
                   buildRatingBar(
                     title: kFreelancerTimeManagement,
-                    onRatingUpdate: (rating) => timeManagementRating = rating,
+                    onRatingUpdate: (rating) =>
+                        freelancerTimeManagement = rating,
                   ),
                 ],
               )
-            : Container(),
+            : buildRatingBar(
+                title: kOwnerRating,
+                onRatingUpdate: (rating) => ownerRating = rating,
+              ),
       ],
     );
   }
-
-  bool get isJobFreelancer => currentUser.id == job.jobFreelancerId;
 
   Column buildRatingBar(
       {String title, Function(double rating) onRatingUpdate}) {
@@ -197,12 +155,13 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
     isJobOwner
         ? await job.ownerCompleteAndReviewJob(
             freelancerReview: reviewController.text,
-            freelancerJobQualityRating: jobQualityRating,
-            freelancerMannersRating: mannersRating,
-            freelancerTimeManagementRating: timeManagementRating)
+            freelancerJobQualityRating: freelancerWorkQuality,
+            freelancerMannersRating: freelancerManners,
+            freelancerTimeManagementRating: freelancerTimeManagement)
         : await job.freelancerCompleteAndReviewJob(
             ownerReview: reviewController.text,
-            ownerMannersRating: mannersRating);
+            ownerRating: ownerRating,
+          );
     Navigator.pop(context);
   }
 }

@@ -35,13 +35,14 @@ class _JobsScreen extends State<JobsScreen> {
           if (!snapshot.hasData) {
             return circularProgress();
           }
-          List<JobCard> messages = [];
+          List<JobCard> jobs = [];
           snapshot.data.documents.forEach((doc) {
-            messages.add(JobCard(Job.fromDocument(doc)));
+            jobs.add(JobCard(Job.fromDocument(doc)));
           });
+          print(jobs);
           return Container(
             child: ListView(
-              children: messages,
+              children: jobs,
             ),
           );
         });

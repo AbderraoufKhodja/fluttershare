@@ -27,6 +27,7 @@ final messagesRef = Firestore.instance.collection('messages');
 final activityFeedRef = Firestore.instance.collection('feeds');
 final hiresRef = Firestore.instance.collection('hires');
 final timelineRef = Firestore.instance.collection('timeline');
+final complaintRef = Firestore.instance.collection('complaints');
 User currentUser;
 
 class Home extends StatefulWidget {

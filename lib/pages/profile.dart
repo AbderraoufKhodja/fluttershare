@@ -304,16 +304,26 @@ class _ProfileState extends State<Profile>
 
   buildProfileReviews() {
     return FutureBuilder(
-        future: reviewsRef.document(widget.profileId).get(),
+        future: reviewsRef
+            .document(widget.profileId)
+            .collection("reviews")
+            .getDocuments(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return linearProgress();
           }
-          DocumentSnapshot doc = snapshot.data;
-          if (doc.exists) {
-            Review review = Review.fromDocument(doc);
+          List<Review> reviews = [];
+          snapshot.data.documents.forEach((doc) {
+            reviews.add(Review.fromDocument(doc));
+          });
+          if (reviews.isNotEmpty) {
             //TODO implement professional profile interface
-            return Center(child: Text(review.toString()));
+            return Center(
+                child: Column(
+              children: reviews
+                  .map((review) => Text(review.freelancerReview ?? ""))
+                  .toList(),
+            ));
           } else {
             return Center(child: Text(kHasNoReview));
           }
@@ -418,7 +428,7 @@ class _ProfileState extends State<Profile>
             child: buildButton(
           text: kAccept,
           fillColor: Colors.green,
-          function: () {
+          function: () async {
             toggleIsLoading();
             handleAcceptApplication();
             toggleIsLoading();
@@ -580,11 +590,18 @@ class _ProfileState extends State<Profile>
   }
 
   Future<void> handleAcceptApplication() async {
-    return job.handleAcceptApplication(
+    return job
+        .handleAcceptApplication(
       applicantId: user.id,
       applicantName: user.username,
       applicantEmail: user.email,
-    );
+    )
+        .then((value) {
+      job.jobFreelancerId = user.id;
+      job.jobFreelancerName = user.username;
+      job.jobFreelancerEmail = user.email;
+      job.isVacant = false;
+    });
   }
 
   Future<void> checkIfHired() async {

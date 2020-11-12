@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import "package:flutter/material.dart";
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/user.dart';
@@ -8,10 +7,6 @@ import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/progress.dart';
 
 class EditProfile extends StatefulWidget {
-  final String profileId;
-
-  EditProfile({this.profileId});
-
   @override
   _EditProfileState createState() => _EditProfileState();
 }
@@ -115,7 +110,7 @@ class _EditProfileState extends State<EditProfile> {
     setState(() {
       isLoading = true;
     });
-    DocumentSnapshot doc = await usersRef.document(widget.profileId).get();
+    DocumentSnapshot doc = await usersRef.document(currentUser.id).get();
     user = User.fromDocument(doc);
     googleNameController.text = user.googleName;
     bioController.text = user.personalBio;
@@ -179,7 +174,7 @@ class _EditProfileState extends State<EditProfile> {
     });
 
     if (_googleNameValid && _bioValid) {
-      usersRef.document(widget.profileId).updateData({
+      usersRef.document(currentUser.id).updateData({
         "googleName": googleNameController.text,
         "bio": bioController.text,
       });

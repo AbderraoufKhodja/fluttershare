@@ -6,6 +6,12 @@ class Review {
   String photoUrl;
   String email;
   String jobs;
+  String ownerReview;
+  String freelancerReview;
+  double ownerMannersRating;
+  double freelancerJobQualityRating;
+  double freelancerMannersRating;
+  double freelancerTimeManagementRating;
   bool isFreelancer;
   final Timestamp createdAt;
 
@@ -17,6 +23,12 @@ class Review {
     this.jobs,
     this.isFreelancer,
     this.createdAt,
+    this.ownerReview,
+    this.freelancerReview,
+    this.ownerMannersRating,
+    this.freelancerJobQualityRating,
+    this.freelancerMannersRating,
+    this.freelancerTimeManagementRating,
   });
 
   factory Review.clientFromDocument(DocumentSnapshot doc) {
@@ -26,6 +38,12 @@ class Review {
       username: doc['username'],
       photoUrl: doc['photoUrl'],
       isFreelancer: doc['isFreelancer'],
+      ownerReview: doc['ownerReview'],
+      freelancerReview: doc['freelancerReview'],
+      ownerMannersRating: doc['ownerMannersRating'],
+      freelancerJobQualityRating: doc['freelancerJobQualityRating'],
+      freelancerMannersRating: doc['freelancerMannersRating'],
+      freelancerTimeManagementRating: doc['freelancerTimeManagementRating'],
     );
   }
   factory Review.freelancerFromDocument(DocumentSnapshot doc) {
@@ -36,6 +54,12 @@ class Review {
       email: doc['email'],
       jobs: doc['jobs'],
       isFreelancer: doc['isFreelancer'],
+      ownerReview: doc['ownerReview'],
+      freelancerReview: doc['freelancerReview'],
+      ownerMannersRating: doc['ownerMannersRating'],
+      freelancerJobQualityRating: doc['freelancerJobQualityRating'],
+      freelancerMannersRating: doc['freelancerMannersRating'],
+      freelancerTimeManagementRating: doc['freelancerTimeManagementRating'],
     );
   }
   factory Review.fromDocument(DocumentSnapshot doc) {

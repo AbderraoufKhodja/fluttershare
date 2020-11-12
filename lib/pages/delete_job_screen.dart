@@ -2,41 +2,56 @@ import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/home.dart';
+import 'package:khadamat/widgets/custom_button.dart';
+import 'package:khadamat/widgets/custom_text_field.dart';
 import 'package:khadamat/widgets/header.dart';
 
 class DeleteJobScreen extends StatelessWidget {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final Job job;
-  bool get isJobOwner => currentUser.id == job.jobOwnerId;
 
   DeleteJobScreen({
     @required this.job,
   });
 
+  bool get isJobOwner => currentUser.id == job.jobOwnerId;
+  final TextEditingController reasonOfDeleteController =
+      TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       appBar: header(
         context,
         titleText: kDeleteJob,
       ),
-      body: Container(),
+      body: Container(
+        padding: EdgeInsets.all(10.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: CustomTextField(
+                  label: kReasonOfDeleteJob,
+                  controller: reasonOfDeleteController),
+            ),
+            CustomButton(
+              padding: 5.0,
+              fillColor: Colors.amber,
+              widthFactor: 2,
+              heightFactor: 1.2,
+              text: kDelete,
+              function: () => handleDeleteJob(context),
+            )
+          ],
+        ),
+      ),
     );
   }
 
-  Future<void> handleDeleteJob(context) async {
-    if (isJobOwner) {
-      if (job.isVacant) {
-        job.deleteJob();
-      } else {
-        SnackBar snackbar = SnackBar(content: Text(kDisposeFreelancerFirst));
-        _scaffoldKey.currentState.showSnackBar(snackbar);
-      }
-    } else {
-      SnackBar snackbar = SnackBar(content: Text(kNotJobOwner));
-      _scaffoldKey.currentState.showSnackBar(snackbar);
-    }
+  Future<void> handleDeleteJob(BuildContext context) async {
+    await job
+        .deleteJob(deletReason: reasonOfDeleteController.text)
+        .then((value) => job.isRetrieved = true);
+    Navigator.pop(context);
   }
 }
 

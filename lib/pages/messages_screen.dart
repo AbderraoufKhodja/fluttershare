@@ -48,6 +48,7 @@ buildListMessages() {
 }
 
 class MessageContainer extends StatelessWidget {
+  final String jobChatId;
   final String jobId;
   final String professionalTitle;
   final String jobTitle;
@@ -58,6 +59,7 @@ class MessageContainer extends StatelessWidget {
   final Map applications;
 
   MessageContainer({
+    this.jobChatId,
     this.jobId,
     this.professionalTitle,
     this.jobTitle,
@@ -70,6 +72,7 @@ class MessageContainer extends StatelessWidget {
 
   factory MessageContainer.fromDocument(DocumentSnapshot doc) {
     return MessageContainer(
+      jobChatId: doc['jobChatId'],
       jobId: doc['jobId'],
       professionalTitle: doc['professionalTitle'],
       jobTitle: doc['jobTitle'],
@@ -88,6 +91,7 @@ class MessageContainer extends StatelessWidget {
       children: <Widget>[
         GestureDetector(
           onTap: () => showMessages(context,
+              jobChatId: jobChatId,
               jobId: jobId,
               jobOwnerId: jobOwnerId,
               jobOwnerName: jobOwnerName,

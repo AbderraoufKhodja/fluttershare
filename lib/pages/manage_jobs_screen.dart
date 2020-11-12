@@ -83,7 +83,16 @@ class JobContainer extends StatelessWidget {
     return Column(
       children: <Widget>[
         GestureDetector(
-          onTap: () => showManageJob(context, jobId: jobId),
+          onTap: () {
+            if (currentUser.id == this.jobFreelancerId ||
+                currentUser.id == this.jobOwnerId)
+              showManageJob(context, jobId: jobId);
+            else {
+              print(kFreelancerNotHired);
+              // SnackBar snackBar = SnackBar(content: Text(kFreelancerNotHired));
+              // _scaffoldKey.currentState.showSnackBar(snackBar);
+            }
+          },
           child: ListTile(
             title: Text(professionalTitle),
             leading: CircleAvatar(

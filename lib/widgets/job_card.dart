@@ -89,14 +89,11 @@ class _JobCardState extends State<JobCard> {
                 onPressed: showDetails,
                 icon: Icon(Icons.arrow_drop_down_circle),
               ),
-              isJobOwner
-                  ? IconButton(
-                      onPressed: () => handleDeleteJob(context),
-                      icon: Icon(Icons.more_vert),
-                    )
-                  : isApplied
-                      ? Icon(Icons.bookmark)
-                      : Icon(Icons.bookmark_border),
+              // isJobOwner
+              //     ? Container()
+              //     : isApplied
+              //         ? Icon(Icons.bookmark)
+              //         : Icon(Icons.bookmark_border),
             ],
           ),
         ),
@@ -233,29 +230,30 @@ class _JobCardState extends State<JobCard> {
   }
 
   // Note: To delete job, jobOwnerId and currentUserId must be equal, so they can be used interchangeably
-  handleDeleteJob(BuildContext parentContext) {
-    return showDialog(
-        context: parentContext,
-        builder: (context) {
-          return SimpleDialog(
-            title: Text("Remove this job?"),
-            children: <Widget>[
-              SimpleDialogOption(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    job.deleteJob();
-                  },
-                  child: Text(
-                    'Delete',
-                    style: TextStyle(color: Colors.red),
-                  )),
-              SimpleDialogOption(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Cancel')),
-            ],
-          );
-        });
-  }
+  // handleDeleteJob(BuildContext parentContext) {
+  //   return showDialog(
+  //       context: parentContext,
+  //       builder: (context) {
+  //         return SimpleDialog(
+  //           title: Text("Remove this job?"),
+  //           children: <Widget>[
+  //             SimpleDialogOption(
+  //                 onPressed: () {
+  //                   Navigator.pop(context);
+  //                   if (job.)
+  //                   showDeleteJobScreen(context, job: job);
+  //                 },
+  //                 child: Text(
+  //                   'Delete',
+  //                   style: TextStyle(color: Colors.red),
+  //                 )),
+  //             SimpleDialogOption(
+  //                 onPressed: () => Navigator.pop(context),
+  //                 child: Text('Cancel')),
+  //           ],
+  //         );
+  //       });
+  // }
 
   void showDetails() {
     setState(() {

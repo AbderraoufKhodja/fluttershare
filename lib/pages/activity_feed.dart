@@ -8,7 +8,6 @@ import 'package:khadamat/pages/manage_jobs_screen.dart';
 import 'package:khadamat/pages/messages.dart';
 import 'package:khadamat/pages/messages_screen.dart';
 import 'package:khadamat/pages/profile.dart';
-import 'package:khadamat/widgets/job_card.dart';
 import 'package:khadamat/widgets/progress.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -87,6 +86,7 @@ Function onTap;
 class ActivityFeedItem extends StatelessWidget {
   final String type; // 'apply', 'accept', 'reject', 'hire', 'message'
   final String jobId;
+  final String jobChatId;
   final String professionalTitle;
   final String jobTitle;
   final String jobOwnerName;
@@ -125,12 +125,14 @@ class ActivityFeedItem extends StatelessWidget {
     this.commentData,
     this.createdAt,
     this.feedReference,
+    this.jobChatId,
   });
 
   factory ActivityFeedItem.fromDocument(DocumentSnapshot doc) {
     return ActivityFeedItem(
       type: doc['type'],
       jobId: doc['jobId'],
+      jobChatId: doc['jobChatId'],
       professionalTitle: doc['professionalTitle'],
       jobTitle: doc['jobTitle'],
       jobOwnerName: doc['jobOwnerName'],
@@ -204,6 +206,7 @@ class ActivityFeedItem extends StatelessWidget {
       onTap = () {
         showMessages(
           context,
+          jobChatId: jobChatId,
           jobId: jobId,
           professionalTitle: professionalTitle,
           jobTitle: jobTitle,
@@ -227,6 +230,7 @@ class ActivityFeedItem extends StatelessWidget {
       mediaPreview = Icon(Icons.chat, color: Colors.teal);
       onTap = () {
         showMessages(context,
+            jobChatId: jobChatId,
             jobId: jobId,
             professionalTitle: professionalTitle,
             jobTitle: jobTitle,

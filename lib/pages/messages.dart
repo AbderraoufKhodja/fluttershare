@@ -9,6 +9,7 @@ import 'package:khadamat/widgets/progress.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class Messages extends StatefulWidget {
+  final String jobChatId;
   final String jobId;
   final String professionalTitle;
   final String jobTitle;
@@ -18,6 +19,7 @@ class Messages extends StatefulWidget {
   final String jobFreelancerName;
 
   Messages({
+    @required this.jobChatId,
     @required this.jobId,
     @required this.professionalTitle,
     @required this.jobTitle,
@@ -29,6 +31,7 @@ class Messages extends StatefulWidget {
 
   @override
   MessagesState createState() => MessagesState(
+        jobChatId: this.jobChatId,
         jobId: this.jobId,
         professionalTitle: this.professionalTitle,
         jobTitle: this.jobTitle,
@@ -41,6 +44,7 @@ class Messages extends StatefulWidget {
 
 class MessagesState extends State<Messages> {
   TextEditingController messageController = TextEditingController();
+  final String jobChatId;
   final String jobId;
   final String professionalTitle;
   final String jobTitle;
@@ -51,6 +55,7 @@ class MessagesState extends State<Messages> {
   bool isJobOwner = false;
 
   MessagesState({
+    this.jobChatId,
     this.jobId,
     this.professionalTitle,
     this.jobTitle,
@@ -90,7 +95,10 @@ class MessagesState extends State<Messages> {
         decoration: InputDecoration(labelText: "Write a message..."),
       ),
       trailing: OutlineButton(
-        onPressed: addMessage,
+        onPressed: () async {
+          // TODO add spinner
+          addMessage();
+        },
         borderSide: BorderSide.none,
         child: Icon(
           Icons.send,
@@ -125,7 +133,7 @@ class MessagesState extends State<Messages> {
     return StreamBuilder(
         stream: messagesRef
             .document(jobId)
-            .collection('messages')
+            .collection(jobChatId)
             .orderBy("createdAt", descending: true)
             .snapshots(),
         builder: (context, snapshot) {
@@ -143,9 +151,9 @@ class MessagesState extends State<Messages> {
         });
   }
 
-  addMessage() {
+  Future<void> addMessage() async {
     if (messageController.text.trim().isNotEmpty) {
-      messagesRef.document(jobId).collection("messages").add({
+      messagesRef.document(jobId).collection(jobChatId).add({
         "userId": currentUser.id,
         "username": currentUser.username,
         "message": messageController.text,
@@ -163,8 +171,9 @@ class MessagesState extends State<Messages> {
           .document(currentUser.id + jobId)
           .setData({
         "type": "message",
-        "messageData": messageController.text,
+        "messageText": messageController.text,
         "jobId": jobId,
+        "jobChatId": jobChatId,
         "professionalTitle": professionalTitle,
         "jobTitle": jobTitle,
         "jobOwnerName": jobOwnerName,
@@ -282,6 +291,7 @@ class Message extends StatelessWidget {
 
 showMessages(
   BuildContext context, {
+  @required String jobChatId,
   @required String jobId,
   @required String professionalTitle,
   @required String jobTitle,
@@ -292,6 +302,7 @@ showMessages(
 }) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
     return Messages(
+      jobChatId: jobChatId,
       jobId: jobId,
       professionalTitle: professionalTitle,
       jobTitle: jobTitle,

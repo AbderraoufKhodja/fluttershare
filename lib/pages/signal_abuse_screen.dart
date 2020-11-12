@@ -1,24 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
+import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/custom_button.dart';
 import 'package:khadamat/widgets/custom_text_field.dart';
 import 'package:khadamat/widgets/header.dart';
 
-class DismissFreelancerScreen extends StatelessWidget {
+class SignalAbuseScreen extends StatelessWidget {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final Job job;
+  final TextEditingController natureOfAbuseController = TextEditingController();
+  bool get isJobOwner => currentUser.id == job.jobOwnerId;
 
-  DismissFreelancerScreen({
+  SignalAbuseScreen({
     @required this.job,
   });
-  final TextEditingController dismissReasonController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: header(
         context,
-        titleText: kDismissCurrentFreelancer,
+        titleText: kSignalAbuse,
       ),
       body: Container(
         padding: EdgeInsets.all(10.0),
@@ -26,15 +30,15 @@ class DismissFreelancerScreen extends StatelessWidget {
           children: [
             Expanded(
               child: CustomTextField(
-                  label: kDismissReason, controller: dismissReasonController),
+                  label: kNatureOfAbuse, controller: natureOfAbuseController),
             ),
             CustomButton(
               padding: 5.0,
               fillColor: Colors.amber,
               widthFactor: 2,
               heightFactor: 1.2,
-              text: kDismiss,
-              function: () => dismissFreelancer(context),
+              text: kSubmit,
+              function: handleSignalAbuse,
             )
           ],
         ),
@@ -42,27 +46,17 @@ class DismissFreelancerScreen extends StatelessWidget {
     );
   }
 
-  Future<void> dismissFreelancer(BuildContext context) async {
-    job
-        .handleDismissFreelancer(dismissReason: dismissReasonController.text)
-        .then((value) {
-      job.jobFreelancerId = null;
-      job.jobFreelancerName = null;
-      job.jobFreelancerEmail = null;
-      job.isVacant = true;
-    });
-    Navigator.pop(context);
-  }
+  Future<void> handleSignalAbuse() async {}
 }
 
-Future<void> showDismissFreelancerScreen(
+Future<void> showSignalAbuseScreen(
   BuildContext context, {
   @required Job job,
 }) {
   return Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DismissFreelancerScreen(
+        builder: (context) => SignalAbuseScreen(
           job: job,
         ),
       ));
