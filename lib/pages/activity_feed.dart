@@ -210,8 +210,6 @@ class ActivityFeedItem extends StatelessWidget {
           jobId: jobId,
           professionalTitle: professionalTitle,
           jobTitle: jobTitle,
-          jobFreelancerName: jobFreelancerName,
-          jobFreelancerId: jobFreelancerId,
           jobOwnerName: jobOwnerName,
           jobOwnerId: jobOwnerId,
         );
@@ -229,15 +227,15 @@ class ActivityFeedItem extends StatelessWidget {
     } else if (type == "open") {
       mediaPreview = Icon(Icons.chat, color: Colors.teal);
       onTap = () {
-        showMessages(context,
-            jobChatId: jobChatId,
-            jobId: jobId,
-            professionalTitle: professionalTitle,
-            jobTitle: jobTitle,
-            jobOwnerId: jobOwnerId,
-            jobOwnerName: jobOwnerName,
-            jobFreelancerId: jobFreelancerId,
-            jobFreelancerName: jobFreelancerName);
+        showMessages(
+          context,
+          jobChatId: jobChatId,
+          jobId: jobId,
+          professionalTitle: professionalTitle,
+          jobTitle: jobTitle,
+          jobOwnerId: jobOwnerId,
+          jobOwnerName: jobOwnerName,
+        );
         markAsRead();
       };
       activityItemText = isJobOwner

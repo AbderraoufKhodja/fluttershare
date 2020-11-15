@@ -50,7 +50,7 @@ class DeleteJobScreen extends StatelessWidget {
   Future<void> handleDeleteJob(BuildContext context) async {
     await job
         .deleteJob(deletReason: reasonOfDeleteController.text)
-        .then((value) => job.isRetrieved = true);
+        .then((value) => job.isVacant = false);
     Navigator.pop(context);
   }
 }

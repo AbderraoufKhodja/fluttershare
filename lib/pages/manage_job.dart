@@ -54,53 +54,68 @@ class _ManageJobState extends State<ManageJob> {
               backgroundColor: Theme.of(context).backgroundColor,
             ),
             endDrawer: buildDrawer(context),
-            body: ListView(
-              children: <Widget>[
-                Container(
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Column(
-                          children: <Widget>[
-                            Column(
-                              children: [
-                                job.isOwnerCompleted
-                                    ? Icon(Icons.check_circle)
-                                    : Column(
-                                        children: [
-                                          CustomField(
-                                            text: job.jobDescription,
-                                            label: kNewJobDescription,
-                                          ),
-                                          CustomField(
-                                            text: job.location,
-                                            label: kNewLocation,
-                                          ),
-                                          CustomField(
-                                            text: job.dateRange,
-                                            label: kNewDateRange,
-                                          ),
-                                          CustomField(
-                                            text: job.price,
-                                            label: kNewPrice,
-                                          ),
-                                        ],
-                                      ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            body: buildJobInfoListView(),
           );
         }
       },
     );
+  }
+
+  ListView buildJobInfoListView() {
+    return ListView(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Text(jobStatus()),
+              CustomField(
+                text: job.jobDescription,
+                label: kNewJobDescription,
+              ),
+              CustomField(
+                text: job.location,
+                label: kNewLocation,
+              ),
+              CustomField(
+                text: job.dateRange,
+                label: kNewDateRange,
+              ),
+              CustomField(
+                text: job.price,
+                label: kNewPrice,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String jobStatus() {
+    // job owner completed
+    if (job.isOwnerCompleted) return kOwnerCompleted;
+
+    // job freelancer completed
+    if (job.isFreelancerCompleted) return kFreelancerCompleted;
+
+    // job freelancer dismissed
+    if (job.jobFreelancerId != currentUser.id &&
+        job.jobOwnerId != currentUser.id) return kFreelancerDismissed;
+
+    // job on going
+    if (job.isVacant == false && job.applications.containsValue(true))
+      return kJobOnGoing;
+
+    //job has no freelancer
+    if (job.isVacant == true && job.applications.containsValue(true) == false)
+      return kHasNoJobFreelancer;
+
+    // job canceled
+    if (job.isVacant == false) return kJobCanceled;
+
+    // job on unknown state
+    return kUnknownStatu;
   }
 
   Drawer buildDrawer(BuildContext context) {
@@ -158,22 +173,8 @@ class _ManageJobState extends State<ManageJob> {
   }
 
   Widget buildFreelancerDrawer(BuildContext context) {
-    return !job.isFreelancerCompleted
-        ? Column(
-            children: [
-              buildUpdateIconButtons(context),
-              buildChatDrawerItem(context),
-              buildRequestDrawerItem(context),
-              buildCompleteDrawerItem(context),
-              ListTile(
-                title: Text(kSignalAbuse),
-                onTap: () {
-                  showSignalAbuseScreen(context, job: job);
-                },
-              ),
-            ],
-          )
-        : Center(
+    return jobStatus() == kOwnerCompleted
+        ? Center(
             child: Column(
               children: [
                 Icon(
@@ -183,28 +184,108 @@ class _ManageJobState extends State<ManageJob> {
                 Text(kJobCompleted),
               ],
             ),
-          );
+          )
+        : jobStatus() == kFreelancerCompleted
+            ? Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      size: 90.0,
+                    ),
+                    Text(kFreelancerCompleted),
+                  ],
+                ),
+              )
+            : jobStatus() == kFreelancerDismissed
+                ? Center(
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.clear,
+                          size: 90.0,
+                        ),
+                        Text(kFreelancerDismissed),
+                      ],
+                    ),
+                  )
+                : jobStatus() == kJobOnGoing
+                    ? Column(
+                        children: [
+                          buildUpdateIconButtons(context),
+                          buildChatDrawerItem(context),
+                          buildRequestDrawerItem(context),
+                          buildCompleteDrawerItem(context),
+                          ListTile(
+                            title: Text(kSignalAbuse),
+                            onTap: () {
+                              showSignalAbuseScreen(context, job: job);
+                            },
+                          ),
+                        ],
+                      )
+                    : Center(
+                        child: Column(
+                          children: [
+                            Icon(
+                              Icons.clear,
+                              size: 90.0,
+                            ),
+                            Text(kUnknownStatu),
+                          ],
+                        ),
+                      );
   }
 
   Widget buildOwnerDrawer(BuildContext context) {
-    return Column(
-      children: [
-        buildUpdateIconButtons(context),
-        buildChatDrawerItem(context),
-        buildRequestDrawerItem(context),
-        buildCompleteDrawerItem(context),
-        buildDismissFreelancerDrawerItem(context),
-        buildSignalAbuseDrawerItem(context),
-        buildDeletJobDrawerItem(context),
-      ],
-    );
+    return jobStatus() == kOwnerCompleted
+        ? Center(
+            child: Column(
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  size: 90.0,
+                ),
+                Text(kJobCompleted),
+              ],
+            ),
+          )
+        : jobStatus() == kJobCanceled
+            ? Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.clear,
+                      size: 90.0,
+                    ),
+                    Text(kJobCanceled),
+                  ],
+                ),
+              )
+            : Column(
+                children: [
+                  buildUpdateIconButtons(context),
+                  buildChatDrawerItem(context),
+                  buildRequestDrawerItem(context),
+                  buildCompleteDrawerItem(context),
+                  buildDismissFreelancerDrawerItem(context),
+                  buildSignalAbuseDrawerItem(context),
+                  buildDeletJobDrawerItem(context),
+                ],
+              );
   }
 
   ListTile buildSignalAbuseDrawerItem(BuildContext context) {
     return ListTile(
       title: Text(kSignalAbuse),
       onTap: () {
-        if (hasJobFreelancer) showSignalAbuseScreen(context, job: job);
+        if (hasJobFreelancer)
+          showSignalAbuseScreen(context, job: job);
+        else {
+          Navigator.pop(context);
+          SnackBar snackbar = SnackBar(content: Text(kHasNoJobFreelancer));
+          _scaffoldKey.currentState.showSnackBar(snackbar);
+        }
       },
     );
   }
@@ -232,8 +313,6 @@ class _ManageJobState extends State<ManageJob> {
             jobTitle: job.jobTitle,
             jobOwnerId: job.jobOwnerId,
             jobOwnerName: job.jobOwnerName,
-            jobFreelancerId: job.jobFreelancerId,
-            jobFreelancerName: job.jobFreelancerName,
           );
         } else {
           Navigator.pop(context);
@@ -246,10 +325,17 @@ class _ManageJobState extends State<ManageJob> {
 
   ListTile buildDismissFreelancerDrawerItem(BuildContext context) {
     return ListTile(
-        title: Text(kDismissCurrentFreelancer),
-        onTap: () {
-          if (hasJobFreelancer) showDismissFreelancerScreen(context, job: job);
-        });
+      title: Text(kDismissCurrentFreelancer),
+      onTap: () {
+        if (hasJobFreelancer)
+          showDismissFreelancerScreen(context, job: job);
+        else {
+          Navigator.pop(context);
+          SnackBar snackbar = SnackBar(content: Text(kHasNoJobFreelancer));
+          _scaffoldKey.currentState.showSnackBar(snackbar);
+        }
+      },
+    );
   }
 
   Row buildUpdateIconButtons(BuildContext context) {
@@ -320,7 +406,7 @@ class _ManageJobState extends State<ManageJob> {
 
   ListTile buildCompleteDrawerItem(BuildContext context) {
     return ListTile(
-      title: Text(kCompleteJob),
+      title: Text(kJobComplete),
       onTap: () {
         if (hasJobFreelancer) {
           final bool isTimeValid = Timestamp.now()
@@ -335,6 +421,12 @@ class _ManageJobState extends State<ManageJob> {
             SnackBar snackbar = SnackBar(content: Text(kLessThan24Hours));
             _scaffoldKey.currentState.showSnackBar(snackbar);
           }
+        } else {
+          Navigator.pop(context);
+          SnackBar snackbar = SnackBar(
+            content: Text(kHasNoJobFreelancer),
+          );
+          _scaffoldKey.currentState.showSnackBar(snackbar);
         }
       },
     );

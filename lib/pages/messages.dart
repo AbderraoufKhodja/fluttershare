@@ -15,8 +15,6 @@ class Messages extends StatefulWidget {
   final String jobTitle;
   final String jobOwnerId;
   final String jobOwnerName;
-  final String jobFreelancerId;
-  final String jobFreelancerName;
 
   Messages({
     @required this.jobChatId,
@@ -25,8 +23,6 @@ class Messages extends StatefulWidget {
     @required this.jobTitle,
     @required this.jobOwnerId,
     @required this.jobOwnerName,
-    @required this.jobFreelancerId,
-    @required this.jobFreelancerName,
   });
 
   @override
@@ -37,8 +33,6 @@ class Messages extends StatefulWidget {
         jobTitle: this.jobTitle,
         jobOwnerId: this.jobOwnerId,
         jobOwnerName: this.jobOwnerName,
-        jobFreelancerId: this.jobFreelancerId,
-        jobFreelancerName: this.jobFreelancerName,
       );
 }
 
@@ -109,18 +103,10 @@ class MessagesState extends State<Messages> {
   }
 
   AppBar buildAppBar(BuildContext context) {
-    return isJobOwner
-        ? header(
-            context,
-            titleText: "messages",
-            hasAction: true,
-            actionLabel: kManageJob,
-            action: () => showConfirmDialog(context),
-          )
-        : header(
-            context,
-            titleText: "messages",
-          );
+    return header(
+      context,
+      titleText: "messages",
+    );
   }
 
   checkIfJobOwner() {
@@ -188,38 +174,38 @@ class MessagesState extends State<Messages> {
     }
   }
 
-  showConfirmDialog(BuildContext parentContext) {
-    return showDialog(
-        context: parentContext,
-        builder: (context) {
-          return SimpleDialog(
-            title: Text(kUpdateConfirmCancel),
-            children: <Widget>[
-              SimpleDialogOption(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    confirmAcceptance();
-                  },
-                  child: Text(
-                    kUpdateJobTerms,
-                    style: TextStyle(color: Colors.green),
-                  )),
-              SimpleDialogOption(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    cancelAcceptance();
-                  },
-                  child: Text(
-                    kCancelAcceptance,
-                    style: TextStyle(color: Colors.red),
-                  )),
-              SimpleDialogOption(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Cancel')),
-            ],
-          );
-        });
-  }
+  // showConfirmDialog(BuildContext parentContext) {
+  //   return showDialog(
+  //       context: parentContext,
+  //       builder: (context) {
+  //         return SimpleDialog(
+  //           title: Text(kUpdateConfirmCancel),
+  //           children: <Widget>[
+  //             SimpleDialogOption(
+  //                 onPressed: () {
+  //                   Navigator.pop(context);
+  //                   confirmAcceptance();
+  //                 },
+  //                 child: Text(
+  //                   kUpdateJobTerms,
+  //                   style: TextStyle(color: Colors.green),
+  //                 )),
+  //             SimpleDialogOption(
+  //                 onPressed: () {
+  //                   Navigator.pop(context);
+  //                   cancelAcceptance();
+  //                 },
+  //                 child: Text(
+  //                   kCancelAcceptance,
+  //                   style: TextStyle(color: Colors.red),
+  //                 )),
+  //             SimpleDialogOption(
+  //                 onPressed: () => Navigator.pop(context),
+  //                 child: Text('Cancel')),
+  //           ],
+  //         );
+  //       });
+  // }
 
   confirmAcceptance() {
     showManageJob(context, jobId: jobId);
@@ -297,8 +283,6 @@ showMessages(
   @required String jobTitle,
   @required String jobOwnerId,
   @required String jobOwnerName,
-  @required String jobFreelancerId,
-  @required String jobFreelancerName,
 }) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
     return Messages(
@@ -308,8 +292,6 @@ showMessages(
       jobTitle: jobTitle,
       jobOwnerId: jobOwnerId,
       jobOwnerName: jobOwnerName,
-      jobFreelancerId: jobFreelancerId,
-      jobFreelancerName: jobFreelancerName,
     );
   }));
 }

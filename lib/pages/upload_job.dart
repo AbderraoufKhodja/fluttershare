@@ -277,8 +277,8 @@ class _UploadJobState extends State<UploadJob>
   }
 
   handleSubmit() async {
+    //TODO: Deactivate button to avoid multiple submit
     final form = _formKey.currentState;
-    print("form.validate() ;${form.validate()}");
     form.save();
     if ((form.validate())) {
       setState(() {
@@ -307,7 +307,6 @@ class _UploadJobState extends State<UploadJob>
         isVacant: true,
         isOwnerCompleted: false,
         isFreelancerCompleted: false,
-        isRetrieved: false,
       ).createJob();
       clearControllers();
       setState(() {

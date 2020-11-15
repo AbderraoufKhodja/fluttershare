@@ -37,7 +37,7 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
       key: _scaffoldKey,
       appBar: header(
         context,
-        titleText: kCompleteJob,
+        titleText: kJobCompleted,
       ),
       body: Container(
         padding: EdgeInsets.all(10.0),

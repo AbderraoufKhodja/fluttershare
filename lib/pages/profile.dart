@@ -43,8 +43,7 @@ class _ProfileState extends State<Profile>
         job.jobOwnerId != widget.profileId &&
         job.jobOwnerId == currentUser.id &&
         job.isVacant == true &&
-        job.isOwnerCompleted == false &&
-        job.isRetrieved == false;
+        job.isOwnerCompleted == false;
   }
 
   Job get job => widget.job;
@@ -156,7 +155,7 @@ class _ProfileState extends State<Profile>
                               children: <Widget>[
                                 buildCountColumn("posts", 0),
                                 buildCountColumn(kJobsCount, 0),
-                                buildCountColumn(KEvaluation, 0),
+                                buildCountColumn(kEvaluation, 0),
                               ],
                             ),
                           ],
@@ -191,7 +190,7 @@ class _ProfileState extends State<Profile>
                             children: <Widget>[
                               buildCountColumn("posts", postCount),
                               buildCountColumn(kJobsCount, completedJobsCount),
-                              buildCountColumn(KEvaluation, evaluation),
+                              buildCountColumn(kEvaluation, evaluation),
                             ],
                           ),
                           buildProfileButton(),

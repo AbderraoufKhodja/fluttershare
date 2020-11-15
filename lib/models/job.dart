@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/manage_job.dart';
-import 'package:khadamat/pages/messages.dart';
 
 class Job {
   final String jobId;
@@ -42,46 +41,45 @@ class Job {
   bool isVacant;
   bool hasFreelancerUpdateRequest;
   bool hasOwnerUpdateRequest;
-  bool isRetrieved;
 
-  Job(
-      {this.jobId,
-      this.jobOwnerId,
-      this.jobOwnerName,
-      this.jobOwnerEmail,
-      this.jobFreelancerId,
-      this.jobFreelancerName,
-      this.jobFreelancerEmail,
-      this.jobFreelancerEnrollmentDate,
-      this.isOwnerFreelancer,
-      this.jobPhotoUrl,
-      this.jobTitle,
-      this.professionalCategory,
-      this.professionalTitle,
-      this.jobDescription,
-      this.location,
-      this.dateRange,
-      this.price,
-      this.newJobDescription,
-      this.newLocation,
-      this.newDateRange,
-      this.newPrice,
-      this.ownerReview,
-      this.ownerMannersRating,
-      this.freelancerReview,
-      this.freelancerJobQualityRating,
-      this.freelancerMannersRating,
-      this.freelancerTimeManagementRating,
-      this.applications,
-      this.isVacant,
-      this.isOwnerCompleted,
-      this.isFreelancerCompleted,
-      this.hasFreelancerUpdateRequest,
-      this.hasOwnerUpdateRequest,
-      this.createdAt,
-      this.ownerCompletedAt,
-      this.freelancerCompletedAt,
-      this.isRetrieved});
+  Job({
+    this.jobId,
+    this.jobOwnerId,
+    this.jobOwnerName,
+    this.jobOwnerEmail,
+    this.jobFreelancerId,
+    this.jobFreelancerName,
+    this.jobFreelancerEmail,
+    this.jobFreelancerEnrollmentDate,
+    this.isOwnerFreelancer,
+    this.jobPhotoUrl,
+    this.jobTitle,
+    this.professionalCategory,
+    this.professionalTitle,
+    this.jobDescription,
+    this.location,
+    this.dateRange,
+    this.price,
+    this.newJobDescription,
+    this.newLocation,
+    this.newDateRange,
+    this.newPrice,
+    this.ownerReview,
+    this.ownerMannersRating,
+    this.freelancerReview,
+    this.freelancerJobQualityRating,
+    this.freelancerMannersRating,
+    this.freelancerTimeManagementRating,
+    this.applications,
+    this.isVacant,
+    this.isOwnerCompleted,
+    this.isFreelancerCompleted,
+    this.hasFreelancerUpdateRequest,
+    this.hasOwnerUpdateRequest,
+    this.createdAt,
+    this.ownerCompletedAt,
+    this.freelancerCompletedAt,
+  });
 
   factory Job.fromDocument(DocumentSnapshot doc) {
     return Job(
@@ -118,7 +116,6 @@ class Job {
       isVacant: doc["isVacant"],
       isOwnerCompleted: doc["isOwnerCompleted"],
       isFreelancerCompleted: doc["isFreelancerCompleted"],
-      isRetrieved: doc["isRetrieved"],
       ownerCompletedAt: doc["ownerCompletedAt"],
       freelancerCompletedAt: doc["freelancerCompletedAt"],
       createdAt: doc["createdAt"],
@@ -141,12 +138,12 @@ class Job {
   Future<void> deleteJob({@required String deletReason}) async {
     final bool isJobOwner = currentUser.id == jobOwnerId;
     if (isJobOwner) {
-      jobsRef.document(jobId).updateData({"isRetrieved": true});
+      jobsRef.document(jobId).updateData({"isVacant": false});
       usersRef
           .document(jobOwnerId)
           .collection("userJobs")
           .document(jobId)
-          .updateData({"isRetrieved": true});
+          .updateData({"isVacant": false});
       addDeleteJobFeed(id: jobOwnerId);
 
       storageRef.child("job_$jobId.jpg").delete();
@@ -159,7 +156,7 @@ class Job {
             .document(jobFreelancerId)
             .collection("userJobs")
             .document(jobId)
-            .updateData({"isRetrieved": true});
+            .updateData({"isVacant": false});
     }
   }
 
@@ -284,20 +281,11 @@ class Job {
       // Create a userJobs reference in firestore to store to point to
       // the message ids for the freelancer that can be used to list the messages.
       createUserJob(
-        id: jobOwnerId,
-        applicantId: applicantId,
-        applicantName: applicantName,
-        applicantEmail: applicantEmail,
-      ); // Create a userJobs reference in firestore to store a reference to point to
+          id: jobOwnerId); // Create a userJobs reference in firestore to store a reference to point to
       // the message ids for the job jobOwner that can be used to list the messages.
-      createUserJob(
-        id: applicantId,
-        applicantId: applicantId,
-        applicantName: applicantName,
-        applicantEmail: applicantEmail,
-      );
+      createUserJob(id: applicantId);
       // create a chat reference on firestore
-      openChat();
+      openChat(applicantId: applicantId);
     });
   }
 
@@ -414,12 +402,8 @@ class Job {
       });
   }
 
-  Future<void> createUserJob({
-    @required String id,
-    @required String applicantId,
-    @required String applicantName,
-    @required String applicantEmail,
-  }) {
+  Future<void> createUserJob({@required String id}) {
+    print("createUserJob");
     return usersRef
         .document(id)
         .collection("userJobs")
@@ -430,12 +414,6 @@ class Job {
       "professionalTitle": professionalTitle,
       "jobOwnerId": jobOwnerId,
       "jobOwnerName": jobOwnerName,
-      "jobFreelancerId": applicantId,
-      "jobFreelancerName": applicantName,
-      "jobFreelancerEmail": applicantEmail,
-      "jobChatId": jobOwnerId + "&&" + applicantId,
-      "isVacant": false,
-      "isRetrieved": false,
       "createdAt": FieldValue.serverTimestamp(),
     });
   }
@@ -453,12 +431,38 @@ class Job {
     });
   }
 
-  Future<void> openChat() async {
-    return await messagesRef
+  Future<void> openChat({@required String applicantId}) async {
+    messagesRef
         .document(jobId)
-        .collection(jobOwnerId + "&&" + jobFreelancerId)
+        .collection(jobOwnerId + "&&" + applicantId)
         .document()
         .setData({"type": "open"});
+    usersRef
+        .document(jobOwnerId)
+        .collection("userChats")
+        .document(jobOwnerId + "&&" + applicantId)
+        .setData({
+      "jobChatId": jobOwnerId + "&&" + applicantId,
+      "jobId": jobId,
+      "professionalTitle": professionalTitle,
+      "jobTitle": jobTitle,
+      "jobOwnerId": jobOwnerId,
+      "jobOwnerName": jobOwnerName,
+      "createdAt": FieldValue.serverTimestamp(),
+    });
+    usersRef
+        .document(applicantId)
+        .collection("userChats")
+        .document(jobOwnerId + "&&" + applicantId)
+        .setData({
+      "jobChatId": jobOwnerId + "&&" + applicantId,
+      "jobId": jobId,
+      "professionalTitle": professionalTitle,
+      "jobTitle": jobTitle,
+      "jobOwnerId": jobOwnerId,
+      "jobOwnerName": jobOwnerName,
+      "createdAt": FieldValue.serverTimestamp(),
+    });
   }
 
   Future<void> freelancerCompleteAndReviewJob({
@@ -757,14 +761,8 @@ class Job {
       "isVacant": isVacant,
       "isOwnerCompleted": isOwnerCompleted,
       "isFreelancerCompleted": isFreelancerCompleted,
-      "isRetrieved": isRetrieved,
       "createdAt": FieldValue.serverTimestamp(),
-    }).then((value) => createUserJob(
-          id: jobOwnerId,
-          applicantId: null,
-          applicantName: null,
-          applicantEmail: null,
-        ));
+    }).then((value) => createUserJob(id: jobOwnerId));
   }
 
   Future<void> disposeCurrentFreelancerAndDeleteJob() async {
@@ -885,6 +883,5 @@ class JobFirestoreFieldName {
   static String ffnIsVacant = "ffnIsVacant";
   static String ffnIsOwnerCompleted = "ffnIsOwnerCompleted";
   static String ffnIsFreelancerCompleted = "ffnIsFreelancerCompleted";
-  static String ffnIsRetrieved = "ffnIsRetrieved";
   static String ffnCreatedAt = "ffnCreatedAt";
 }

@@ -30,7 +30,7 @@ buildListMessages() {
   return FutureBuilder(
       future: usersRef
           .document(currentUser.id)
-          .collection('userJobs')
+          .collection('userChats')
           .orderBy("createdAt", descending: false)
           .getDocuments(),
       builder: (context, snapshot) {
@@ -54,9 +54,6 @@ class MessageContainer extends StatelessWidget {
   final String jobTitle;
   final String jobOwnerId;
   final String jobOwnerName;
-  final String jobFreelancerId;
-  final String jobFreelancerName;
-  final Map applications;
 
   MessageContainer({
     this.jobChatId,
@@ -65,9 +62,6 @@ class MessageContainer extends StatelessWidget {
     this.jobTitle,
     this.jobOwnerId,
     this.jobOwnerName,
-    this.jobFreelancerId,
-    this.jobFreelancerName,
-    this.applications,
   });
 
   factory MessageContainer.fromDocument(DocumentSnapshot doc) {
@@ -78,9 +72,6 @@ class MessageContainer extends StatelessWidget {
       jobTitle: doc['jobTitle'],
       jobOwnerId: doc['jobOwnerId'],
       jobOwnerName: doc['jobOwnerName'],
-      jobFreelancerId: doc['jobFreelancerId'],
-      jobFreelancerName: doc['jobFreelancerName'],
-      applications: doc['applications'],
     );
   }
 
@@ -95,8 +86,6 @@ class MessageContainer extends StatelessWidget {
               jobId: jobId,
               jobOwnerId: jobOwnerId,
               jobOwnerName: jobOwnerName,
-              jobFreelancerId: jobFreelancerId,
-              jobFreelancerName: jobFreelancerName,
               professionalTitle: professionalTitle,
               jobTitle: jobTitle),
           child: ListTile(
