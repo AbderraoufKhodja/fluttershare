@@ -22,7 +22,7 @@ class SignalAbuseScreen extends StatelessWidget {
       key: _scaffoldKey,
       appBar: header(
         context,
-        titleText: kSignalAbuse,
+        titleText: kContactTeam,
       ),
       body: Container(
         padding: EdgeInsets.all(10.0),
@@ -30,7 +30,8 @@ class SignalAbuseScreen extends StatelessWidget {
           children: [
             Expanded(
               child: CustomTextField(
-                  label: kNatureOfAbuse, controller: natureOfAbuseController),
+                  label: kMessageForTheTeam,
+                  controller: natureOfAbuseController),
             ),
             CustomButton(
               padding: 5.0,
@@ -46,7 +47,10 @@ class SignalAbuseScreen extends StatelessWidget {
     );
   }
 
-  Future<void> handleSignalAbuse() async {}
+  Future<void> handleSignalAbuse() async {
+    return job.uploadTeamNotification(
+        messageText: natureOfAbuseController.text, type: "signalAbuse");
+  }
 }
 
 Future<void> showSignalAbuseScreen(

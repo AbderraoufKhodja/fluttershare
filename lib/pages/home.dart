@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/create_account.dart';
 import 'package:khadamat/pages/activity_feed.dart';
+import 'package:khadamat/pages/messages_screen.dart';
 import 'package:khadamat/pages/professional_categories_screen.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/pages/search.dart';
@@ -27,7 +28,7 @@ final messagesRef = Firestore.instance.collection('messages');
 final activityFeedRef = Firestore.instance.collection('feeds');
 final hiresRef = Firestore.instance.collection('hires');
 final timelineRef = Firestore.instance.collection('timeline');
-final complaintRef = Firestore.instance.collection('complaints');
+final complaintRef = Firestore.instance.collection('complaint');
 User currentUser;
 
 class Home extends StatefulWidget {
@@ -182,6 +183,7 @@ class _HomeState extends State<Home> {
           ProfessionalCategoriesScreen(currentUser: currentUser),
           ActivityFeed(),
 //          UploadJob(currentUser: currentUser),
+          MessagesScreen(),
           Search(),
           Profile(
             profileId: currentUser?.id,
@@ -207,10 +209,10 @@ class _HomeState extends State<Home> {
             icon: Icon(OMIcons.notificationsActive),
             activeIcon: Icon(Icons.notifications_active, size: 40.0),
           ),
-//          BottomNavigationBarItem(
-//            icon: Icon(OMIcons.photoCamera),
-//            activeIcon: Icon(Icons.photo_camera, size: 40.0),
-//          ),
+          BottomNavigationBarItem(
+            icon: Icon(OMIcons.message),
+            activeIcon: Icon(Icons.message, size: 40.0),
+          ),
           BottomNavigationBarItem(
             icon: Icon(OMIcons.search),
             activeIcon: Icon(Icons.search, size: 40.0),

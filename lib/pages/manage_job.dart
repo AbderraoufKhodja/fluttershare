@@ -35,7 +35,10 @@ class _ManageJobState extends State<ManageJob> {
       job.hasOwnerUpdateRequest || job.hasFreelancerUpdateRequest;
 
   bool get isJobOwner => currentUser.id == job.jobOwnerId;
-  bool get hasJobFreelancer => job.jobFreelancerId != null;
+  bool get hasJobFreelancer =>
+      job.isVacant == false &&
+      job.applications.containsValue(true) &&
+      job.jobFreelancerId != null;
 
   @override
   Widget build(BuildContext context) {
@@ -108,8 +111,9 @@ class _ManageJobState extends State<ManageJob> {
       return kJobOnGoing;
 
     //job has no freelancer
-    if (job.isVacant == true && job.applications.containsValue(true) == false)
-      return kHasNoJobFreelancer;
+    if (job.isVacant == true &&
+        job.applications.containsValue(true) == false &&
+        job.jobFreelancerId == null) return kHasNoJobFreelancer;
 
     // job canceled
     if (job.isVacant == false) return kJobCanceled;
@@ -144,7 +148,7 @@ class _ManageJobState extends State<ManageJob> {
             ),
           ),
           ListTile(
-            title: Text(kMore),
+            title: Text(kFAQ),
             onTap: () {
               Navigator.pop(context);
             },
@@ -216,12 +220,8 @@ class _ManageJobState extends State<ManageJob> {
                           buildChatDrawerItem(context),
                           buildRequestDrawerItem(context),
                           buildCompleteDrawerItem(context),
-                          ListTile(
-                            title: Text(kSignalAbuse),
-                            onTap: () {
-                              showSignalAbuseScreen(context, job: job);
-                            },
-                          ),
+                          buildDismissFreelancerDrawerItem(context),
+                          buildContactTeamDrawerItem(context),
                         ],
                       )
                     : Center(
@@ -269,23 +269,17 @@ class _ManageJobState extends State<ManageJob> {
                   buildRequestDrawerItem(context),
                   buildCompleteDrawerItem(context),
                   buildDismissFreelancerDrawerItem(context),
-                  buildSignalAbuseDrawerItem(context),
+                  buildContactTeamDrawerItem(context),
                   buildDeletJobDrawerItem(context),
                 ],
               );
   }
 
-  ListTile buildSignalAbuseDrawerItem(BuildContext context) {
+  ListTile buildContactTeamDrawerItem(BuildContext context) {
     return ListTile(
-      title: Text(kSignalAbuse),
+      title: Text(kContactTeam),
       onTap: () {
-        if (hasJobFreelancer)
-          showSignalAbuseScreen(context, job: job);
-        else {
-          Navigator.pop(context);
-          SnackBar snackbar = SnackBar(content: Text(kHasNoJobFreelancer));
-          _scaffoldKey.currentState.showSnackBar(snackbar);
-        }
+        showSignalAbuseScreen(context, job: job);
       },
     );
   }
@@ -294,8 +288,43 @@ class _ManageJobState extends State<ManageJob> {
     return ListTile(
       title: Text(kDeleteJob),
       onTap: () {
-        showDeleteJobScreen(context, job: job);
+        if (hasJobFreelancer)
+          buildShowDialog(context,
+              title: kDismissFreelancerBeforeCancel,
+              contentText: kDismissFreelancerBeforeCancelInstruction);
+        else
+          showDeleteJobScreen(context, job: job);
       },
+    );
+  }
+
+  Future buildShowDialog(
+    BuildContext context, {
+    @required String title,
+    @required String contentText,
+  }) {
+    return showDialog(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title),
+            Text(
+              contentText,
+              style: TextStyle(fontSize: 14),
+            ),
+          ],
+        ),
+        children: [
+          FlatButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                kOk,
+                style: TextStyle(color: Colors.blue),
+              ))
+        ],
+      ),
     );
   }
 
@@ -315,24 +344,46 @@ class _ManageJobState extends State<ManageJob> {
             jobOwnerName: job.jobOwnerName,
           );
         } else {
-          Navigator.pop(context);
-          SnackBar snackbar = SnackBar(content: Text(kHasNoJobFreelancer));
-          _scaffoldKey.currentState.showSnackBar(snackbar);
+          buildShowDialog(context,
+              title: kHasNoJobFreelancer,
+              contentText: kHasNoJobFreelancerDialogInstruction);
         }
       },
     );
   }
 
-  ListTile buildDismissFreelancerDrawerItem(BuildContext context) {
+  ListTile buildDismissFreelancerDrawerItem(BuildContext parentContext) {
     return ListTile(
-      title: Text(kDismissCurrentFreelancer),
+      title: Text(isJobOwner
+          ? kDismissCurrentFreelancerAndPostJobAgain
+          : kFreelancerQuitJob),
       onTap: () {
-        if (hasJobFreelancer)
-          showDismissFreelancerScreen(context, job: job);
-        else {
-          Navigator.pop(context);
-          SnackBar snackbar = SnackBar(content: Text(kHasNoJobFreelancer));
-          _scaffoldKey.currentState.showSnackBar(snackbar);
+        if (hasJobFreelancer) {
+          showDialog(
+              context: parentContext,
+              builder: (context) {
+                return SimpleDialog(
+                  title: Text(kDismissCurrentFreelancerAndPostJobAgain),
+                  children: <Widget>[
+                    SimpleDialogOption(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          showDismissFreelancerScreen(context, job: job);
+                        },
+                        child: Text(
+                          kDismiss,
+                          style: TextStyle(color: Colors.red),
+                        )),
+                    SimpleDialogOption(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(kCancel)),
+                  ],
+                );
+              });
+        } else {
+          buildShowDialog(context,
+              title: kHasNoJobFreelancer,
+              contentText: kHasNoJobFreelancerDialogInstruction);
         }
       },
     );
@@ -346,31 +397,6 @@ class _ManageJobState extends State<ManageJob> {
       ],
     );
   }
-
-  //  IconButton buildCompleteJobIconButton(BuildContext context) {
-  //    return IconButton(
-  //      icon: Icon(
-  //        Icons.check_circle_outline,
-  //        size: 50.0,
-  //      ),
-  //      color: Colors.blue,
-  //      disabledColor: Colors.grey,
-  //      onPressed: () {
-  //        final bool isTimeValid = Timestamp.now()
-  //                .toDate()
-  //                .difference(job.jobFreelancerEnrollmentDate.toDate())
-  //                .inHours >
-  //            24;
-  //        if (isTimeValid) {
-  //          showCompleteJobScreen(context, job: job);
-  //        } else {
-  //          Navigator.pop(context);
-  //          SnackBar snackbar = SnackBar(content: Text(kLessThan24Hours));
-  //          _scaffoldKey.currentState.showSnackBar(snackbar);
-  //        }
-  //      },
-  //    );
-  //  }
 
   IconButton buildUpdateJobTermsDialogueIconButton(BuildContext context) {
     return IconButton(
@@ -417,16 +443,14 @@ class _ManageJobState extends State<ManageJob> {
           if (isTimeValid) {
             showCompleteJobScreen(context, job: job);
           } else {
-            Navigator.pop(context);
-            SnackBar snackbar = SnackBar(content: Text(kLessThan24Hours));
-            _scaffoldKey.currentState.showSnackBar(snackbar);
+            buildShowDialog(context,
+                title: kLessThan24Hours,
+                contentText: kLessThan24HoursInstruction);
           }
         } else {
-          Navigator.pop(context);
-          SnackBar snackbar = SnackBar(
-            content: Text(kHasNoJobFreelancer),
-          );
-          _scaffoldKey.currentState.showSnackBar(snackbar);
+          buildShowDialog(context,
+              title: kHasNoJobFreelancer,
+              contentText: kHasNoJobFreelancerDialogInstruction);
         }
       },
     );
@@ -439,18 +463,13 @@ class _ManageJobState extends State<ManageJob> {
         if (!hasRequest && hasJobFreelancer) {
           showUpdateJobTermsRequestScreen(context, job: job);
         } else if (hasRequest) {
-          Navigator.pop(context);
-          SnackBar snackbar = SnackBar(
-            content: Text(kHasUnresolvedUpdateRequest),
-          );
-          _scaffoldKey.currentState.showSnackBar(snackbar);
-        } else if (!hasJobFreelancer) {
-          Navigator.pop(context);
-          SnackBar snackbar = SnackBar(
-            content: Text(kHasNoJobFreelancer),
-          );
-          _scaffoldKey.currentState.showSnackBar(snackbar);
-        }
+          buildShowDialog(context,
+              title: kHasUnresolvedUpdateRequest,
+              contentText: kHasUnresolvedUpdateRequestInstruction);
+        } else if (!hasJobFreelancer)
+          buildShowDialog(context,
+              title: kHasNoJobFreelancer,
+              contentText: kHasNoJobFreelancerDialogInstruction);
       },
     );
   }

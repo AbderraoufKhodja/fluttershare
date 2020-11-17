@@ -10,7 +10,7 @@ const String kJobPrice = "kJobPrice";
 const String kCurrency = "kCurrency";
 const String kUnavailable = "kUnavailable";
 const String kJobCompleted = "kJobCompleted";
-const String kMore = "kMore";
+const String kFAQ = "kFAQ";
 const String kDisposeFreelancerFirst = "kDisposeFreelancerFirst";
 const String kHireNotification = "kHireNotification";
 const String kNewMessage = "kNewMessage";
@@ -31,7 +31,7 @@ const String kSettings = "kSettings";
 const String kPriceHintText = "kPriceHintText";
 const String kDateRangeText = "kDateRangeText";
 const String kRequestUpdateJobTerms = "kRequestUpdateJobTerms";
-const String kSignalAbuse = "kSignalAbuse";
+const String kContactTeam = "kContactTeam";
 const String kDisposeCurrentFreelancerAndRepostJob =
     "kDisposeCurrentFreelancerAndRepostJob";
 const String kProfessionalTitleHint = "kProfessionalTitleHint";
@@ -67,7 +67,7 @@ const String kOwnerRating = "kJobOwnerRating";
 const String kUpdateJobTerms = "kUpdateJobTerms";
 const String kDismiss = "kDismiss";
 const String kDismissReason = "kDismissReason";
-const String kNatureOfAbuse = "kNatureOfAbuse";
+const String kMessageForTheTeam = "kMessageForTheTeam";
 const String kReasonOfDeleteJob = "kReasonOfDeleteJob";
 const String kDelete = "kDelete";
 const String kFreelancerNotHired = "kFreelancerNotHired";
@@ -81,7 +81,8 @@ const String kPriceHint = "kPriceHint";
 const String kPriceInstruction = "kPriceInstruction";
 const String kCreateCard = "kCreateCard";
 const String kHasNoFreelanceAccount = "kHasNoFreelanceAccount";
-const String kDismissCurrentFreelancer = "kDismissCurrentFreelancer";
+const String kDismissCurrentFreelancerAndPostJobAgain =
+    "kDismissCurrentFreelancerAndPostJobAgain";
 const String kConnectivityProblem = "kConnectivityProblem";
 const String kWelcome = "kWelcome";
 const String kDateRangeHint = "kDateRangeHint";
@@ -96,10 +97,20 @@ const String kTooLong = "kTooLong";
 const String kTooShort = "kTooShort";
 const String kJobsCount = "kJobsCount";
 const String kJobComplete = "kJobComplete";
+const String kFreelancerQuitJob = "kFreelancerQuitJob";
 const String kEvaluation = "KEvaluation";
+const String kOk = "kOk";
+const String kHasNoJobFreelancerDialogInstruction =
+    "kHasNoJobFreelancerDialogInstruction";
 const String kEditProfile = "kEditProfile";
+const String kLessThan24HoursInstruction = "kLessThan24HoursInstruction";
+const String kHasUnresolvedUpdateRequestInstruction =
+    "kHasUnresolvedUpdateRequestInstruction";
 const String kHire = "kHire";
 const String kErrorHasOccurred = "kErrorHasOccurred";
+const String kDismissFreelancerBeforeCancel = "kDismissFreelancerBeforeCancel";
+const String kDismissFreelancerBeforeCancelInstruction =
+    "kDismissFreelancerBeforeCancelInstruction";
 const String kHasNoReview = "kHasNoReview";
 const TextStyle kTextStyleProfileInfo = TextStyle(fontSize: 16.0);
 const TextStyle kTextStyleProfileInfoHeader =

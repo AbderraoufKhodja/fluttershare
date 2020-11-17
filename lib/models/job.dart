@@ -160,7 +160,12 @@ class Job {
     }
   }
 
-  Future<void> handleDismissFreelancer({String dismissReason}) async {
+  Future<void> handleDismissAndReviewFreelancer({
+    @required String freelancerReview,
+    @required double freelancerJobQualityRating,
+    @required double freelancerMannersRating,
+    @required double freelancerTimeManagementRating,
+  }) async {
     addDismissFeed(
         id: this.jobOwnerId,
         type: "dismissFreelancer",
@@ -172,11 +177,17 @@ class Job {
         jobFreelancerId: this.jobFreelancerId,
         jobFreelancerName: this.jobFreelancerName);
     uploadTeamNotification(
-        messageText: dismissReason, type: "dismissJustification");
+        messageText: freelancerReview, type: "dismissJustification");
     // Update on firestore
-    dismissJobFreelancerAndMakeJobVaccant();
-    updateUserJobDismissFreelancer(id: this.jobOwnerId);
-    updateUserJobDismissFreelancer(id: this.jobFreelancerId);
+    clearJobFreelancerAndMakeJobVaccant();
+    addUserReview(
+      id: jobFreelancerId,
+      type: "dismiss",
+      freelancerReview: freelancerReview,
+      freelancerJobQualityRating: freelancerJobQualityRating,
+      freelancerMannersRating: freelancerMannersRating,
+      freelancerTimeManagementRating: freelancerTimeManagementRating,
+    );
   }
 
   handleApplyJob({
@@ -356,6 +367,29 @@ class Job {
     });
   }
 
+  Future<void> addQuitFeed(
+      {@required String id,
+      @required String type,
+      @required String jobFreelancerId,
+      @required String jobFreelancerName}) async {
+    return await activityFeedRef
+        .document(id)
+        .collection("feedItems")
+        .document()
+        .setData({
+      "type": type,
+      "jobId": this.jobId,
+      "jobTitle": this.jobTitle,
+      "professionalTitle": this.professionalTitle,
+      "jobOwnerName": this.jobOwnerName,
+      "jobOwnerId": this.jobOwnerId,
+      "jobFreelancerId": this.jobFreelancerId,
+      "jobFreelancerName": this.jobFreelancerName,
+      "read": false,
+      "createdAt": FieldValue.serverTimestamp(),
+    });
+  }
+
   Future<void> addDeleteJobFeed({@required String id}) async {
     return await activityFeedRef
         .document(id)
@@ -403,7 +437,6 @@ class Job {
   }
 
   Future<void> createUserJob({@required String id}) {
-    print("createUserJob");
     return usersRef
         .document(id)
         .collection("userJobs")
@@ -415,19 +448,6 @@ class Job {
       "jobOwnerId": jobOwnerId,
       "jobOwnerName": jobOwnerName,
       "createdAt": FieldValue.serverTimestamp(),
-    });
-  }
-
-  Future<void> updateUserJobDismissFreelancer({@required String id}) {
-    return usersRef
-        .document(id)
-        .collection("userJobs")
-        .document(jobId)
-        .updateData({
-      "jobFreelancerId": null,
-      "jobFreelancerName": null,
-      "jobFreelancerEmail": null,
-      "isVacant": true,
     });
   }
 
@@ -485,6 +505,25 @@ class Job {
     });
   }
 
+  Future<void> freelancerQuitAndReviewOwner({
+    @required String ownerReview,
+    @required double ownerRating,
+  }) async {
+    addQuitFeed(
+        id: this.jobOwnerId,
+        type: "freelancerQuit",
+        jobFreelancerId: this.jobFreelancerId,
+        jobFreelancerName: this.jobFreelancerName);
+    addQuitFeed(
+        id: this.jobFreelancerId,
+        type: "freelancerQuit",
+        jobFreelancerId: this.jobFreelancerId,
+        jobFreelancerName: this.jobFreelancerName);
+    uploadTeamNotification(messageText: ownerReview, type: "quitJustification");
+    // Update on firestore
+    clearJobFreelancerAndMakeJobVaccant();
+  }
+
   Future<void> ownerCompleteAndReviewJob({
     @required String freelancerReview,
     @required double freelancerJobQualityRating,
@@ -495,6 +534,7 @@ class Job {
     addCompleteAndReviewFeed(id: jobFreelancerId);
     addUserReview(
       id: jobFreelancerId,
+      type: "jobCompleted",
       freelancerReview: freelancerReview,
       freelancerJobQualityRating: freelancerJobQualityRating,
       freelancerMannersRating: freelancerMannersRating,
@@ -522,7 +562,7 @@ class Job {
     @required String id,
   }) async {
     activityFeedRef.document(id).collection("feedItems").document().setData({
-      "type": "completeJob",
+      "type": "jobCompleted",
       "jobId": jobId,
       "jobTitle": jobTitle,
       "professionalTitle": professionalTitle,
@@ -718,7 +758,7 @@ class Job {
     });
   }
 
-  Future<void> dismissJobFreelancerAndMakeJobVaccant() async {
+  Future<void> clearJobFreelancerAndMakeJobVaccant() async {
     await jobsRef.document(jobId).updateData({
       "jobFreelancerId": null,
       "jobFreelancerName": null,
@@ -807,13 +847,9 @@ class Job {
     });
   }
 
-  void disposeCurrentFreelancerAndRepostJob() {
-    print("disposeCurrentFreelancerAndRepostJob");
-  }
-
   Future<void> uploadTeamNotification(
       {@required String messageText, @required String type}) async {
-    complaintRef.document(this.jobId).setData({
+    complaintRef.document(currentUser.id).setData({
       "type": type,
       "messageText": messageText,
       "jobId": jobId,
@@ -829,14 +865,15 @@ class Job {
   }
 
   Future<void> addUserReview({
-    String id,
-    String freelancerReview,
-    double freelancerJobQualityRating,
-    double freelancerMannersRating,
-    double freelancerTimeManagementRating,
+    @required String id,
+    @required String type,
+    @required String freelancerReview,
+    @required double freelancerJobQualityRating,
+    @required double freelancerMannersRating,
+    @required double freelancerTimeManagementRating,
   }) async {
     reviewsRef.document(id).collection("reviews").document().setData({
-      "type": "completeJobReview",
+      "type": type,
       "jobId": jobId,
       "jobTitle": jobTitle,
       "professionalTitle": professionalTitle,
