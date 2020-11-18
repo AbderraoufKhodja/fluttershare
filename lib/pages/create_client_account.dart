@@ -53,7 +53,7 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: header(context,
-          titleText: "Set up your profile", removeBackButton: true),
+          titleText: "Set up your profile", implyBackButton: true),
       body: ListView(
         children: <Widget>[
           Container(

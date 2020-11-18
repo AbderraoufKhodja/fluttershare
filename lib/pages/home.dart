@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/create_account.dart';
 import 'package:khadamat/pages/activity_feed.dart';
+import 'package:khadamat/pages/jobs_screen.dart';
+import 'package:khadamat/pages/manage_jobs_screen.dart';
 import 'package:khadamat/pages/messages_screen.dart';
 import 'package:khadamat/pages/professional_categories_screen.dart';
 import 'package:khadamat/pages/profile.dart';
@@ -180,14 +182,15 @@ class _HomeState extends State<Home> {
       key: _scaffoldKey,
       body: PageView(
         children: <Widget>[
-          ProfessionalCategoriesScreen(currentUser: currentUser),
           ActivityFeed(),
-//          UploadJob(currentUser: currentUser),
+          ProfessionalCategoriesScreen(),
+          ManageJobsScreen(),
           MessagesScreen(),
-          Search(),
           Profile(
             profileId: currentUser?.id,
           ),
+          // Search(),
+//          UploadJob(currentUser: currentUser),
         ],
         controller: pageController,
         onPageChanged: onPageChanged,
@@ -206,16 +209,16 @@ class _HomeState extends State<Home> {
             activeIcon: Icon(Icons.whatshot, size: 40.0),
           ),
           BottomNavigationBarItem(
-            icon: Icon(OMIcons.notificationsActive),
-            activeIcon: Icon(Icons.notifications_active, size: 40.0),
+            icon: Icon(OMIcons.search),
+            activeIcon: Icon(Icons.search, size: 40.0),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(OMIcons.cardTravel),
+            activeIcon: Icon(Icons.card_travel, size: 40.0),
           ),
           BottomNavigationBarItem(
             icon: Icon(OMIcons.message),
             activeIcon: Icon(Icons.message, size: 40.0),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(OMIcons.search),
-            activeIcon: Icon(Icons.search, size: 40.0),
           ),
           BottomNavigationBarItem(
             icon: Icon(OMIcons.accountCircle),

@@ -22,23 +22,14 @@ class _ActivityFeedState extends State<ActivityFeed> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text(kTimeLine),
+        backgroundColor: Colors.white70,
         actions: [
-          Expanded(
-            child: IconButton(
-              onPressed: () => showManageJobsScreen(context),
-              icon: Icon(
-                Icons.card_travel,
-                size: 40.0,
-              ),
-            ),
-          ),
-          Expanded(
-            child: IconButton(
-              onPressed: () => showMessagesScreen(context),
-              icon: Icon(
-                Icons.message,
-                size: 40.0,
-              ),
+          IconButton(
+            onPressed: () => print("more"),
+            icon: Icon(
+              Icons.more_vert,
+              size: 30.0,
             ),
           ),
         ],

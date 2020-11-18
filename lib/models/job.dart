@@ -455,8 +455,11 @@ class Job {
     messagesRef
         .document(jobId)
         .collection(jobOwnerId + "&&" + applicantId)
-        .document()
-        .setData({"type": "open"});
+        .add({
+      "type": "open",
+      "professionalTitle": professionalTitle,
+      "jobTitle": jobTitle,
+    });
     usersRef
         .document(jobOwnerId)
         .collection("userChats")

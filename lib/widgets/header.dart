@@ -3,27 +3,45 @@ import 'package:flutter/material.dart';
 AppBar header(context,
     {bool isAppTitle = false,
     String titleText,
-    removeBackButton = false,
+    implyBackButton = false,
     hasAction = false,
     Function action,
     actionLabel = "press"}) {
   return AppBar(
     actions: [
       hasAction
-          ? FlatButton(
-              onPressed: action,
-              child: Text(
-                actionLabel,
-                style: TextStyle(
-                  color: Colors.blueAccent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20.0,
+          ? PopupMenuButton<Widget>(
+              itemBuilder: (BuildContext context) => [
+                PopupMenuItem<Widget>(
+                  value: actionLabel,
+                  child: Text(
+                    actionLabel,
+                    style: TextStyle(
+                      color: Colors.blueAccent,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20.0,
+                    ),
+                  ),
                 ),
-              ),
+                PopupMenuItem<Widget>(
+                  value: actionLabel,
+                  child: Text(
+                    actionLabel,
+                    style: TextStyle(
+                      color: Colors.blueAccent,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20.0,
+                    ),
+                  ),
+                )
+              ],
+              icon: Icon(Icons.more_vert),
+              onSelected: (value) {},
+              
             )
-          : Text("")
+          : Container()
     ],
-    automaticallyImplyLeading: removeBackButton ? false : true,
+    automaticallyImplyLeading: implyBackButton,
     elevation: 0,
     title: Text(
       isAppTitle ? "المهَنــي" : titleText,
@@ -34,7 +52,7 @@ AppBar header(context,
       ),
       overflow: TextOverflow.ellipsis,
     ),
-    centerTitle: true,
+    centerTitle: false,
     backgroundColor: Colors.transparent,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(

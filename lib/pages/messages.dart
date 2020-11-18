@@ -1,12 +1,11 @@
-import 'package:bubble/bubble.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/manage_job.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/header.dart';
+import 'package:khadamat/widgets/message_bubble.dart';
 import 'package:khadamat/widgets/progress.dart';
-import 'package:timeago/timeago.dart' as timeago;
 
 class Messages extends StatefulWidget {
   final String jobChatId;
@@ -91,7 +90,7 @@ class MessagesState extends State<Messages> {
       trailing: OutlineButton(
         onPressed: () async {
           // TODO add spinner
-          addMessage();
+          addMessage(type: "message");
         },
         borderSide: BorderSide.none,
         child: Icon(
@@ -137,9 +136,10 @@ class MessagesState extends State<Messages> {
         });
   }
 
-  Future<void> addMessage() async {
+  Future<void> addMessage({@required String type}) async {
     if (messageController.text.trim().isNotEmpty) {
       messagesRef.document(jobId).collection(jobChatId).add({
+        "type": type,
         "userId": currentUser.id,
         "username": currentUser.username,
         "message": messageController.text,
@@ -225,10 +225,12 @@ class Message extends StatelessWidget {
   final String username;
   final String userId;
   final String avatarUrl;
+  final String type;
   final String message;
   final Timestamp createdAt;
 
   Message({
+    this.type,
     this.username,
     this.userId,
     this.avatarUrl,
@@ -240,6 +242,7 @@ class Message extends StatelessWidget {
     return Message(
       username: doc['username'],
       userId: doc['userId'],
+      type: doc['type'],
       message: doc['message'],
       avatarUrl: doc['avatarUrl'],
       createdAt: doc['createdAt'],
@@ -249,29 +252,13 @@ class Message extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCurrentUser = currentUser.id == userId;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Bubble(
-          margin: BubbleEdges.only(top: 10),
-          alignment: isCurrentUser ? Alignment.topRight : Alignment.topLeft,
-          nip: isCurrentUser ? BubbleNip.rightTop : BubbleNip.leftTop,
-          color:
-              isCurrentUser ? Color.fromRGBO(225, 255, 199, 1.0) : Colors.white,
-          child: Text(message),
-        ),
-        Container(
-          padding: EdgeInsets.only(left: 4.0, right: 4.0, top: 3.0),
-          child: Text(
-            createdAt != null
-                ? timeago.format(createdAt.toDate())
-                : 'a moment ago',
-            style: TextStyle(color: Colors.grey, fontSize: 11.0),
-            textAlign: isCurrentUser ? TextAlign.right : TextAlign.left,
-          ),
-        ),
-      ],
-    );
+    return type == "open"
+        ? MessageBubble(
+            isCurrentUser: null, message: kOpenChat, createdAt: createdAt)
+        : MessageBubble(
+            isCurrentUser: isCurrentUser,
+            message: message,
+            createdAt: createdAt);
   }
 }
 
