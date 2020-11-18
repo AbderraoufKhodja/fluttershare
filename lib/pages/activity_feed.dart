@@ -6,10 +6,11 @@ import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/manage_job.dart';
 import 'package:khadamat/pages/manage_jobs_screen.dart';
 import 'package:khadamat/pages/messages.dart';
-import 'package:khadamat/pages/messages_screen.dart';
 import 'package:khadamat/pages/profile.dart';
+import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/progress.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:timeline_tile/timeline_tile.dart';
 
 class ActivityFeed extends StatefulWidget {
   @override
@@ -21,18 +22,11 @@ class _ActivityFeedState extends State<ActivityFeed> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(kTimeLine),
-        backgroundColor: Colors.white70,
-        actions: [
-          IconButton(
-            onPressed: () => print("more"),
-            icon: Icon(
-              Icons.more_vert,
-              size: 30.0,
-            ),
-          ),
-        ],
+      appBar: header(
+        context,
+        titleText: kTimeLine,
+        hasAction: true,
+        actionsList: {kMore: () => print(kMore)},
       ),
       body: Container(
         child: StreamBuilder(
@@ -155,9 +149,13 @@ class ActivityFeedItem extends StatelessWidget {
   }
 
   configureMediaPreview(context) {
+    // TODO correct the feed logic
     SnackBar snackbar = SnackBar(content: Text(kUnavailable));
     if (type == "apply") {
-      mediaPreview = Icon(Icons.mail, color: Colors.blue);
+      mediaPreview = Icon(
+        Icons.person_add,
+        color: Colors.blue,
+      );
       onTap = () async {
         DocumentSnapshot doc = await jobsRef.document(jobId).get();
         if (doc.exists) {
@@ -176,7 +174,10 @@ class ActivityFeedItem extends StatelessWidget {
           ? "$applicantName applied to your job"
           : "You have applied to $jobOwnerName's job";
     } else if (type == "acceptApplication") {
-      mediaPreview = Icon(Icons.check, color: Colors.green);
+      mediaPreview = Icon(
+        Icons.check,
+        color: Colors.green,
+      );
       onTap = () {
         showManageJob(context, jobId: jobId);
         markAsRead();
@@ -185,7 +186,10 @@ class ActivityFeedItem extends StatelessWidget {
           ? "You have accepted $jobFreelancerName application."
           : "$jobOwnerName accepted your application.";
     } else if (type == "rejectApplication") {
-      mediaPreview = Icon(Icons.clear, color: Colors.red);
+      mediaPreview = Icon(
+        Icons.clear,
+        color: Colors.red,
+      );
       onTap = () {
         markAsRead();
       };
@@ -193,7 +197,10 @@ class ActivityFeedItem extends StatelessWidget {
           ? "You have rejected $jobFreelancerName application."
           : "$jobOwnerName rejected your application.";
     } else if (type == "message") {
-      mediaPreview = Icon(Icons.message, color: Colors.blue);
+      mediaPreview = Icon(
+        Icons.message,
+        color: Colors.blue,
+      );
       onTap = () {
         showMessages(
           context,
@@ -216,7 +223,10 @@ class ActivityFeedItem extends StatelessWidget {
       };
       activityItemText = '$jobOwnerName $kHireNotification';
     } else if (type == "open") {
-      mediaPreview = Icon(Icons.chat, color: Colors.teal);
+      mediaPreview = Icon(
+        Icons.chat,
+        color: Colors.teal,
+      );
       onTap = () {
         showMessages(
           context,
@@ -242,6 +252,30 @@ class ActivityFeedItem extends StatelessWidget {
       activityItemText = isRequestOwner
           ? "$kUpdateRequested"
           : "$kUpdateRequestFrom $requestOwnerName.";
+    } else if (type == 'completeJob') {
+      mediaPreview = Icon(
+        Icons.thumb_up,
+        color: Colors.green,
+      );
+      onTap = () {
+        // TODO: Complete job point to review
+        markAsRead();
+      };
+      activityItemText = isRequestOwner
+          ? "$kUpdateRequested"
+          : "$kUpdateRequestFrom $requestOwnerName.";
+    } else if (type == 'dismissFreelancer') {
+      mediaPreview = Icon(
+        Icons.thumb_down,
+        color: Colors.red,
+      );
+      onTap = () {
+        // TODO: Complete job point to review
+        markAsRead();
+      };
+      activityItemText = isRequestOwner
+          ? "$kUpdateRequested"
+          : "$kUpdateRequestFrom $requestOwnerName.";
     } else {
       mediaPreview = Text('');
       activityItemText = "Error: Unknown type '$type'";
@@ -258,21 +292,47 @@ class ActivityFeedItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     configureMediaPreview(context);
-    return Padding(
-      padding: EdgeInsets.only(bottom: 2.0),
-      child: Container(
-        color: Colors.white54,
-        child: GestureDetector(
-          onTap: onTap,
-          child: ListTile(
-            leading: Text(type,
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
-                )),
-            title: RichText(
+    return Container(
+      color: Colors.white54,
+      child: GestureDetector(
+        onTap: onTap,
+        child: TimelineTile(
+          beforeLineStyle: LineStyle(color: Colors.green, thickness: 2),
+          alignment: TimelineAlign.manual,
+          lineXY: 0.2,
+          indicatorStyle: IndicatorStyle(
+            height: 40,
+            width: 30,
+            indicator: Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: mediaPreview,
+            ),
+          ),
+          startChild: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(
+              createdAt != null
+                  ? timeago.format(createdAt.toDate())
+                  : kAMomentAGo,
               overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
+          ),
+          endChild: ListTile(
+            title: Text(
+              type,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            subtitle: RichText(
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
               text: TextSpan(
                   style: TextStyle(
                     fontSize: 14.0,
@@ -284,14 +344,6 @@ class ActivityFeedItem extends StatelessWidget {
                     ),
                   ]),
             ),
-            subtitle: Text(
-              createdAt != null
-                  ? timeago.format(createdAt.toDate())
-                  : kAMomentAGo,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 2,
-            ),
-            trailing: mediaPreview,
           ),
         ),
       ),

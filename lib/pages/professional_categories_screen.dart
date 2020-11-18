@@ -1,13 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/upload_job.dart';
 import 'package:khadamat/widgets/category_button.dart';
 import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/progress.dart';
-
-import '../constants.dart';
 
 class ProfessionalCategoriesScreen extends StatefulWidget {
   ProfessionalCategoriesScreen();
@@ -175,8 +174,13 @@ class _ProfessionalCategoriesScreenState
   Widget build(context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: header(context,
-          isAppTitle: false, titleText: kSearch, hasAction: true),
+      appBar: header(
+        context,
+        isAppTitle: false,
+        titleText: kSearch,
+        hasAction: true,
+        actionsList: {"more": () => print("more")},
+      ),
       body: RefreshIndicator(
         onRefresh: () => getProfessionalCategoriesList(),
         child: buildJobTimeline(),

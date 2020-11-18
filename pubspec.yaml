@@ -34,12 +34,13 @@ dependencies:
   firebase_messaging:
   timeago:
   cached_network_image:
-  flutter_svg: ^0.17.0
+  flutter_svg: ^0.18.0
   eva_icons_flutter:
   outline_material_icons:
   bubble: ^1.1.9+1
   flutter_rating_bar: ^3.0.1+1
   flutter_mailer: ^1.0.0
+  timeline_tile: ^1.0.0
 
 dev_dependencies:
   flutter_test:

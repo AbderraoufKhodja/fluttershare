@@ -139,6 +139,7 @@ const String kFreelancerWorkQuality = "kFreelancerWorkQuality";
 const String kReview = "kReview";
 const String kSubmitAndComplete = "kSubmitAndComplete";
 const String kManage = "kManage";
+const String kMore = "kMore";
 const String kFreelancerManners = "kFreelancerManners";
 const String kFreelancerTimeManagement = "kFreelancerTimeManagement";
 const String kRecommendation = "kRecommendation";

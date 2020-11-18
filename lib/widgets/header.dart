@@ -3,41 +3,28 @@ import 'package:flutter/material.dart';
 AppBar header(context,
     {bool isAppTitle = false,
     String titleText,
-    implyBackButton = false,
-    hasAction = false,
-    Function action,
-    actionLabel = "press"}) {
+    bool implyBackButton = false,
+    bool hasAction = true,
+    Map<String, Function> actionsList}) {
   return AppBar(
     actions: [
       hasAction
-          ? PopupMenuButton<Widget>(
-              itemBuilder: (BuildContext context) => [
-                PopupMenuItem<Widget>(
-                  value: actionLabel,
-                  child: Text(
-                    actionLabel,
-                    style: TextStyle(
-                      color: Colors.blueAccent,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.0,
+          ? PopupMenuButton<String>(
+              itemBuilder: (BuildContext context) => actionsList.keys
+                  .map(
+                    (action) => PopupMenuItem<String>(
+                      value: action,
+                      child: Text(
+                        action,
+                        style: TextStyle(
+                          fontSize: 18.0,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                PopupMenuItem<Widget>(
-                  value: actionLabel,
-                  child: Text(
-                    actionLabel,
-                    style: TextStyle(
-                      color: Colors.blueAccent,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20.0,
-                    ),
-                  ),
-                )
-              ],
+                  )
+                  .toList(),
+              onSelected: (label) => actionsList[label],
               icon: Icon(Icons.more_vert),
-              onSelected: (value) {},
-              
             )
           : Container()
     ],
@@ -53,11 +40,11 @@ AppBar header(context,
       overflow: TextOverflow.ellipsis,
     ),
     centerTitle: false,
-    backgroundColor: Colors.transparent,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(
-        bottom: Radius.circular(90),
-      ),
-    ),
+    backgroundColor: Theme.of(context).primaryColor.withOpacity(0.3),
+    // shape: RoundedRectangleBorder(
+    //   borderRadius: BorderRadius.vertical(
+    //     bottom: Radius.circular(90),
+    //   ),
+    // ),
   );
 }
