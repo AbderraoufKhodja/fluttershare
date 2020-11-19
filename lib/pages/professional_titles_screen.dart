@@ -165,15 +165,15 @@ class _ProfessionalTitlesScreenState extends State<ProfessionalTitlesScreen> {
   Widget build(context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: header(context, isAppTitle: true),
+      // appBar: header(context, isAppTitle: true),
       body: RefreshIndicator(
         onRefresh: () => getProfessionalTitlesList(),
         child: buildProfessionalTitlesGrid(),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showUploadJobScreen(context, currentUser: currentUser),
-        child: Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () => showUploadJobScreen(context, currentUser: currentUser),
+      //   child: Icon(Icons.add),
+      // ),
     );
   }
 }

@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flappy_search_bar/flappy_search_bar.dart';
+import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
@@ -26,7 +28,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
           appBar: AppBar(
             bottom: TabBar(
               indicatorColor: Colors.green,
-              indicatorSize: TabBarIndicatorSize.tab,
+              indicatorSize: TabBarIndicatorSize.label,
               indicatorWeight: 5,
               isScrollable: true,
               tabs: [
@@ -38,6 +40,17 @@ class _ActivityFeedState extends State<ActivityFeed> {
                 Tab(text: kNewTalents),
                 Tab(text: kStories),
               ],
+            ),
+            title: Container(
+              height: 90,
+              child: SearchBar(
+                searchBarPadding: EdgeInsets.only(top: 5),
+                searchBarStyle: SearchBarStyle(
+                  backgroundColor: Colors.white,
+                  padding: EdgeInsets.all(0),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
             ),
           ),
           body: TabBarView(

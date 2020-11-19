@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flappy_search_bar/flappy_search_bar.dart';
+import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khadamat/pages/home.dart';
@@ -176,6 +178,17 @@ class _ProfessionalCategoriesScreenState
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
+          title: Container(
+            height: 90,
+            child: SearchBar(
+              searchBarPadding: EdgeInsets.only(top: 5),
+              searchBarStyle: SearchBarStyle(
+                backgroundColor: Colors.white,
+                padding: EdgeInsets.all(0),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
           bottom: TabBar(
             isScrollable: true,
             indicatorSize: TabBarIndicatorSize.label,

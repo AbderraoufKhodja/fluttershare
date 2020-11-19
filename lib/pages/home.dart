@@ -7,12 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/create_account.dart';
 import 'package:khadamat/pages/activity_feed.dart';
-import 'package:khadamat/pages/jobs_screen.dart';
 import 'package:khadamat/pages/manage_jobs_screen.dart';
 import 'package:khadamat/pages/messages_screen.dart';
 import 'package:khadamat/pages/professional_categories_screen.dart';
 import 'package:khadamat/pages/profile.dart';
-import 'package:khadamat/pages/search.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 

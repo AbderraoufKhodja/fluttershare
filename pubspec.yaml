@@ -41,6 +41,7 @@ dependencies:
   flutter_rating_bar: ^3.0.1+1
   flutter_mailer: ^1.0.0
   timeline_tile: ^1.0.0
+  flappy_search_bar: ^1.7.2
 
 dev_dependencies:
   flutter_test:
