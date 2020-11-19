@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "675376230229-52g2o1gs17qhlm4hi7siar4jt1frltrq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.khodja.khadamat",
+            "certificate_hash": "563057cb44613adbbdf54fcc24abb96fe12c85a6"
+          }
+        },
+        {
           "client_id": "675376230229-qlgisu6pjh8q8dieh02g2okii9u5nt6i.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
