@@ -190,12 +190,13 @@ class _HomeState extends State<Home> {
             profileId: currentUser?.id,
           ),
           // Search(),
-//          UploadJob(currentUser: currentUser),
+          // UploadJob(currentUser: currentUser),
         ],
         controller: pageController,
         onPageChanged: onPageChanged,
         physics: NeverScrollableScrollPhysics(),
       ),
+      
       bottomNavigationBar: CupertinoTabBar(
         border: Border(top: BorderSide.none),
         backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),

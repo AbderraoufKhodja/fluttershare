@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/home.dart';
+import 'package:khadamat/pages/professional_titles_screen.dart';
 import 'package:khadamat/pages/upload_job.dart';
 import 'package:khadamat/widgets/category_button.dart';
 import 'package:khadamat/widgets/header.dart';
@@ -20,7 +21,7 @@ class _ProfessionalCategoriesScreenState
     extends State<ProfessionalCategoriesScreen>
     with AutomaticKeepAliveClientMixin<ProfessionalCategoriesScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  List<String> professionalCategoriesList;
+  List<String> professionalCategoriesList = [];
   List<String> followingList = [];
   String professionalCategory;
   bool isLoading = false;
@@ -172,22 +173,39 @@ class _ProfessionalCategoriesScreenState
 
   @override
   Widget build(context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: header(
-        context,
-        isAppTitle: false,
-        titleText: kSearch,
-        hasAction: true,
-        actionsList: {"more": () => print("more")},
-      ),
-      body: RefreshIndicator(
-        onRefresh: () => getProfessionalCategoriesList(),
-        child: buildJobTimeline(),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showUploadJobScreen(context, currentUser: currentUser),
-        child: Icon(Icons.add),
+    return DefaultTabController(
+      length: professionalCategoriesList.length,
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          bottom: TabBar(
+            isScrollable: true,
+            indicatorSize: TabBarIndicatorSize.label,
+            indicator: BoxDecoration(
+                border: Border.all(width: 2.5),
+                borderRadius: BorderRadius.horizontal(
+                    left: Radius.circular(10), right: Radius.circular(10))),
+            tabs: professionalCategoriesList
+                .map((category) => Tab(
+                      text: " " + category + " ",
+                    ))
+                .toList(),
+          ),
+        ),
+        body: TabBarView(
+            children: professionalCategoriesList
+                .map((category) => RefreshIndicator(
+                      onRefresh: () => getProfessionalCategoriesList(),
+                      child: ProfessionalTitlesScreen(
+                        professionalTitle: category,
+                      ),
+                    ))
+                .toList()),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () =>
+              showUploadJobScreen(context, currentUser: currentUser),
+          child: Icon(Icons.add),
+        ),
       ),
     );
   }

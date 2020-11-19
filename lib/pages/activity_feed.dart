@@ -7,7 +7,6 @@ import 'package:khadamat/pages/manage_job.dart';
 import 'package:khadamat/pages/manage_jobs_screen.dart';
 import 'package:khadamat/pages/messages.dart';
 import 'package:khadamat/pages/profile.dart';
-import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/progress.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:timeline_tile/timeline_tile.dart';
@@ -21,30 +20,53 @@ class _ActivityFeedState extends State<ActivityFeed> {
   bool isLoading = false;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: header(
-        context,
-        titleText: kTimeLine,
-        hasAction: true,
-        actionsList: {kMore: () => print(kMore)},
-      ),
-      body: Container(
-        child: StreamBuilder(
-          stream: getActivityFeed(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return circularProgress();
-            }
-            List<ActivityFeedItem> feedItems = [];
-            snapshot.data.documents.forEach((doc) {
-              feedItems.add(ActivityFeedItem.fromDocument(doc));
-            });
-            return ListView(
-              children: feedItems,
-            );
-          },
-        ),
-      ),
+    return DefaultTabController(
+      length: 7,
+      child: Scaffold(
+          appBar: AppBar(
+            bottom: TabBar(
+              indicatorColor: Colors.green,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicatorWeight: 5,
+              isScrollable: true,
+              tabs: [
+                Tab(text: kFreelancers),
+                Tab(text: kAroundMe),
+                Tab(text: kBestFreelancers),
+                Tab(text: kJobOffers),
+                Tab(text: kEvents),
+                Tab(text: kNewTalents),
+                Tab(text: kStories),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              Container(
+                child: StreamBuilder(
+                  stream: getActivityFeed(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return circularProgress();
+                    }
+                    List<ActivityFeedItem> feedItems = [];
+                    snapshot.data.documents.forEach((doc) {
+                      feedItems.add(ActivityFeedItem.fromDocument(doc));
+                    });
+                    return ListView(
+                      children: feedItems,
+                    );
+                  },
+                ),
+              ),
+              Icon(Icons.directions_transit),
+              Icon(Icons.directions_bike),
+              Icon(Icons.directions_bike),
+              Icon(Icons.directions_bike),
+              Icon(Icons.directions_bike),
+              Icon(Icons.directions_bike),
+            ],
+          )),
     );
   }
 
@@ -312,15 +334,13 @@ class ActivityFeedItem extends StatelessWidget {
               child: mediaPreview,
             ),
           ),
-          startChild: Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Text(
-              createdAt != null
-                  ? timeago.format(createdAt.toDate())
-                  : kAMomentAGo,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 2,
-            ),
+          startChild: Text(
+            createdAt != null
+                ? timeago.format(createdAt.toDate())
+                : kAMomentAGo,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+            textAlign: TextAlign.center,
           ),
           endChild: ListTile(
             title: Text(
