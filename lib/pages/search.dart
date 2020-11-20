@@ -31,27 +31,27 @@ class _SearchState extends State<Search>
     searchController.clear();
   }
 
-  AppBar buildSearchField() {
-    return AppBar(
-      backgroundColor: Colors.white,
-      title: TextFormField(
-        controller: searchController,
-        decoration: InputDecoration(
-          hintText: "Search for a user...",
-          filled: true,
-          prefixIcon: Icon(
-            Icons.account_box,
-            size: 28.0,
-          ),
-          suffixIcon: IconButton(
-            icon: Icon(Icons.clear),
-            onPressed: clearSearch,
-          ),
-        ),
-        onFieldSubmitted: handleSearch,
-      ),
-    );
-  }
+  // AppBar buildSearchField() {
+  //   return AppBar(
+  //     backgroundColor: Colors.white,
+  //     title: TextFormField(
+  //       controller: searchController,
+  //       decoration: InputDecoration(
+  //         hintText: "Search for a user...",
+  //         filled: true,
+  //         prefixIcon: Icon(
+  //           Icons.account_box,
+  //           size: 28.0,
+  //         ),
+  //         suffixIcon: IconButton(
+  //           icon: Icon(Icons.clear),
+  //           onPressed: clearSearch,
+  //         ),
+  //       ),
+  //       onFieldSubmitted: handleSearch,
+  //     ),
+  //   );
+  // }
 
   Container buildNoContent() {
     final Orientation orientation = MediaQuery.of(context).orientation;
@@ -107,8 +107,8 @@ class _SearchState extends State<Search>
     super.build(context);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.8),
-      appBar: buildSearchField(),
+      backgroundColor: Theme.of(context).backgroundColor,
+      // appBar: buildSearchField(),
       body:
           searchResultsFuture == null ? buildNoContent() : buildSearchResults(),
     );

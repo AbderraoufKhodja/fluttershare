@@ -257,7 +257,7 @@ packages:
       name: flutter_svg
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.18.1"
+    version: "0.17.4"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -337,7 +337,7 @@ packages:
       name: image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.19"
+    version: "2.1.13"
   image_picker:
     dependency: "direct main"
     description:
@@ -678,7 +678,7 @@ packages:
       name: xml
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.5.1"
+    version: "3.7.0"
 sdks:
   dart: ">=2.8.0 <3.0.0"
-  flutter: ">=1.18.0-6.0.pre <2.0.0"
+  flutter: ">=1.17.0 <2.0.0"

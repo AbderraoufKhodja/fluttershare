@@ -12,6 +12,8 @@ import 'package:khadamat/pages/messages_screen.dart';
 import 'package:khadamat/pages/professional_categories_screen.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:khadamat/pages/screen_one.dart';
+import 'package:khadamat/pages/screen_three.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -180,9 +182,9 @@ class _HomeState extends State<Home> {
       key: _scaffoldKey,
       body: PageView(
         children: <Widget>[
-          ActivityFeed(),
+          ScreenOne(),
           ProfessionalCategoriesScreen(),
-          ManageJobsScreen(),
+          ScreenThree(),
           MessagesScreen(),
           Profile(
             profileId: currentUser?.id,
@@ -194,7 +196,6 @@ class _HomeState extends State<Home> {
         onPageChanged: onPageChanged,
         physics: NeverScrollableScrollPhysics(),
       ),
-      
       bottomNavigationBar: CupertinoTabBar(
         border: Border(top: BorderSide.none),
         backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),

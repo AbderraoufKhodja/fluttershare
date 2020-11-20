@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/messages.dart';
-import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/progress.dart';
 
 class MessagesScreen extends StatefulWidget {
@@ -16,7 +15,6 @@ class MessagesScreenState extends State<MessagesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: header(context, titleText: kMessagesScreenTitle),
       body: Column(
         children: <Widget>[
           Expanded(child: buildListMessages()),

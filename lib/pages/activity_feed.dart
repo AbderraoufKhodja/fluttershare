@@ -25,61 +25,24 @@ class _ActivityFeedState extends State<ActivityFeed> {
     return DefaultTabController(
       length: 7,
       child: Scaffold(
-          appBar: AppBar(
-            bottom: TabBar(
-              indicatorColor: Colors.green,
-              indicatorSize: TabBarIndicatorSize.label,
-              indicatorWeight: 5,
-              isScrollable: true,
-              tabs: [
-                Tab(text: kFreelancers),
-                Tab(text: kAroundMe),
-                Tab(text: kBestFreelancers),
-                Tab(text: kJobOffers),
-                Tab(text: kEvents),
-                Tab(text: kNewTalents),
-                Tab(text: kStories),
-              ],
-            ),
-            title: Container(
-              height: 90,
-              child: SearchBar(
-                searchBarPadding: EdgeInsets.only(top: 5),
-                searchBarStyle: SearchBarStyle(
-                  backgroundColor: Colors.white,
-                  padding: EdgeInsets.all(0),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
+        body: Container(
+          child: StreamBuilder(
+            stream: getActivityFeed(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return circularProgress();
+              }
+              List<ActivityFeedItem> feedItems = [];
+              snapshot.data.documents.forEach((doc) {
+                feedItems.add(ActivityFeedItem.fromDocument(doc));
+              });
+              return ListView(
+                children: feedItems,
+              );
+            },
           ),
-          body: TabBarView(
-            children: [
-              Container(
-                child: StreamBuilder(
-                  stream: getActivityFeed(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return circularProgress();
-                    }
-                    List<ActivityFeedItem> feedItems = [];
-                    snapshot.data.documents.forEach((doc) {
-                      feedItems.add(ActivityFeedItem.fromDocument(doc));
-                    });
-                    return ListView(
-                      children: feedItems,
-                    );
-                  },
-                ),
-              ),
-              Icon(Icons.directions_transit),
-              Icon(Icons.directions_bike),
-              Icon(Icons.directions_bike),
-              Icon(Icons.directions_bike),
-              Icon(Icons.directions_bike),
-              Icon(Icons.directions_bike),
-            ],
-          )),
+        ),
+      ),
     );
   }
 

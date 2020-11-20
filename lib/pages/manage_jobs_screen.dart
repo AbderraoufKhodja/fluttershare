@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/manage_job.dart';
-import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/progress.dart';
 
 class ManageJobsScreen extends StatefulWidget {
@@ -16,12 +15,7 @@ class _JobsScreen extends State<ManageJobsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: header(context, titleText: kJobsScreenTitle),
-      body: Column(
-        children: <Widget>[
-          Expanded(child: buildListJobs()),
-        ],
-      ),
+      body: buildListJobs(),
     );
   }
 }
