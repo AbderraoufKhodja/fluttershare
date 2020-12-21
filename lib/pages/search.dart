@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/user.dart';
@@ -87,10 +89,10 @@ class _SearchState extends State<Search>
         if (!snapshot.hasData) {
           return circularProgress();
         }
-        List<UserResult> searchResults = [];
+        List<FreelancerCard> searchResults = [];
         snapshot.data.documents.forEach((doc) {
           User user = User.fromDocument(doc);
-          UserResult searchResult = UserResult(user);
+          FreelancerCard searchResult = FreelancerCard(user);
           searchResults.add(searchResult);
         });
         return ListView(
@@ -115,45 +117,101 @@ class _SearchState extends State<Search>
   }
 }
 
-class UserResult extends StatelessWidget {
+class FreelancerCard extends StatelessWidget {
   final User user;
 
-  UserResult(this.user);
+  FreelancerCard(this.user);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Theme.of(context).primaryColor.withOpacity(0.7),
-      child: Column(
-        children: <Widget>[
-          GestureDetector(
-            onTap: () => showProfile(
-              context,
-              profileId: user.id,
-              profileName: user.username,
-            ),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Theme.of(context).primaryColor,
-                backgroundImage: CachedNetworkImageProvider(
-                    user.photoUrl ?? kBlankProfileUrl),
+    return GestureDetector(
+      onTap: () => showProfile(
+        context,
+        profileId: user.id,
+        profileName: user.username,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(right: 10.0, bottom: 10),
+        child: Material(
+          elevation: 4,
+          borderRadius: BorderRadius.circular(10),
+          child: Stack(
+            children: [
+              Container(
+                width: 230,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  image: DecorationImage(
+                    fit: BoxFit.cover,
+                    alignment: Alignment.centerRight,
+                    image: CachedNetworkImageProvider(
+                        user.photoUrl ?? kBlankProfileUrl),
+                  ),
+                ),
               ),
-              title: Text(
-                user.googleName,
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              Container(
+                width: 230,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [Colors.white, Colors.transparent],
+                  ),
+                ),
+                padding: const EdgeInsets.all(5),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Row(
+                          children: [
+                            Text("4.7"),
+                            Icon(
+                              Icons.star,
+                              color: Colors.amber[600],
+                              size: 15,
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Text(
+                              user.username ?? kNull,
+                              style: TextStyle(
+                                fontFamily: "ReemKufi-Regular",
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(bottom: 3),
+                              color: Colors.black,
+                              width: 100,
+                              height: 1,
+                            ),
+                            Text(
+                              user.professionalTitle.toUpperCase() ?? kNull,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              subtitle: Text(
-                user.username,
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
+            ],
           ),
-          Divider(
-            height: 2.0,
-            color: Colors.white54,
-          ),
-        ],
+        ),
       ),
     );
   }

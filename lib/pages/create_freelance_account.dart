@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -18,9 +19,9 @@ import 'package:image/image.dart' as Im;
 
 class CreateFreelanceAccount extends StatefulWidget {
   final User firestoreUser;
-  final GoogleSignInAccount googleUser;
+  final FirebaseUser firebaseUser;
 
-  CreateFreelanceAccount({this.firestoreUser, this.googleUser});
+  CreateFreelanceAccount({this.firestoreUser, this.firebaseUser});
 
   @override
   _CreateFreelanceAccountState createState() => _CreateFreelanceAccountState();
@@ -72,7 +73,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
 
   bool get wantKeepAlive => true;
   get user =>
-      widget.googleUser != null ? widget.googleUser : widget.firestoreUser;
+      widget.firebaseUser != null ? widget.firebaseUser : widget.firestoreUser;
 
   @override
   void initState() {
@@ -980,12 +981,12 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
 }
 
 Future<bool> showCreateFreelanceAccount(BuildContext context,
-    {GoogleSignInAccount googleUser, User firestoreUser}) async {
+    {FirebaseUser firebaseUser,User firestoreUser}) async {
   return await Navigator.push(
     context,
     MaterialPageRoute(
       builder: (context) => CreateFreelanceAccount(
-        googleUser: googleUser,
+        firebaseUser: firebaseUser,
         firestoreUser: firestoreUser,
       ),
     ),

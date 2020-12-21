@@ -9,17 +9,16 @@ import 'package:khadamat/pages/upload_job.dart';
 import 'package:khadamat/widgets/category_button.dart';
 import 'package:khadamat/widgets/progress.dart';
 
-class ProfessionalCategoriesScreen extends StatefulWidget {
-  ProfessionalCategoriesScreen();
+class ProfessionalCategoriesPage extends StatefulWidget {
+  ProfessionalCategoriesPage();
 
   @override
-  _ProfessionalCategoriesScreenState createState() =>
-      _ProfessionalCategoriesScreenState();
+  _ProfessionalCategoriesPageState createState() =>
+      _ProfessionalCategoriesPageState();
 }
 
-class _ProfessionalCategoriesScreenState
-    extends State<ProfessionalCategoriesScreen>
-    with AutomaticKeepAliveClientMixin<ProfessionalCategoriesScreen> {
+class _ProfessionalCategoriesPageState extends State<ProfessionalCategoriesPage>
+    with AutomaticKeepAliveClientMixin<ProfessionalCategoriesPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   List<String> professionalCategoriesList = [];
   List<String> followingList = [];
@@ -178,27 +177,23 @@ class _ProfessionalCategoriesScreenState
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Container(
-            height: 90,
-            child: SearchBar(
-              searchBarPadding: EdgeInsets.only(top: 5),
-              searchBarStyle: SearchBarStyle(
-                backgroundColor: Colors.white,
-                padding: EdgeInsets.all(0),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-          bottom: TabBar(
-            isScrollable: true,
+          elevation: 0,
+          toolbarHeight: 50,
+          title: TabBar(
+            indicatorColor: Colors.green,
             indicatorSize: TabBarIndicatorSize.label,
-            indicator: BoxDecoration(
-                border: Border.all(width: 2.5),
-                borderRadius: BorderRadius.horizontal(
-                    left: Radius.circular(10), right: Radius.circular(10))),
+            unselectedLabelColor: Colors.black,
+            isScrollable: true,
             tabs: professionalCategoriesList
-                .map((category) => Tab(
-                      text: " " + category + " ",
+                .map((category) => Container(
+                      height: 30,
+                      padding: EdgeInsets.symmetric(horizontal: 5),
+                      decoration: BoxDecoration(
+                          color: Colors.blueGrey.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(15)),
+                      child: Tab(
+                        text: category,
+                      ),
                     ))
                 .toList(),
           ),

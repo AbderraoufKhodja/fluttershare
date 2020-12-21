@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:khadamat/constants.dart';
@@ -7,8 +8,8 @@ import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/header.dart';
 
 class CreateClientAccount extends StatefulWidget {
-  final GoogleSignInAccount googleUser;
-  CreateClientAccount({this.googleUser});
+  final FirebaseUser firebaseUser;
+  CreateClientAccount({this.firebaseUser});
   @override
   _CreateClientAccountState createState() => _CreateClientAccountState();
 }
@@ -18,21 +19,22 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
   final _formKey = GlobalKey<FormState>();
   String username;
 
-  submit() {
+  submit() async {
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-      final SnackBar welcomeSnackbar =
-          SnackBar(content: Text("Welcome $username!"));
-      usersRef.document(widget.googleUser.id).setData({
-        "id": widget.googleUser.id,
-        "googleName": widget.googleUser.displayName,
-        "photoUrl": widget.googleUser.photoUrl,
-        "email": widget.googleUser.email,
+      usersRef.document(widget.firebaseUser.uid).setData({
+        "id": widget.firebaseUser.uid,
+        "googleName": widget.firebaseUser.displayName,
+        "photoUrl": widget.firebaseUser.photoUrl,
+        "email": widget.firebaseUser.email,
         "username": username,
         "isFreelancer": false,
         "createdAt": FieldValue.serverTimestamp(),
       }).then((value) {
+        final SnackBar welcomeSnackbar =
+            SnackBar(content: Text("Welcome $username!"));
+        _scaffoldKey.currentState.showSnackBar(welcomeSnackbar);
         Timer(Duration(seconds: 1), () {
           Navigator.push(
               context,
@@ -40,7 +42,6 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
                 builder: (context) => Home(),
               ));
         });
-        _scaffoldKey.currentState.showSnackBar(welcomeSnackbar);
       }, onError: (err) {
         _scaffoldKey.currentState.showSnackBar(kProblemSnackbar);
         print(err);
@@ -135,11 +136,11 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
 }
 
 Future<bool> showCreateClientAccount(BuildContext context,
-    {@required GoogleSignInAccount googleUser}) async {
+    {@required FirebaseUser googleUser}) async {
   return await Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => CreateClientAccount(googleUser: googleUser),
+      builder: (context) => CreateClientAccount(firebaseUser: googleUser),
     ),
   );
 }

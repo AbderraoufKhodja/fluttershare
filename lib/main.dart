@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:khadamat/pages/home.dart';
 
 void main() {
@@ -16,14 +17,17 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+    ));
     return MaterialApp(
       title: 'Khadamat',
       theme: ThemeData(
-        primarySwatch: Colors.grey,
-        accentColor: Colors.black,
-        backgroundColor: Colors.white70,
-        scaffoldBackgroundColor: Colors.white.withOpacity(0.97),
-      ),
+          primarySwatch: Colors.grey,
+          accentColor: Colors.green,
+          backgroundColor: Colors.white,
+          scaffoldBackgroundColor: Colors.white,
+          appBarTheme: AppBarTheme(color: Colors.white)),
       debugShowCheckedModeBanner: false,
       home: Home(),
     );

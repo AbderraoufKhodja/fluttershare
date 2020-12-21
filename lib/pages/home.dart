@@ -1,23 +1,24 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/create_account.dart';
-import 'package:khadamat/pages/activity_feed.dart';
-import 'package:khadamat/pages/manage_jobs_screen.dart';
-import 'package:khadamat/pages/messages_screen.dart';
-import 'package:khadamat/pages/professional_categories_screen.dart';
+import 'package:khadamat/pages/proffesional_categories_page.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:khadamat/pages/screen_four.dart';
 import 'package:khadamat/pages/screen_one.dart';
 import 'package:khadamat/pages/screen_three.dart';
+import 'package:khadamat/pages/screen_two.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final StorageReference storageRef = FirebaseStorage.instance.ref();
+final FirebaseAuth auth = FirebaseAuth.instance;
 final usersRef = Firestore.instance.collection('users');
 final cardsRef = Firestore.instance.collection('cards');
 final postsRef = Firestore.instance.collection('posts');
@@ -52,25 +53,45 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    print("hello");
     pageController = PageController();
     // Detects when user signed in
-    googleSignIn.onCurrentUserChanged.listen((account) {
+    // logout();
+    auth.onAuthStateChanged.listen((account) {
+      // Obtain the auth details from the request
       handleSignIn(account);
     }, onError: (err) {
       print('Error signing in: $err');
     });
     // Reauthenticate user when app is opened
-    googleSignIn.signInSilently(suppressErrors: false).then((account) {
-      handleSignIn(account);
-    }).catchError((err) {
-      print('Error signing in: $err');
-    });
+    // (suppressErrors: false).then((account) {
+
+    //   handleSignIn(account);
+    // }).catchError((err) {
+    //   print('Error signing in: $err');
+    // });
   }
 
-  handleSignIn(GoogleSignInAccount account) async {
+  Future<void> signInFirbaseAuth() async {
+    print("helloo");
+    googleSignIn.signIn();
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication googleAuth =
+        await googleSignIn.currentUser.authentication;
+    // Create a new credential
+    final AuthCredential credential = GoogleAuthProvider.getCredential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+    // Once signed in, return the UserCredential
+    auth.signInWithCredential(credential);
+  }
+
+  handleSignIn(FirebaseUser account) async {
+    print(account.email);
     if (account != null) {
+      print('User is signed in!');
       bool isSuccessful = await createUserInFirestore();
-      print("isSuccessful: $isSuccessful");
       if (isSuccessful == true) {
         setState(() {
           isAuth = true;
@@ -78,6 +99,7 @@ class _HomeState extends State<Home> {
         configurePushNotifications();
       }
     } else {
+      print('User is currently signed out!');
       setState(() {
         isAuth = false;
       });
@@ -127,8 +149,10 @@ class _HomeState extends State<Home> {
   Future<bool> createUserInFirestore() async {
     bool isSuccessful = true;
     // 1) check if user exists in users collection in database (according to their id)
-    final GoogleSignInAccount user = googleSignIn.currentUser;
-    DocumentSnapshot doc = await usersRef.document(user.id).get();
+    final FirebaseUser firebaseUser = await auth.currentUser();
+    print("firebaseUser.uid: ${firebaseUser.uid}");
+
+    DocumentSnapshot doc = await usersRef.document(firebaseUser.uid).get();
 
     if (!doc.exists) {
       // 2) if the user doesn't exist, then we want to take them to the create account page
@@ -136,16 +160,14 @@ class _HomeState extends State<Home> {
           context,
           MaterialPageRoute(
               builder: (context) => CreateAccount(
-                    googleUser: user,
+                    firebaseUser: firebaseUser,
                   )));
-      print("isCreated : $isSuccessful");
       if (isSuccessful == true) {
         // 3) get username from create account, use it to make new user document in users collection
-        doc = await usersRef.document(user.id).get();
+        doc = await usersRef.document(firebaseUser.uid).get();
         currentUser = User.fromDocument(doc);
       } else
         logout();
-
       return isSuccessful;
     }
 
@@ -159,11 +181,8 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
-  login() {
-    googleSignIn.signIn();
-  }
-
   logout() {
+    auth.signOut();
     googleSignIn.signOut();
   }
 
@@ -183,9 +202,9 @@ class _HomeState extends State<Home> {
       body: PageView(
         children: <Widget>[
           ScreenOne(),
-          ProfessionalCategoriesScreen(),
+          ScreenTwo(),
           ScreenThree(),
-          MessagesScreen(),
+          ScreenFour(),
           Profile(
             profileId: currentUser?.id,
           ),
@@ -197,8 +216,7 @@ class _HomeState extends State<Home> {
         physics: NeverScrollableScrollPhysics(),
       ),
       bottomNavigationBar: CupertinoTabBar(
-        border: Border(top: BorderSide.none),
-        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+        backgroundColor: Colors.white,
         inactiveColor: Theme.of(context).primaryColor,
         currentIndex: pageIndex,
         onTap: onTap,
@@ -217,8 +235,8 @@ class _HomeState extends State<Home> {
             activeIcon: Icon(Icons.card_travel, size: 40.0),
           ),
           BottomNavigationBarItem(
-            icon: Icon(OMIcons.message),
-            activeIcon: Icon(Icons.message, size: 40.0),
+            icon: Icon(OMIcons.forum),
+            activeIcon: Icon(Icons.forum, size: 40.0),
           ),
           BottomNavigationBarItem(
             icon: Icon(OMIcons.accountCircle),
@@ -260,7 +278,7 @@ class _HomeState extends State<Home> {
               textAlign: TextAlign.center,
             ),
             GestureDetector(
-              onTap: login,
+              onTap: signInFirbaseAuth,
               child: Container(
                 width: 260.0,
                 height: 60.0,

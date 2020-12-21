@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:khadamat/constants.dart';
@@ -6,8 +7,8 @@ import 'package:khadamat/pages/create_freelance_account.dart';
 import 'package:khadamat/widgets/custom_button.dart';
 
 class CreateAccount extends StatefulWidget {
-  final GoogleSignInAccount googleUser;
-  CreateAccount({@required this.googleUser});
+  final FirebaseUser firebaseUser;
+  CreateAccount({@required this.firebaseUser});
 
   @override
   _CreateAccountState createState() => _CreateAccountState();
@@ -27,7 +28,7 @@ class _CreateAccountState extends State<CreateAccount> {
               widthFactor: 2,
               function: () async {
                 final isSuccessful = await showCreateClientAccount(context,
-                    googleUser: widget.googleUser);
+                    googleUser: widget.firebaseUser);
 //                if (isSuccessful == true) {
 //                  Navigator.pop(context, isSuccessful);
 //                }
@@ -41,7 +42,7 @@ class _CreateAccountState extends State<CreateAccount> {
               widthFactor: 2,
               function: () async {
                 final isSuccessful = await showCreateFreelanceAccount(context,
-                    googleUser: widget.googleUser);
+                    firebaseUser: widget.firebaseUser);
                 if (isSuccessful == true) {
                   Navigator.pop(context, isSuccessful);
                 }
