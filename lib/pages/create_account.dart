@@ -29,9 +29,9 @@ class _CreateAccountState extends State<CreateAccount> {
               function: () async {
                 final isSuccessful = await showCreateClientAccount(context,
                     googleUser: widget.firebaseUser);
-//                if (isSuccessful == true) {
-//                  Navigator.pop(context, isSuccessful);
-//                }
+               if (isSuccessful == true) {
+                 Navigator.pop(context, isSuccessful);
+               }
               },
               text: kCreateClientAccount,
               fillColor: Colors.blue,

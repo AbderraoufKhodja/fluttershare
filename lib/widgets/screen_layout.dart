@@ -3,9 +3,12 @@ import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
 
 class ScreenLayout extends StatelessWidget {
-  const ScreenLayout({
+  final bool isScrollable;
+
+  ScreenLayout({
     Key key,
     @required this.tabsList,
+    this.isScrollable = true,
   }) : super(key: key);
 
   final Map<Tab, StatefulWidget> tabsList;
@@ -20,7 +23,7 @@ class ScreenLayout extends StatelessWidget {
             indicatorColor: Colors.green,
             indicatorSize: TabBarIndicatorSize.label,
             indicatorWeight: 5,
-            isScrollable: true,
+            isScrollable: isScrollable,
             tabs: tabsList.keys.toList(),
           ),
           title: Container(

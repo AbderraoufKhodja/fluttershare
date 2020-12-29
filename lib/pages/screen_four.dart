@@ -14,7 +14,7 @@ class _ScreenFour extends State<ScreenFour> {
   Map<Tab, StatefulWidget> tabsList = {
     const Tab(text: kMySubscriptions): ActivityFeed(),
     const Tab(text: kTopForums): ManageJobsScreen(),
-    const Tab(text: kCategories): MessagesScreen(),
+    const Tab(text: kFreelancersCategories): MessagesScreen(),
     const Tab(text: kHotTopics): MessagesScreen(),
     const Tab(text: kPopularPosts): MessagesScreen()
   };

@@ -38,7 +38,7 @@ class ItemsHorizontalView extends StatelessWidget {
               freelancersList.add(freelancer);
             });
             return Container(
-              height: 150,
+              height: 180,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: freelancersList,

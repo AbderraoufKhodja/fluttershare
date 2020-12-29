@@ -138,7 +138,7 @@ class FreelancerCard extends StatelessWidget {
           child: Stack(
             children: [
               Container(
-                width: 230,
+                width: 280,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   image: DecorationImage(
@@ -150,7 +150,7 @@ class FreelancerCard extends StatelessWidget {
                 ),
               ),
               Container(
-                width: 230,
+                width: 280,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   gradient: LinearGradient(
@@ -170,7 +170,8 @@ class FreelancerCard extends StatelessWidget {
                       children: <Widget>[
                         Row(
                           children: [
-                            Text("4.7"),
+                            Text(user.reviews['rating']?.toString() ??
+                                kMissingData),
                             Icon(
                               Icons.star,
                               color: Colors.amber[600],
@@ -181,7 +182,7 @@ class FreelancerCard extends StatelessWidget {
                         Column(
                           children: [
                             Text(
-                              user.username ?? kNull,
+                              user.username ?? kMissingData,
                               style: TextStyle(
                                 fontFamily: "ReemKufi-Regular",
                                 color: Colors.black,
@@ -196,7 +197,8 @@ class FreelancerCard extends StatelessWidget {
                               height: 1,
                             ),
                             Text(
-                              user.professionalTitle.toUpperCase() ?? kNull,
+                              user.professionalTitle?.toUpperCase() ??
+                                  kMissingData,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 14,

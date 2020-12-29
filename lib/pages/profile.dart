@@ -33,8 +33,6 @@ class _ProfileState extends State<Profile>
   bool isHired = false;
   bool isLoading = false;
   int postCount = 0;
-  int completedJobsCount = 0;
-  int evaluation;
   List<Post> posts = [];
 
   bool get isApplicationResponse {
@@ -55,8 +53,6 @@ class _ProfileState extends State<Profile>
   void initState() {
     super.initState();
     getProfilePosts();
-    getEvaluation();
-    getCompletedJobsCount();
     checkIfHired();
   }
 
@@ -153,7 +149,7 @@ class _ProfileState extends State<Profile>
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: <Widget>[
-                                buildCountColumn("posts", 0),
+                                buildCountColumn(kRating, 0),
                                 buildCountColumn(kJobsCount, 0),
                                 buildCountColumn(kEvaluation, 0),
                               ],
@@ -188,9 +184,10 @@ class _ProfileState extends State<Profile>
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
-                              buildCountColumn("posts", postCount),
-                              buildCountColumn(kJobsCount, completedJobsCount),
-                              buildCountColumn(kEvaluation, evaluation),
+                              buildCountColumn(kRating, getRating()),
+                              buildCountColumn(
+                                  kJobsCount, getCompletedJobsCount()),
+                              buildCountColumn(kEvaluation, getEvaluation()),
                             ],
                           ),
                           buildProfileButton(),
@@ -250,7 +247,7 @@ class _ProfileState extends State<Profile>
           buildProfileInfoField(
               label: kProfessionalDescription,
               text: user.professionalDescription),
-          buildProfileInfoField(label: kKeyWords, text: user.keyWords),
+          buildProfileInfoField(label: kPreferences, text: user.preferences[0]),
           buildProfileInfoField(label: kDiploma, text: user.diploma),
           buildProfileInfoField(label: kLicence, text: user.licence),
           buildProfileInfoField(
@@ -302,31 +299,21 @@ class _ProfileState extends State<Profile>
   }
 
   buildProfileReviews() {
-    return FutureBuilder(
-        future: reviewsRef
-            .document(widget.profileId)
-            .collection("reviews")
-            .getDocuments(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return linearProgress();
-          }
-          List<Review> reviews = [];
-          snapshot.data.documents.forEach((doc) {
-            reviews.add(Review.fromDocument(doc));
-          });
-          if (reviews.isNotEmpty) {
-            //TODO implement professional profile interface
-            return Center(
-                child: Column(
+    List<Review> reviews = [];
+    user.reviews.values.forEach((review) {
+      if (review is Map<String, dynamic>)
+        reviews.add(Review.fromDocument(review));
+    });
+    return reviews.isNotEmpty
+        ? Center(
+            child: Column(
               children: reviews
-                  .map((review) => Text(review.freelancerReview ?? ""))
+                  .map(
+                      (review) => Text(review.freelancerReview ?? kMissingData))
                   .toList(),
-            ));
-          } else {
-            return Center(child: Text(kHasNoReview));
-          }
-        });
+            ),
+          )
+        : Center(child: Text(kHasNoReview));
   }
 
   buildProfileGallery() {
@@ -439,7 +426,7 @@ class _ProfileState extends State<Profile>
     );
   }
 
-  Column buildCountColumn(String label, int count) {
+  Column buildCountColumn(String label, var count) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -614,26 +601,24 @@ class _ProfileState extends State<Profile>
     });
   }
 
-  Future<void> getEvaluation() async {
-    QuerySnapshot snapshot = await reviewsRef
-        .document(widget.profileId)
-        .collection('userReviews')
-        .getDocuments();
-    setState(() {
-      // TODO implement review evaluation logic
-      evaluation = snapshot.documents.length;
-    });
+  double getEvaluation() {
+    double count = 0;
+    if ((user.reviews?.values?.length ?? 0) > 2)
+      // ignore: null_aware_before_operator
+      count = user.reviews?.values?.length - 2.0;
+    return count;
   }
 
-  Future<void> getCompletedJobsCount() async {
-    QuerySnapshot snapshot = await usersRef
-        .document(widget.profileId)
-        .collection("userJobs")
-        .where("isCompleted", isEqualTo: true)
-        .getDocuments();
-    setState(() {
-      completedJobsCount = snapshot.documents.length;
+  double getCompletedJobsCount() {
+    double count = 0;
+    user.jobs?.values?.forEach((element) {
+      if (element['isCompleted'] == true) count += 1;
     });
+    return count;
+  }
+
+  double getRating() {
+    return user.reviews["rating"];
   }
 
   Future<void> getProfilePosts() async {

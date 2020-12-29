@@ -18,6 +18,9 @@ class _ScreenThree extends State<ScreenThree> {
   };
   @override
   Widget build(BuildContext context) {
-    return ScreenLayout(tabsList: tabsList);
+    return ScreenLayout(
+      tabsList: tabsList,
+      isScrollable: false,
+    );
   }
 }

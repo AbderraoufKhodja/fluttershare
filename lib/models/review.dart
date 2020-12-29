@@ -1,18 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Review {
-  String id;
-  String username;
-  String photoUrl;
-  String email;
-  String jobs;
-  String ownerReview;
-  String freelancerReview;
-  double ownerMannersRating;
-  double freelancerJobQualityRating;
-  double freelancerMannersRating;
-  double freelancerTimeManagementRating;
-  bool isFreelancer;
+  final String id;
+  final String username;
+  final String photoUrl;
+  final String email;
+  final String jobs;
+  final String ownerReview;
+  final String freelancerReview;
+  final double ownerMannersRating;
+  final double freelancerJobQualityRating;
+  final double freelancerMannersRating;
+  final double freelancerTimeManagementRating;
+  final bool isFreelancer;
   final Timestamp createdAt;
 
   Review({
@@ -31,41 +31,41 @@ class Review {
     this.freelancerTimeManagementRating,
   });
 
-  factory Review.clientFromDocument(DocumentSnapshot doc) {
+  factory Review.clientFromDocument(Map map) {
     return Review(
-      id: doc['id'],
-      email: doc['email'],
-      username: doc['username'],
-      photoUrl: doc['photoUrl'],
-      isFreelancer: doc['isFreelancer'],
-      ownerReview: doc['ownerReview'],
-      freelancerReview: doc['freelancerReview'],
-      ownerMannersRating: doc['ownerMannersRating'],
-      freelancerJobQualityRating: doc['freelancerJobQualityRating'],
-      freelancerMannersRating: doc['freelancerMannersRating'],
-      freelancerTimeManagementRating: doc['freelancerTimeManagementRating'],
+      id: map['id'],
+      email: map['email'],
+      username: map['username'],
+      photoUrl: map['photoUrl'],
+      isFreelancer: map['isFreelancer'],
+      ownerReview: map['ownerReview'],
+      freelancerReview: map['freelancerReview'],
+      ownerMannersRating: map['ownerMannersRating'],
+      freelancerJobQualityRating: map['freelancerJobQualityRating'],
+      freelancerMannersRating: map['freelancerMannersRating'],
+      freelancerTimeManagementRating: map['freelancerTimeManagementRating'],
     );
   }
-  factory Review.freelancerFromDocument(DocumentSnapshot doc) {
+  factory Review.freelancerFromDocument(Map map) {
     return Review(
-      id: doc['id'],
-      username: doc['username'],
-      photoUrl: doc['photoUrl'],
-      email: doc['email'],
-      jobs: doc['jobs'],
-      isFreelancer: doc['isFreelancer'],
-      ownerReview: doc['ownerReview'],
-      freelancerReview: doc['freelancerReview'],
-      ownerMannersRating: doc['ownerMannersRating'],
-      freelancerJobQualityRating: doc['freelancerJobQualityRating'],
-      freelancerMannersRating: doc['freelancerMannersRating'],
-      freelancerTimeManagementRating: doc['freelancerTimeManagementRating'],
+      id: map['id'],
+      username: map['username'],
+      photoUrl: map['photoUrl'],
+      email: map['email'],
+      jobs: map['jobs'],
+      isFreelancer: map['isFreelancer'],
+      ownerReview: map['ownerReview'],
+      freelancerReview: map['freelancerReview'],
+      ownerMannersRating: map['ownerMannersRating'],
+      freelancerJobQualityRating: map['freelancerJobQualityRating'],
+      freelancerMannersRating: map['freelancerMannersRating'],
+      freelancerTimeManagementRating: map['freelancerTimeManagementRating'],
     );
   }
-  factory Review.fromDocument(DocumentSnapshot doc) {
-    if (doc['isFreelancer'] == true)
-      return Review.freelancerFromDocument(doc);
+  factory Review.fromDocument(Map map) {
+    if (map['isFreelancer'] == true)
+      return Review.freelancerFromDocument(map);
     else
-      return Review.clientFromDocument(doc);
+      return Review.clientFromDocument(map);
   }
 }

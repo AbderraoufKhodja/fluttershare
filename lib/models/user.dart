@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class User {
-  String id;
+  final String id;
   String username;
   String googleName;
   String photoUrl;
   String email;
   bool isFreelancer;
+  bool teamChoice;
   String professionalPhoto;
   String personalBio;
   String gender;
@@ -15,7 +16,9 @@ class User {
   String professionalCategory;
   String professionalTitle;
   String professionalDescription;
-  String keyWords;
+  List preferences;
+  Map reviews;
+  Map jobs;
   String diploma;
   String licence;
   String certification;
@@ -34,6 +37,7 @@ class User {
     this.photoUrl,
     this.email,
     this.isFreelancer,
+    this.teamChoice,
     this.professionalPhoto,
     this.personalBio,
     this.gender,
@@ -42,7 +46,9 @@ class User {
     this.professionalCategory,
     this.professionalTitle,
     this.professionalDescription,
-    this.keyWords,
+    this.preferences,
+    this.reviews,
+    this.jobs,
     this.diploma,
     this.licence,
     this.certification,
@@ -63,6 +69,10 @@ class User {
       photoUrl: doc['photoUrl'],
       googleName: doc['googleName'],
       isFreelancer: doc['isFreelancer'],
+      preferences: doc['preferences'],
+      reviews: doc['reviews'],
+      jobs: doc['jobs'],
+      createdAt: doc['createdAt'],
     );
   }
   factory User.freelancerFromDocument(DocumentSnapshot doc) {
@@ -73,6 +83,7 @@ class User {
       photoUrl: doc['photoUrl'],
       email: doc['email'],
       isFreelancer: doc['isFreelancer'],
+      teamChoice: doc['teamChoice'],
       professionalPhoto: doc['professionalPhoto'],
       personalBio: doc['personalBio'],
       gender: doc['gender'],
@@ -81,7 +92,9 @@ class User {
       professionalCategory: doc['professionalCategory'],
       professionalTitle: doc['professionalTitle'],
       professionalDescription: doc['professionalDescription'],
-      keyWords: doc['keyWords'],
+      preferences: doc['preferences'],
+      reviews: doc['reviews'],
+      jobs: doc['jobs'],
       diploma: doc['diploma'],
       licence: doc['licence'],
       certification: doc['certification'],

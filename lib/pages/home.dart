@@ -7,7 +7,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/create_account.dart';
-import 'package:khadamat/pages/proffesional_categories_page.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:khadamat/pages/screen_four.dart';
@@ -23,10 +22,10 @@ final usersRef = Firestore.instance.collection('users');
 final cardsRef = Firestore.instance.collection('cards');
 final postsRef = Firestore.instance.collection('posts');
 final jobsRef = Firestore.instance.collection('jobs');
+final popularCategoriesRef = Firestore.instance.collection('popularCategories');
 final categoriesRef = Firestore.instance.collection('categories');
 final locationsRef = Firestore.instance.collection('locations');
 final commentsRef = Firestore.instance.collection('comments');
-final reviewsRef = Firestore.instance.collection('reviews');
 final messagesRef = Firestore.instance.collection('messages');
 final activityFeedRef = Firestore.instance.collection('feeds');
 final hiresRef = Firestore.instance.collection('hires');
@@ -73,7 +72,6 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> signInFirbaseAuth() async {
-    print("helloo");
     googleSignIn.signIn();
     // Obtain the auth details from the request
     final GoogleSignInAuthentication googleAuth =
@@ -227,8 +225,8 @@ class _HomeState extends State<Home> {
             activeIcon: Icon(Icons.whatshot, size: 40.0),
           ),
           BottomNavigationBarItem(
-            icon: Icon(OMIcons.search),
-            activeIcon: Icon(Icons.search, size: 40.0),
+            icon: Icon(OMIcons.category),
+            activeIcon: Icon(Icons.category_rounded, size: 40.0),
           ),
           BottomNavigationBarItem(
             icon: Icon(OMIcons.cardTravel),

@@ -11,7 +11,7 @@ class ScreenTwo extends StatefulWidget {
 
 class _ScreenTwo extends State<ScreenTwo> {
   Map<Tab, StatefulWidget> tabsList = {
-    Tab(text: kCategories): ProfessionalCategoriesPage(),
+    Tab(text: kFreelancersCategories): ProfessionalCategoriesPage(),
     Tab(text: kForYou): Search(),
     Tab(text: kTopFreelancer): Search(),
     Tab(text: kNewTalents): Search(),

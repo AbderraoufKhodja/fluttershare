@@ -139,11 +139,9 @@ class Job {
     final bool isJobOwner = currentUser.id == jobOwnerId;
     if (isJobOwner) {
       jobsRef.document(jobId).updateData({"isVacant": false});
-      usersRef
-          .document(jobOwnerId)
-          .collection("userJobs")
-          .document(jobId)
-          .updateData({"isVacant": false});
+      usersRef.document(jobOwnerId).updateData({
+        "jobs.$jobId.isVacant": false,
+      });
       addDeleteJobFeed(id: jobOwnerId);
 
       storageRef.child("job_$jobId.jpg").delete();
@@ -152,11 +150,9 @@ class Job {
           messageText: deletReason, type: "deletJustification");
 
       if (jobFreelancerId != null)
-        usersRef
-            .document(jobFreelancerId)
-            .collection("userJobs")
-            .document(jobId)
-            .updateData({"isVacant": false});
+        usersRef.document(jobFreelancerId).updateData({
+          "jobs.$jobId.isVacant": false,
+        });
     }
   }
 
@@ -437,17 +433,15 @@ class Job {
   }
 
   Future<void> createUserJob({@required String id}) {
-    return usersRef
-        .document(id)
-        .collection("userJobs")
-        .document(jobId)
-        .setData({
-      "jobId": jobId,
-      "jobTitle": jobTitle,
-      "professionalTitle": professionalTitle,
-      "jobOwnerId": jobOwnerId,
-      "jobOwnerName": jobOwnerName,
-      "createdAt": FieldValue.serverTimestamp(),
+    return usersRef.document(id).updateData({
+      "jobs.$jobId": {
+        "jobId": jobId,
+        "jobTitle": jobTitle,
+        "professionalTitle": professionalTitle,
+        "jobOwnerId": jobOwnerId,
+        "jobOwnerName": jobOwnerName,
+        "createdAt": FieldValue.serverTimestamp(),
+      }
     });
   }
 
@@ -814,17 +808,17 @@ class Job {
 
     jobsRef.document(jobId).updateData({
       "applications.$jobFreelancerId": false,
-      "jobFreelancerId": "",
-      "jobFreelancerName": "",
-      "jobFreelancerEmail": "",
+      "jobFreelancerId": null,
+      "jobFreelancerName": null,
+      "jobFreelancerEmail": null,
       "isVacant": true,
       "isOwnerCompleted": false,
       "hasFreelancerUpdateRequest": false,
     }).then((value) {
       applications[jobFreelancerId] = false;
-      jobFreelancerId = "";
-      jobFreelancerName = "";
-      jobFreelancerEmail = "";
+      jobFreelancerId = null;
+      jobFreelancerName = null;
+      jobFreelancerEmail = null;
       isVacant = true;
       isOwnerCompleted = false;
       hasFreelancerUpdateRequest = false;
@@ -875,18 +869,20 @@ class Job {
     @required double freelancerMannersRating,
     @required double freelancerTimeManagementRating,
   }) async {
-    reviewsRef.document(id).collection("reviews").document().setData({
-      "type": type,
-      "jobId": jobId,
-      "jobTitle": jobTitle,
-      "professionalTitle": professionalTitle,
-      "jobOwnerName": jobOwnerName,
-      "jobOwnerId": jobOwnerId,
-      "freelancerReview": freelancerReview,
-      "freelancerJobQualityRating": freelancerJobQualityRating,
-      "freelancerMannersRating": freelancerMannersRating,
-      "freelancerTimeManagementRating": freelancerTimeManagementRating,
-      "createdAt": FieldValue.serverTimestamp(),
+    usersRef.document(id).updateData({
+      "reviews.$jobId": {
+        "type": type,
+        "jobId": jobId,
+        "jobTitle": jobTitle,
+        "professionalTitle": professionalTitle,
+        "jobOwnerName": jobOwnerName,
+        "jobOwnerId": jobOwnerId,
+        "freelancerReview": freelancerReview,
+        "freelancerJobQualityRating": freelancerJobQualityRating,
+        "freelancerMannersRating": freelancerMannersRating,
+        "freelancerTimeManagementRating": freelancerTimeManagementRating,
+        "createdAt": FieldValue.serverTimestamp(),
+      }
     });
   }
 }

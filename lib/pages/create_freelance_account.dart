@@ -6,7 +6,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/home.dart';
@@ -252,9 +251,9 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                         Expanded(
                           child: CustomTextFormField(
                               validator: (text) =>
-                                  checkLength(text, label: kKeyWords),
+                                  checkLength(text, label: kPreferences),
                               controller: keyWord1Controller,
-                              hint: "$kKeyWords 1",
+                              hint: "$kPreferences 1",
                               onTap: () =>
                                   updateInstruction(kKeyWordsInstruction)),
                         ),
@@ -268,9 +267,9 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                         Expanded(
                           child: CustomTextFormField(
                               validator: (text) =>
-                                  checkLength(text, label: kKeyWords),
+                                  checkLength(text, label: kPreferences),
                               controller: keyWord2Controller,
-                              hint: "$kKeyWords 2",
+                              hint: "$kPreferences 2",
                               onTap: () =>
                                   updateInstruction(kKeyWordsInstruction)),
                         ),
@@ -281,9 +280,9 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                         Expanded(
                           child: CustomTextFormField(
                               validator: (text) =>
-                                  checkLength(text, label: kKeyWords),
+                                  checkLength(text, label: kPreferences),
                               controller: keyWord3Controller,
-                              hint: "$kKeyWords 3",
+                              hint: "$kPreferences 3",
                               onTap: () =>
                                   updateInstruction(kKeyWordsInstruction)),
                         ),
@@ -297,9 +296,9 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                         Expanded(
                           child: CustomTextFormField(
                               validator: (text) =>
-                                  checkLength(text, label: kKeyWords),
+                                  checkLength(text, label: kPreferences),
                               controller: keyWord4Controller,
-                              hint: "$kKeyWords 4",
+                              hint: "$kPreferences 4",
                               onTap: () =>
                                   updateInstruction(kKeyWordsInstruction)),
                         ),
@@ -417,8 +416,10 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       "professionalCategory": professionalCategoryController.text,
       "professionalTitle": professionalTitleController.text,
       "professionalDescription": professionalDescriptionController.text,
-      "keyWords": "${keyWord1Controller.text};${keyWord2Controller.text};"
+      "preferences": "${keyWord1Controller.text};${keyWord2Controller.text};"
           "${keyWord3Controller.text};${keyWord4Controller.text};",
+      "jobs": null,
+      "reviews": null,
       "diploma": diplomaController.text,
       "licence": licenceController.text,
       "certification": certificationController.text,
@@ -981,7 +982,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
 }
 
 Future<bool> showCreateFreelanceAccount(BuildContext context,
-    {FirebaseUser firebaseUser,User firestoreUser}) async {
+    {FirebaseUser firebaseUser, User firestoreUser}) async {
   return await Navigator.push(
     context,
     MaterialPageRoute(
