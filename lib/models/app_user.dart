@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class User {
+class AppUser {
   final String id;
   String username;
   String googleName;
@@ -19,6 +19,13 @@ class User {
   List preferences;
   Map reviews;
   Map jobs;
+  double globalRate;
+  double jobsCount;
+  double completionRate;
+  double popularityRate;
+  double qualityRating;
+  double attitudeRating;
+  double timeManagementRating;
   String diploma;
   String licence;
   String certification;
@@ -30,7 +37,7 @@ class User {
   String recommendation;
   final Timestamp createdAt;
 
-  User({
+  AppUser({
     this.id,
     this.username,
     this.googleName,
@@ -49,6 +56,12 @@ class User {
     this.preferences,
     this.reviews,
     this.jobs,
+    this.globalRate,
+    this.jobsCount,
+    this.completionRate,
+    this.popularityRate,
+    this.qualityRating,
+    this.attitudeRating,
     this.diploma,
     this.licence,
     this.certification,
@@ -61,8 +74,8 @@ class User {
     this.createdAt,
   });
 
-  factory User.clientFromDocument(DocumentSnapshot doc) {
-    return User(
+  factory AppUser.clientFromDocument(DocumentSnapshot doc) {
+    return AppUser(
       id: doc['id'],
       email: doc['email'],
       username: doc['username'],
@@ -75,8 +88,8 @@ class User {
       createdAt: doc['createdAt'],
     );
   }
-  factory User.freelancerFromDocument(DocumentSnapshot doc) {
-    return User(
+  factory AppUser.freelancerFromDocument(DocumentSnapshot doc) {
+    return AppUser(
       id: doc['id'],
       username: doc['username'],
       googleName: doc['googleName'],
@@ -92,6 +105,12 @@ class User {
       professionalCategory: doc['professionalCategory'],
       professionalTitle: doc['professionalTitle'],
       professionalDescription: doc['professionalDescription'],
+      globalRate: doc['globalRate'],
+      jobsCount: doc['jobsCount'],
+      completionRate: doc['completionRate'],
+      popularityRate: doc['popularityRate'],
+      qualityRating: doc['qualityRate'],
+      attitudeRating: doc['attitudeRate'],
       preferences: doc['preferences'],
       reviews: doc['reviews'],
       jobs: doc['jobs'],
@@ -107,10 +126,10 @@ class User {
       createdAt: doc['createdAt'],
     );
   }
-  factory User.fromDocument(DocumentSnapshot doc) {
+  factory AppUser.fromDocument(DocumentSnapshot doc) {
     if (doc['isFreelancer'] == true)
-      return User.freelancerFromDocument(doc);
+      return AppUser.freelancerFromDocument(doc);
     else
-      return User.clientFromDocument(doc);
+      return AppUser.clientFromDocument(doc);
   }
 }

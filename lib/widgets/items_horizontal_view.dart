@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:khadamat/models/user.dart';
+import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/search.dart';
 import 'package:khadamat/widgets/progress.dart';
 
@@ -33,7 +33,7 @@ class ItemsHorizontalView extends StatelessWidget {
             }
             List<FreelancerCard> freelancersList = [];
             snapshot.data.documents.forEach((doc) {
-              User user = User.fromDocument(doc);
+              AppUser user = AppUser.fromDocument(doc);
               FreelancerCard freelancer = FreelancerCard(user);
               freelancersList.add(freelancer);
             });

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
@@ -24,7 +25,7 @@ class _UpdateJobTermsScreenRequestState
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   TextEditingController jobDescriptionController = TextEditingController();
-  TextEditingController locationController = TextEditingController();
+  GeoPoint locationGeoPoint;
   TextEditingController dateRangeController = TextEditingController();
   TextEditingController priceController = TextEditingController();
 
@@ -137,7 +138,7 @@ class _UpdateJobTermsScreenRequestState
           ),
         ),
         TextField(
-          controller: locationController,
+          controller: null,
           decoration: InputDecoration(
             hintText: kUpdateLocationHint,
             errorText: _locationValid ? null : kLocationErrorText,
@@ -164,7 +165,7 @@ class _UpdateJobTermsScreenRequestState
   void updateController() {
     setState(() {
       jobDescriptionController.text = job.jobDescription;
-      locationController.text = job.location;
+      locationGeoPoint = job.location;
       dateRangeController.text = job.dateRange;
       priceController.text = job.price;
     });
@@ -175,7 +176,7 @@ class _UpdateJobTermsScreenRequestState
       priceController.text.trim().length < 3 || priceController.text.isEmpty
           ? _priceValid = false
           : _priceValid = true;
-      locationController.text.trim().length > 100
+      locationGeoPoint != null
           ? _locationValid = false
           : _locationValid = true;
     });
@@ -190,7 +191,7 @@ class _UpdateJobTermsScreenRequestState
         requestOwnerId: currentUser.id,
         newJobDescription: jobDescriptionController.text,
         newPrice: priceController.text,
-        newLocation: locationController.text,
+        newLocation: locationGeoPoint,
         newDateRange: dateRangeController.text,
       )
           .then((value) {

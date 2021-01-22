@@ -5,8 +5,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:khadamat/models/user.dart';
+import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/create_account.dart';
+import 'package:khadamat/pages/create_freelance_account.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:khadamat/pages/screen_four.dart';
@@ -16,7 +17,7 @@ import 'package:khadamat/pages/screen_two.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
-final StorageReference storageRef = FirebaseStorage.instance.ref();
+final Reference storageRef = FirebaseStorage.instance.ref();
 final FirebaseAuth auth = FirebaseAuth.instance;
 final usersRef = Firestore.instance.collection('users');
 final cardsRef = Firestore.instance.collection('cards');
@@ -31,7 +32,7 @@ final activityFeedRef = Firestore.instance.collection('feeds');
 final hiresRef = Firestore.instance.collection('hires');
 final timelineRef = Firestore.instance.collection('timeline');
 final complaintRef = Firestore.instance.collection('complaint');
-User currentUser;
+AppUser currentUser;
 
 class Home extends StatefulWidget {
   @override
@@ -147,10 +148,10 @@ class _HomeState extends State<Home> {
   Future<bool> createUserInFirestore() async {
     bool isSuccessful = true;
     // 1) check if user exists in users collection in database (according to their id)
-    final FirebaseUser firebaseUser = await auth.currentUser();
+    final User firebaseUser = auth.currentUser;
     print("firebaseUser.uid: ${firebaseUser.uid}");
 
-    DocumentSnapshot doc = await usersRef.document(firebaseUser.uid).get();
+    DocumentSnapshot doc = await usersRef.doc(firebaseUser.uid).get();
 
     if (!doc.exists) {
       // 2) if the user doesn't exist, then we want to take them to the create account page
@@ -163,13 +164,13 @@ class _HomeState extends State<Home> {
       if (isSuccessful == true) {
         // 3) get username from create account, use it to make new user document in users collection
         doc = await usersRef.document(firebaseUser.uid).get();
-        currentUser = User.fromDocument(doc);
+        currentUser = AppUser.fromDocument(doc);
       } else
         logout();
       return isSuccessful;
     }
 
-    currentUser = User.fromDocument(doc);
+    currentUser = AppUser.fromDocument(doc);
     return isSuccessful;
   }
 
@@ -199,7 +200,7 @@ class _HomeState extends State<Home> {
       key: _scaffoldKey,
       body: PageView(
         children: <Widget>[
-          ScreenOne(),
+          CreateFreelanceAccount(),
           ScreenTwo(),
           ScreenThree(),
           ScreenFour(),

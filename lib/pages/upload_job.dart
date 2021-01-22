@@ -6,8 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:khadamat/constants.dart';
+import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/models/job.dart';
-import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/custom_text_form_field.dart';
 import 'package:khadamat/widgets/progress.dart';
@@ -18,7 +18,7 @@ import 'package:image/image.dart' as Im;
 import 'package:uuid/uuid.dart';
 
 class UploadJob extends StatefulWidget {
-  UploadJob({User currentUser});
+  UploadJob({AppUser currentUser});
 
   @override
   _UploadJobState createState() => _UploadJobState();
@@ -27,7 +27,7 @@ class UploadJob extends StatefulWidget {
 class _UploadJobState extends State<UploadJob>
     with AutomaticKeepAliveClientMixin<UploadJob> {
   TextEditingController jobTitleController = TextEditingController();
-  TextEditingController locationController = TextEditingController();
+  GeoPoint locationGeoPoint;
   TextEditingController dateRangeController = TextEditingController();
   TextEditingController jobDescriptionController = TextEditingController();
   TextEditingController professionalCategoryController =
@@ -149,7 +149,7 @@ class _UploadJobState extends State<UploadJob>
                     CustomTextFormField(
                         validator: (text) =>
                             checkLocationAddress(text, label: kLocation),
-                        controller: locationController,
+                        controller: null,
                         hint: kLocation,
                         readOnly: true,
                         trailing: buildLocationButton(),
@@ -297,14 +297,14 @@ class _UploadJobState extends State<UploadJob>
         professionalCategory: professionalCategoryController.text,
         professionalTitle: professionalTitleController.text,
         jobDescription: jobDescriptionController.text,
-        location: locationController.text,
+        location: locationGeoPoint,
         dateRange: dateRangeController.text,
         jobPhotoUrl: jobPhotoUrl,
         price: priceController.text,
         applications: {},
         hasFreelancerUpdateRequest: false,
         hasOwnerUpdateRequest: false,
-        isVacant: true,
+        jobState: "open",
         isOwnerCompleted: false,
         isFreelancerCompleted: false,
       ).createJob();
@@ -428,16 +428,16 @@ class _UploadJobState extends State<UploadJob>
   }
 
   Future<String> uploadImage(imageFile) async {
-    StorageUploadTask uploadCardTask =
+    UploadTask uploadCardTask =
         storageRef.child("job_$jobId.jpg").putFile(imageFile);
-    StorageTaskSnapshot storageSnap = await uploadCardTask.onComplete;
+    TaskSnapshot storageSnap = await uploadCardTask.whenComplete(() {});
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     return downloadUrl;
   }
 
   clearControllers() {
     professionalTitleController.clear();
-    locationController.clear();
+    locationGeoPoint = null;
     jobDescriptionController.clear();
     dateRangeController.clear();
   }
@@ -631,42 +631,15 @@ class _UploadJobState extends State<UploadJob>
               administrativeArea = null;
               subAdministrativeArea = null;
               country = val;
-              locationController.text = "${subAdministrativeArea ?? "#"}, "
-                  "${administrativeArea ?? "#"}, ${country ?? "#"}";
+              // TODO: revisit get location logic
+              // locationGeoPoint != "${subAdministrativeArea ?? "#"}, "
+              //     "${administrativeArea ?? "#"}, ${country ?? "#"}";
               getAdministrativeAreasList(setState);
             });
           },
           items: countriesList,
           hasTrailing: false,
           // Add formField BottomSheet
-        ),
-        buildListTile(
-          setState,
-          value: administrativeArea,
-          onChanged: (String val) {
-            setState(() {
-              subAdministrativeArea = null;
-              administrativeArea = val;
-              locationController.text = "${subAdministrativeArea ?? "#"}, "
-                  "${administrativeArea ?? "#"}, ${country ?? "#"}";
-              getSubAdministrativeAreasList(setState);
-            });
-          },
-          items: administrativeAreasList,
-          hasTrailing: false,
-        ),
-        buildListTile(
-          setState,
-          value: subAdministrativeArea,
-          onChanged: (String val) {
-            setState(() {
-              subAdministrativeArea = val;
-              locationController.text = "${subAdministrativeArea ?? "#"}, "
-                  "${administrativeArea ?? "#"}, ${country ?? "#"}";
-            });
-          },
-          items: subAdministrativeAreasList,
-          hasTrailing: false,
         ),
       ],
     );
@@ -695,7 +668,9 @@ class _UploadJobState extends State<UploadJob>
     String formattedAddress =
         " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"
         " ${placemark.country}";
-    locationController.text = formattedAddress;
+    setState(() {
+      locationGeoPoint = GeoPoint(position.latitude, position.longitude);
+    });
     addLocation(
         country: country,
         administrativeArea: administrativeArea,
@@ -801,7 +776,7 @@ class _UploadJobState extends State<UploadJob>
 }
 
 Future<bool> showUploadJobScreen(BuildContext context,
-    {User currentUser}) async {
+    {AppUser currentUser}) async {
   return await Navigator.push(
     context,
     MaterialPageRoute(

@@ -23,7 +23,7 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController reviewController = TextEditingController();
   double freelancerWorkQuality;
-  double freelancerManners;
+  double freelancerAttitude;
   double freelancerTimeManagement;
   double ownerRating;
 
@@ -76,8 +76,8 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
                     onRatingUpdate: (rating) => freelancerWorkQuality = rating,
                   ),
                   buildRatingBar(
-                    title: kFreelancerManners,
-                    onRatingUpdate: (rating) => freelancerManners = rating,
+                    title: kFreelancerAttitude,
+                    onRatingUpdate: (rating) => freelancerAttitude = rating,
                   ),
                   buildRatingBar(
                     title: kFreelancerTimeManagement,
@@ -130,7 +130,7 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
                       bottomRight: Radius.circular(10.0)),
                   color: Colors.white,
                 ),
-                child: RatingBar(
+                child: RatingBar.builder(
                   initialRating: 3,
                   minRating: 1,
                   direction: Axis.horizontal,
@@ -155,8 +155,8 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
     isJobOwner
         ? await job.ownerCompleteAndReviewJob(
             freelancerReview: reviewController.text,
-            freelancerJobQualityRating: freelancerWorkQuality,
-            freelancerMannersRating: freelancerManners,
+            freelancerQualityRating: freelancerWorkQuality,
+            freelancerAttitudeRating: freelancerAttitude,
             freelancerTimeManagementRating: freelancerTimeManagement)
         : await job.freelancerCompleteAndReviewJob(
             ownerReview: reviewController.text,

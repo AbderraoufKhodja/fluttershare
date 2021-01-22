@@ -7,20 +7,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:khadamat/constants.dart';
-import 'package:khadamat/models/user.dart';
+import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/custom_text_form_field.dart';
 import 'package:khadamat/widgets/progress.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:image/image.dart' as Im;
 
 class CreateFreelanceAccount extends StatefulWidget {
-  final User firestoreUser;
-  final FirebaseUser firebaseUser;
+  final AppUser appUser;
+  final User firebaseUser;
 
-  CreateFreelanceAccount({this.firestoreUser, this.firebaseUser});
+  CreateFreelanceAccount({this.appUser, this.firebaseUser});
 
   @override
   _CreateFreelanceAccountState createState() => _CreateFreelanceAccountState();
@@ -31,13 +32,18 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   TextEditingController usernameController = TextEditingController();
   TextEditingController personalBioController = TextEditingController();
   TextEditingController locationController = TextEditingController();
+  GeoPoint locationGeoPoint;
   TextEditingController birthDateController = TextEditingController();
+  Timestamp birthDateTimestamp;
   TextEditingController genderController = TextEditingController();
   TextEditingController professionalDescriptionController =
       TextEditingController();
   TextEditingController professionalCategoryController =
       TextEditingController();
   TextEditingController professionalTitleController = TextEditingController();
+
+// Init firestore and geoFlutterFire
+  final geo = Geoflutterfire();
   String professionalCategory;
   String professionalTitle;
   List<String> professionalCategoriesList = [""];
@@ -70,9 +76,11 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   String instruction = kTellUsAboutYou;
   DateTime birthDate;
 
+  final picker = ImagePicker();
+
   bool get wantKeepAlive => true;
   get user =>
-      widget.firebaseUser != null ? widget.firebaseUser : widget.firestoreUser;
+      widget.firebaseUser != null ? widget.firebaseUser : widget.appUser;
 
   @override
   void initState() {
@@ -410,8 +418,8 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       "professionalPhotoUrl": professionalPhotoUrl,
       "username": usernameController.text,
       "personalBio": personalBioController.text,
-      "location": locationController.text,
-      "birthDate": birthDateController.text,
+      "location": locationGeoPoint,
+      "birthDate": birthDateTimestamp,
       "gender": genderController.text,
       "professionalCategory": professionalCategoryController.text,
       "professionalTitle": professionalTitleController.text,
@@ -420,6 +428,11 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
           "${keyWord3Controller.text};${keyWord4Controller.text};",
       "jobs": null,
       "reviews": null,
+      "globalRate": null,
+      "jobsCount": null,
+      "completionRate": null,
+      "popularityRate": null,
+      "lastReviewTimestamp": null,
       "diploma": diplomaController.text,
       "licence": licenceController.text,
       "certification": certificationController.text,
@@ -456,21 +469,25 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
 
   handleTakePhoto() async {
     Navigator.pop(context);
-    File file = await ImagePicker.pickImage(
+    PickedFile imageFile = await picker.getImage(
       source: ImageSource.camera,
       maxHeight: 675,
       maxWidth: 960,
     );
     setState(() {
-      this.file = file;
+      this.file = File(imageFile.path);
     });
   }
 
   handleChooseFromGallery() async {
     Navigator.pop(context);
-    File file = await ImagePicker.pickImage(source: ImageSource.gallery);
+    PickedFile imageFile = await picker.getImage(
+      source: ImageSource.gallery,
+      maxHeight: 675,
+      maxWidth: 960,
+    );
     setState(() {
-      this.file = file;
+      this.file = File(imageFile.path);
     });
   }
 
@@ -594,9 +611,9 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   }
 
   Future<String> uploadImage(imageFile) async {
-    StorageUploadTask uploadCardTask =
+    UploadTask uploadCardTask =
         storageRef.child("freelancer_${user.id}.jpg").putFile(imageFile);
-    StorageTaskSnapshot storageSnap = await uploadCardTask.onComplete;
+    TaskSnapshot storageSnap = await uploadCardTask.whenComplete(() {});
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     return downloadUrl;
   }
@@ -616,7 +633,6 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     achievementController.clear();
     recommendationController.clear();
     languageController.clear();
-    birthDateController.clear();
     genderController.clear();
     keyWord1Controller.clear();
     keyWord2Controller.clear();
@@ -638,12 +654,13 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   showCalender() async {
     final datePick = await showDatePicker(
         context: context,
-        initialDate: new DateTime.now(),
-        firstDate: new DateTime(1900),
-        lastDate: new DateTime(2100));
+        initialDate: new DateTime(2000),
+        firstDate: new DateTime(1980),
+        lastDate: new DateTime.now());
     if (datePick != null && datePick != birthDate) {
       setState(() {
         birthDate = datePick;
+        birthDateTimestamp = Timestamp.fromDate(birthDate);
         birthDateController.text =
             "${birthDate.day}/${birthDate.month}/${birthDate.year}"; // 08/14/2019
       });
@@ -868,8 +885,30 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
 
   getUserLocation() async {
     // TODO fix permission issue
-    Position position =
-        await getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    bool serviceEnabled;
+    LocationPermission permission;
+    Position position;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permantly denied, we cannot request permissions.');
+    }
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        return Future.error(
+            'Location permissions are denied (actual value: $permission).');
+      }
+    }
+    position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
     List<Placemark> placemarks =
         await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark placemark = placemarks[0];
@@ -877,7 +916,10 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
         " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"
         " ${placemark.country}";
     locationController.text = formattedAddress;
+    locationGeoPoint = GeoPoint(position.latitude, position.longitude);
     addLocation(
+        latitude: position.latitude,
+        longitude: position.longitude,
         country: country,
         administrativeArea: administrativeArea,
         subAdministrativeArea: subAdministrativeArea);
@@ -967,10 +1009,13 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     }
   }
 
-  Future<void> addLocation(
-      {String country,
-      String administrativeArea,
-      String subAdministrativeArea}) async {
+  Future<void> addLocation({
+    String country,
+    String administrativeArea,
+    String subAdministrativeArea,
+    double latitude,
+    double longitude,
+  }) async {
     return await locationsRef
         .document(country)
         .collection("administrativeAreas")
@@ -982,13 +1027,13 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
 }
 
 Future<bool> showCreateFreelanceAccount(BuildContext context,
-    {FirebaseUser firebaseUser, User firestoreUser}) async {
+    {User firebaseUser, AppUser appUser}) async {
   return await Navigator.push(
     context,
     MaterialPageRoute(
       builder: (context) => CreateFreelanceAccount(
         firebaseUser: firebaseUser,
-        firestoreUser: firestoreUser,
+        appUser: appUser,
       ),
     ),
   );

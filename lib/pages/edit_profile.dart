@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
 import 'package:khadamat/constants.dart';
-import 'package:khadamat/models/user.dart';
+import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/progress.dart';
 
@@ -16,7 +16,7 @@ class _EditProfileState extends State<EditProfile> {
   TextEditingController googleNameController = TextEditingController();
   TextEditingController bioController = TextEditingController();
   bool isLoading = false;
-  User user;
+  AppUser user;
   bool _googleNameValid = true;
   bool _bioValid = true;
 
@@ -111,7 +111,7 @@ class _EditProfileState extends State<EditProfile> {
       isLoading = true;
     });
     DocumentSnapshot doc = await usersRef.document(currentUser.id).get();
-    user = User.fromDocument(doc);
+    user = AppUser.fromDocument(doc);
     googleNameController.text = user.googleName;
     bioController.text = user.personalBio;
     setState(() {

@@ -16,7 +16,6 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
   @override
   void initState() {
     super.initState();
-    print("init State");
     getPopularCategories();
   }
 
@@ -65,7 +64,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
-        .orderBy("reviews.rating", descending: true)
+        .orderBy("globalRate", descending: true)
         .getDocuments();
   }
 
@@ -73,7 +72,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
-        .orderBy("reviews.rating", descending: true)
+        .orderBy("experienceRate", descending: true)
         .getDocuments();
   }
 
@@ -81,7 +80,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
-        .orderBy("reviews.rating", descending: true)
+        .orderBy("completionRate", descending: true)
         .getDocuments();
   }
 
@@ -89,7 +88,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
-        .orderBy("reviews.rating", descending: true)
+        .orderBy("popularityRate", descending: true)
         .limit(10)
         .getDocuments();
   }
@@ -98,7 +97,8 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
-        .orderBy("reviews.rating", descending: true)
+        .orderBy("location", descending: true)
+        .orderBy("experienceRate", descending: true)
         .getDocuments();
   }
 
@@ -107,7 +107,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
         .where("teamChoice", isEqualTo: true)
-        .orderBy("reviews.rating", descending: true)
+        .orderBy("globalRate", descending: true)
         .getDocuments();
   }
 
@@ -132,7 +132,5 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
     setState(() {
       popularCategories = snap.documents.map((doc) => doc.documentID).toList();
     });
-    print(popularCategories.first * 10 +
-        "**************************************");
   }
 }

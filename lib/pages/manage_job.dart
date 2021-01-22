@@ -36,7 +36,7 @@ class _ManageJobState extends State<ManageJob> {
 
   bool get isJobOwner => currentUser.id == job.jobOwnerId;
   bool get hasJobFreelancer =>
-      job.isVacant == false &&
+      job.jobState == "onGoing" &&
       job.applications.containsValue(true) &&
       job.jobFreelancerId != null;
 
@@ -77,7 +77,7 @@ class _ManageJobState extends State<ManageJob> {
                 label: kNewJobDescription,
               ),
               CustomField(
-                text: job.location,
+                text: job.location.toString(),
                 label: kNewLocation,
               ),
               CustomField(
@@ -107,16 +107,16 @@ class _ManageJobState extends State<ManageJob> {
         job.jobOwnerId != currentUser.id) return kFreelancerDismissed;
 
     // job on going
-    if (job.isVacant == false && job.applications.containsValue(true))
+    if (job.jobState == "onGoing" && job.applications.containsValue(true))
       return kJobOnGoing;
 
     //job has no freelancer
-    if (job.isVacant == true &&
+    if (job.jobState == "open" &&
         job.applications.containsValue(true) == false &&
         job.jobFreelancerId == null) return kHasNoJobFreelancer;
 
-    // job canceled
-    if (job.isVacant == false) return kJobCanceled;
+    // job closed
+    if (job.jobState == "closed") return kJobCanceled;
 
     // job on unknown state
     return kUnknownStatu;

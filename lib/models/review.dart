@@ -8,9 +8,9 @@ class Review {
   final String jobs;
   final String ownerReview;
   final String freelancerReview;
-  final double ownerMannersRating;
-  final double freelancerJobQualityRating;
-  final double freelancerMannersRating;
+  final double ownerAttitudeRating;
+  final double freelancerQualityRating;
+  final double freelancerAttitudeRating;
   final double freelancerTimeManagementRating;
   final bool isFreelancer;
   final Timestamp createdAt;
@@ -25,9 +25,9 @@ class Review {
     this.createdAt,
     this.ownerReview,
     this.freelancerReview,
-    this.ownerMannersRating,
-    this.freelancerJobQualityRating,
-    this.freelancerMannersRating,
+    this.ownerAttitudeRating,
+    this.freelancerQualityRating,
+    this.freelancerAttitudeRating,
     this.freelancerTimeManagementRating,
   });
 
@@ -40,9 +40,9 @@ class Review {
       isFreelancer: map['isFreelancer'],
       ownerReview: map['ownerReview'],
       freelancerReview: map['freelancerReview'],
-      ownerMannersRating: map['ownerMannersRating'],
-      freelancerJobQualityRating: map['freelancerJobQualityRating'],
-      freelancerMannersRating: map['freelancerMannersRating'],
+      ownerAttitudeRating: map['ownerAttitudeRating'],
+      freelancerQualityRating: map['freelancerQualityRating'],
+      freelancerAttitudeRating: map['freelancerAttitudeRating'],
       freelancerTimeManagementRating: map['freelancerTimeManagementRating'],
     );
   }
@@ -56,9 +56,9 @@ class Review {
       isFreelancer: map['isFreelancer'],
       ownerReview: map['ownerReview'],
       freelancerReview: map['freelancerReview'],
-      ownerMannersRating: map['ownerMannersRating'],
-      freelancerJobQualityRating: map['freelancerJobQualityRating'],
-      freelancerMannersRating: map['freelancerMannersRating'],
+      ownerAttitudeRating: map['ownerAttitudeRating'],
+      freelancerQualityRating: map['freelancerQualityRating'],
+      freelancerAttitudeRating: map['freelancerAttitudeRating'],
       freelancerTimeManagementRating: map['freelancerTimeManagementRating'],
     );
   }

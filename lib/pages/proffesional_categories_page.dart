@@ -44,7 +44,7 @@ class _ProfessionalCategoriesPageState extends State<ProfessionalCategoriesPage>
 //  getCardSuggestions() async {
 //    QuerySnapshot snapshot = await cardsRef
 //        .where("hobTitle", isEqualTo: currentUser.professionalTitle)
-//        .where("isVacant", isEqualTo: false)
+//        .where("jobState", isEqualTo: false)
 //        .orderBy("createdAt", descending: true)
 //        .getDocuments();
 //    List<JobCard> jobs = snapshot.documents

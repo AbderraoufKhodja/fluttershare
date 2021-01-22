@@ -30,7 +30,7 @@ class _JobsScreen extends State<JobsScreen> {
 
   buildListJobs() {
     return StreamBuilder(
-        stream: getVacantJobsList(),
+        stream: getOpenJobsList(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return circularProgress();
@@ -48,10 +48,10 @@ class _JobsScreen extends State<JobsScreen> {
         });
   }
 
-  Stream<QuerySnapshot> getVacantJobsList() {
+  Stream<QuerySnapshot> getOpenJobsList() {
     return jobsRef
         .where("professionalTitle", isEqualTo: widget.title)
-        .where("isVacant", isEqualTo: true)
+        .where("jobState", isEqualTo: "open")
         .orderBy("createdAt", descending: true)
         .snapshots();
   }

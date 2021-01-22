@@ -14,7 +14,7 @@ class DeleteJobScreen extends StatelessWidget {
   });
 
   bool get isJobOwner => currentUser.id == job.jobOwnerId;
-  final TextEditingController reasonOfDeleteController =
+  final TextEditingController reasonOfClosingController =
       TextEditingController();
 
   @override
@@ -31,7 +31,7 @@ class DeleteJobScreen extends StatelessWidget {
             Expanded(
               child: CustomTextField(
                   label: kReasonOfDeleteJob,
-                  controller: reasonOfDeleteController),
+                  controller: reasonOfClosingController),
             ),
             CustomButton(
               padding: 5.0,
@@ -39,7 +39,7 @@ class DeleteJobScreen extends StatelessWidget {
               widthFactor: 2,
               heightFactor: 1.2,
               text: kDelete,
-              function: () => handleDeleteJob(context),
+              function: () => handleCloseJob(context),
             )
           ],
         ),
@@ -47,10 +47,10 @@ class DeleteJobScreen extends StatelessWidget {
     );
   }
 
-  Future<void> handleDeleteJob(BuildContext context) async {
+  Future<void> handleCloseJob(BuildContext context) async {
     await job
-        .deleteJob(deletReason: reasonOfDeleteController.text)
-        .then((value) => job.isVacant = false);
+        .closeJob(closingReason: reasonOfClosingController.text)
+        .then((value) => job.jobState = "closed");
     Navigator.pop(context);
   }
 }

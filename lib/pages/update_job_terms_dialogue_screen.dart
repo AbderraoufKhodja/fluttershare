@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
@@ -10,7 +11,7 @@ class UpdateJobTermsDialogueScreen extends StatelessWidget {
   final Job job;
   final String newJobDescription;
   final String newPrice;
-  final String newLocation;
+  final GeoPoint newLocation;
   final String newDateRange;
 
   UpdateJobTermsDialogueScreen({
@@ -39,7 +40,7 @@ class UpdateJobTermsDialogueScreen extends StatelessWidget {
                   label: kNewJobDescription,
                 ),
                 CustomField(
-                  text: newLocation,
+                  text: newLocation.toString(),
                   label: kNewLocation,
                 ),
                 CustomField(
@@ -102,7 +103,7 @@ Future<void> showUpdateJobTermsDialogueScreen(
   @required Job job,
   @required String newJobDescription,
   @required String newPrice,
-  @required String newLocation,
+  @required GeoPoint newLocation,
   @required String newDateRange,
 }) {
   return Navigator.push(

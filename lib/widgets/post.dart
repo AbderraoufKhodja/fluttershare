@@ -4,7 +4,7 @@ import 'package:animator/animator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:khadamat/models/user.dart';
+import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/widgets/custom_image.dart';
@@ -100,18 +100,18 @@ class _PostState extends State<Post> {
         if (!snapshot.hasData) {
           return circularProgress();
         }
-        User user = User.fromDocument(snapshot.data);
+        AppUser appUser = AppUser.fromDocument(snapshot.data);
         bool isPostOwner = currentUserId == jobOwnerId;
         return ListTile(
           leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(user.photoUrl),
+            backgroundImage: CachedNetworkImageProvider(appUser.photoUrl),
             backgroundColor: Theme.of(context).primaryColor,
           ),
           title: GestureDetector(
             onTap: () => showProfile(context,
-                profileId: user.id, profileName: user.username),
+                profileId: appUser.id, profileName: appUser.username),
             child: Text(
-              user.username,
+              appUser.username,
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,

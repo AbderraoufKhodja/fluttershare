@@ -4,9 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:khadamat/constants.dart';
+import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/models/review.dart';
-import 'package:khadamat/models/user.dart';
 import 'package:khadamat/pages/create_freelance_account.dart';
 import 'package:khadamat/pages/edit_profile.dart';
 import 'package:khadamat/pages/home.dart';
@@ -28,7 +28,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile>
     with AutomaticKeepAliveClientMixin<Profile> {
-  User user;
+  AppUser user;
   String selectedTab = "info";
   bool isHired = false;
   bool isLoading = false;
@@ -40,7 +40,7 @@ class _ProfileState extends State<Profile>
         job.applications[widget.profileId] == null &&
         job.jobOwnerId != widget.profileId &&
         job.jobOwnerId == currentUser.id &&
-        job.isVacant == true &&
+        job.jobState == "open" &&
         job.isOwnerCompleted == false;
   }
 
@@ -62,7 +62,7 @@ class _ProfileState extends State<Profile>
         future: usersRef.document(widget.profileId).get(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return linearProgress();
-          user = User.fromDocument(snapshot.data);
+          user = AppUser.fromDocument(snapshot.data);
           return user.isFreelancer
               ? buildFreelancerScreen(context)
               : buildClientScreen(context);
@@ -86,7 +86,7 @@ class _ProfileState extends State<Profile>
             child: buildButton(
                 text: kCreateCard,
                 function: () => showCreateFreelanceAccount(context,
-                    firestoreUser: currentUser)),
+                    appUser: currentUser)),
           ),
         ],
       ),
@@ -163,7 +163,7 @@ class _ProfileState extends State<Profile>
               ),
             );
           }
-          User user = User.fromDocument(snapshot.data);
+          AppUser user = AppUser.fromDocument(snapshot.data);
           return Padding(
             padding: EdgeInsets.all(16.0),
             child: Column(
@@ -586,7 +586,7 @@ class _ProfileState extends State<Profile>
       job.jobFreelancerId = user.id;
       job.jobFreelancerName = user.username;
       job.jobFreelancerEmail = user.email;
-      job.isVacant = false;
+      job.jobState = "onGoing";
     });
   }
 

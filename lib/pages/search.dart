@@ -1,11 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:khadamat/constants.dart';
-import 'package:khadamat/models/user.dart';
+import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:khadamat/widgets/progress.dart';
@@ -91,7 +89,7 @@ class _SearchState extends State<Search>
         }
         List<FreelancerCard> searchResults = [];
         snapshot.data.documents.forEach((doc) {
-          User user = User.fromDocument(doc);
+          AppUser user = AppUser.fromDocument(doc);
           FreelancerCard searchResult = FreelancerCard(user);
           searchResults.add(searchResult);
         });
@@ -118,7 +116,7 @@ class _SearchState extends State<Search>
 }
 
 class FreelancerCard extends StatelessWidget {
-  final User user;
+  final AppUser user;
 
   FreelancerCard(this.user);
 

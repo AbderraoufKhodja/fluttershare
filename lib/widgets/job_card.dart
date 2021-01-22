@@ -144,7 +144,7 @@ class _JobCardState extends State<JobCard> {
                   maxLines: isShowDetail ? 10 : 2,
                 ),
                 CustomListTile(
-                  description: job.location,
+                  description: job.location.toString(),
                   icon: Icon(
                     Icons.my_location,
                     color: Colors.blueGrey,
@@ -278,7 +278,7 @@ class _JobCardState extends State<JobCard> {
                         context,
                         MaterialPageRoute(
                             builder: (context) => CreateFreelanceAccount(
-                                firestoreUser: currentUser)));
+                                appUser: currentUser)));
                   },
                   child: Text(
                     kCreateCard,

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/manage_job.dart';
 
@@ -18,18 +19,18 @@ class Job {
   final String professionalTitle;
   final String professionalCategory;
   String jobDescription;
-  String location;
+  GeoPoint location;
   String dateRange;
   String price;
   String newJobDescription;
-  String newLocation;
+  GeoPoint newLocation;
   String newDateRange;
   String newPrice;
   String ownerReview;
-  double ownerMannersRating;
+  double ownerAttitudeRating;
   String freelancerReview;
-  double freelancerJobQualityRating;
-  double freelancerMannersRating;
+  double freelancerQualityRating;
+  double freelancerAttitudeRating;
   double freelancerTimeManagementRating;
   final Map applications;
   final Timestamp createdAt;
@@ -38,7 +39,7 @@ class Job {
   Timestamp freelancerCompletedAt;
   bool isOwnerCompleted;
   bool isFreelancerCompleted;
-  bool isVacant;
+  String jobState;
   bool hasFreelancerUpdateRequest;
   bool hasOwnerUpdateRequest;
 
@@ -65,13 +66,13 @@ class Job {
     this.newDateRange,
     this.newPrice,
     this.ownerReview,
-    this.ownerMannersRating,
+    this.ownerAttitudeRating,
     this.freelancerReview,
-    this.freelancerJobQualityRating,
-    this.freelancerMannersRating,
+    this.freelancerQualityRating,
+    this.freelancerAttitudeRating,
     this.freelancerTimeManagementRating,
     this.applications,
-    this.isVacant,
+    this.jobState,
     this.isOwnerCompleted,
     this.isFreelancerCompleted,
     this.hasFreelancerUpdateRequest,
@@ -105,15 +106,15 @@ class Job {
       newDateRange: doc['newDateRange'],
       newPrice: doc['newPrice'],
       ownerReview: doc['ownerReview'],
-      ownerMannersRating: doc['ownerMannersRating'],
+      ownerAttitudeRating: doc['ownerAttitudeRating'],
       freelancerReview: doc['freelancerReview'],
-      freelancerJobQualityRating: doc['freelancerJobQualityRating'],
-      freelancerMannersRating: doc['freelancerMannersRating'],
+      freelancerQualityRating: doc['freelancerQualityRating'],
+      freelancerAttitudeRating: doc['freelancerAttitudeRating'],
       freelancerTimeManagementRating: doc['timeManagementRating'],
       applications: doc["applications"],
       hasFreelancerUpdateRequest: doc["hasFreelancerUpdateRequest"],
       hasOwnerUpdateRequest: doc["hasOwnerUpdateRequest"],
-      isVacant: doc["isVacant"],
+      jobState: doc["jobState"],
       isOwnerCompleted: doc["isOwnerCompleted"],
       isFreelancerCompleted: doc["isFreelancerCompleted"],
       ownerCompletedAt: doc["ownerCompletedAt"],
@@ -135,31 +136,31 @@ class Job {
   }
 
   // Note: To delete job, jobOwnerId and currentUser.id must be equal, so they can be used interchangeably
-  Future<void> deleteJob({@required String deletReason}) async {
+  Future<void> closeJob({@required String closingReason}) async {
     final bool isJobOwner = currentUser.id == jobOwnerId;
     if (isJobOwner) {
-      jobsRef.document(jobId).updateData({"isVacant": false});
+      jobsRef.document(jobId).updateData({"jobState": "closed"});
       usersRef.document(jobOwnerId).updateData({
-        "jobs.$jobId.isVacant": false,
+        "jobs.$jobId.state": "closed",
       });
       addDeleteJobFeed(id: jobOwnerId);
 
       storageRef.child("job_$jobId.jpg").delete();
 
       uploadTeamNotification(
-          messageText: deletReason, type: "deletJustification");
+          messageText: closingReason, type: "deletJustification");
 
       if (jobFreelancerId != null)
         usersRef.document(jobFreelancerId).updateData({
-          "jobs.$jobId.isVacant": false,
+          "jobs.$jobId.state": "closed",
         });
     }
   }
 
   Future<void> handleDismissAndReviewFreelancer({
     @required String freelancerReview,
-    @required double freelancerJobQualityRating,
-    @required double freelancerMannersRating,
+    @required double freelancerQualityRating,
+    @required double freelancerAttitudeRating,
     @required double freelancerTimeManagementRating,
   }) async {
     addDismissFeed(
@@ -176,12 +177,12 @@ class Job {
         messageText: freelancerReview, type: "dismissJustification");
     // Update on firestore
     clearJobFreelancerAndMakeJobVaccant();
-    addUserReview(
+    addUserReviewAndUpdateUserJob(
       id: jobFreelancerId,
       type: "dismiss",
       freelancerReview: freelancerReview,
-      freelancerJobQualityRating: freelancerJobQualityRating,
-      freelancerMannersRating: freelancerMannersRating,
+      freelancerQualityRating: freelancerQualityRating,
+      freelancerAttitudeRating: freelancerAttitudeRating,
       freelancerTimeManagementRating: freelancerTimeManagementRating,
     );
   }
@@ -190,7 +191,7 @@ class Job {
     @required String applicantId,
     @required String applicantName,
   }) {
-    // TODO add isVacant sanity check
+    // TODO add jobState sanity check
     bool _isApplied = applications.containsKey(applicantId) &&
         applications[applicantId] == null;
     if (_isApplied) {
@@ -285,11 +286,6 @@ class Job {
           type: "acceptApplication",
           applicantId: applicantId,
           applicantName: applicantName);
-      // Create a userJobs reference in firestore to store to point to
-      // the message ids for the freelancer that can be used to list the messages.
-      createUserJob(
-          id: jobOwnerId); // Create a userJobs reference in firestore to store a reference to point to
-      // the message ids for the job jobOwner that can be used to list the messages.
       createUserJob(id: applicantId);
       // create a chat reference on firestore
       openChat(applicantId: applicantId);
@@ -413,22 +409,22 @@ class Job {
         'jobFreelancerEmail': applicantEmail,
         'jobFreelancerEnrollmentDate': FieldValue.serverTimestamp(),
         'applications.$applicantId': isAccept,
-        'isVacant': !isAccept,
+        'jobState': "onGoing",
       }).then((_) {
         jobFreelancerId = applicantId;
         jobFreelancerName = applicantName;
         jobFreelancerEmail = applicantEmail;
         jobFreelancerEnrollmentDate = Timestamp.now();
         applications[applicantId] = isAccept;
-        isVacant = !isAccept;
+        jobState = "onGoing";
       });
     else
       jobsRef.document(jobId).updateData({
         'applications.$applicantId': isAccept,
-        'isVacant': !isAccept,
+        'jobState': "open",
       }).then((_) {
         applications[applicantId] = isAccept;
-        isVacant = !isAccept;
+        jobState = "open";
       });
   }
 
@@ -440,7 +436,10 @@ class Job {
         "professionalTitle": professionalTitle,
         "jobOwnerId": jobOwnerId,
         "jobOwnerName": jobOwnerName,
+        "jobState": jobState,
         "createdAt": FieldValue.serverTimestamp(),
+        "isOwnerCompleted": false,
+        "isFreelancerCompleted": false,
       }
     });
   }
@@ -489,14 +488,31 @@ class Job {
     addCompleteAndReviewFeed(id: jobOwnerId);
     addCompleteAndReviewFeed(id: jobFreelancerId);
 
+    usersRef.document(jobOwnerId).updateData({
+      "job.$jobId": {
+        "isOwnerCompleted": true,
+      },
+      "reviews.$jobId": {
+        "type": "jobCompleted",
+        "jobId": jobId,
+        "jobTitle": jobTitle,
+        "professionalTitle": professionalTitle,
+        "jobOwnerName": jobOwnerName,
+        "jobOwnerId": jobOwnerId,
+        "ownerReview": ownerReview,
+        "ownerRating": ownerRating,
+        "createdAt": FieldValue.serverTimestamp(),
+      }
+    });
+
     jobsRef.document(jobId).updateData({
       "ownerReview": ownerReview,
-      "ownerMannersRating": ownerRating,
+      "ownerAttitudeRating": ownerRating,
       "isFreelancerCompleted": true,
       "freelancerCompletedAt": FieldValue.serverTimestamp(),
     }).then((value) {
       this.ownerReview = ownerReview;
-      this.ownerMannersRating = ownerRating;
+      this.ownerAttitudeRating = ownerRating;
       isFreelancerCompleted = true;
       freelancerCompletedAt = Timestamp.now();
     });
@@ -523,32 +539,32 @@ class Job {
 
   Future<void> ownerCompleteAndReviewJob({
     @required String freelancerReview,
-    @required double freelancerJobQualityRating,
-    @required double freelancerMannersRating,
+    @required double freelancerQualityRating,
+    @required double freelancerAttitudeRating,
     @required double freelancerTimeManagementRating,
   }) async {
     addCompleteAndReviewFeed(id: jobOwnerId);
     addCompleteAndReviewFeed(id: jobFreelancerId);
-    addUserReview(
+    addUserReviewAndUpdateUserJob(
       id: jobFreelancerId,
       type: "jobCompleted",
       freelancerReview: freelancerReview,
-      freelancerJobQualityRating: freelancerJobQualityRating,
-      freelancerMannersRating: freelancerMannersRating,
+      freelancerQualityRating: freelancerQualityRating,
+      freelancerAttitudeRating: freelancerAttitudeRating,
       freelancerTimeManagementRating: freelancerTimeManagementRating,
     );
 
     jobsRef.document(jobId).updateData({
       "freelancerReview": freelancerReview,
-      "freelancerJobQualityRating": freelancerJobQualityRating,
-      "freelancerMannersRating": freelancerMannersRating,
+      "freelancerQualityRating": freelancerQualityRating,
+      "freelancerAttitudeRating": freelancerAttitudeRating,
       "freelancerTimeManagementRating": freelancerTimeManagementRating,
       "isOwnerCompleted": true,
       "ownerCompletedAt": FieldValue.serverTimestamp(),
     }).then((_) {
       this.freelancerReview = freelancerReview;
-      this.freelancerJobQualityRating = freelancerJobQualityRating;
-      this.freelancerMannersRating = freelancerMannersRating;
+      this.freelancerQualityRating = freelancerQualityRating;
+      this.freelancerAttitudeRating = freelancerAttitudeRating;
       this.freelancerTimeManagementRating = freelancerTimeManagementRating;
       this.isOwnerCompleted = true;
       this.ownerCompletedAt = Timestamp.now();
@@ -568,8 +584,8 @@ class Job {
       "jobFreelancerId": jobFreelancerId,
       "jobFreelancerName": jobFreelancerName,
       "freelancerReview": freelancerReview,
-      "freelancerJobQualityRating": freelancerJobQualityRating,
-      "freelancerMannersRating": freelancerMannersRating,
+      "freelancerQualityRating": freelancerQualityRating,
+      "freelancerAttitudeRating": freelancerAttitudeRating,
       "freelancerTimeManagementRating": freelancerTimeManagementRating,
       "read": false,
       "createdAt": FieldValue.serverTimestamp(),
@@ -582,7 +598,7 @@ class Job {
       @required String requestOwnerName,
       @required String requestOwnerId,
       @required String newPrice,
-      @required String newLocation,
+      @required GeoPoint newLocation,
       @required String newDateRange,
       @required String newJobDescription}) {
     return activityFeedRef
@@ -691,17 +707,17 @@ class Job {
     );
 
     jobsRef.document(jobId).updateData({
-      "newJobDescription": "",
-      "newDateRange": "",
-      "newLocation": "",
-      "newPrice": "",
+      "newJobDescription": null,
+      "newDateRange": null,
+      "newLocation": null,
+      "newPrice": null,
       "hasFreelancerUpdateRequest": false,
       "hasOwnerUpdateRequest": false,
     }).then((value) {
-      newJobDescription = "";
-      newDateRange = "";
-      newLocation = "";
-      newPrice = "";
+      newJobDescription = null;
+      newDateRange = null;
+      newLocation = null;
+      newPrice = null;
       hasFreelancerUpdateRequest = false;
       hasOwnerUpdateRequest = false;
     });
@@ -712,7 +728,7 @@ class Job {
     @required String requestOwnerId,
     @required String newJobDescription,
     @required String newPrice,
-    @required String newLocation,
+    @required GeoPoint newLocation,
     @required String newDateRange,
   }) async {
     addRequestUpdateTermsFeed(
@@ -761,7 +777,7 @@ class Job {
       "jobFreelancerName": null,
       "jobFreelancerEmail": null,
       "applications.$jobFreelancerId": false,
-      "isVacant": true,
+      "jobState": "open",
     });
   }
 
@@ -789,13 +805,13 @@ class Job {
       "newDateRange": newDateRange,
       "ownerReview": ownerReview,
       "freelancerReview": freelancerReview,
-      "freelancerJobQualityRating": freelancerJobQualityRating,
-      "mannersRating": freelancerMannersRating,
+      "freelancerQualityRating": freelancerQualityRating,
+      "attitudeRating": freelancerAttitudeRating,
       "timeManagement": freelancerTimeManagementRating,
       "applications": applications,
       "hasFreelancerUpdateRequest": hasFreelancerUpdateRequest,
       "hasOwnerUpdateRequest": hasOwnerUpdateRequest,
-      "isVacant": isVacant,
+      "jobState": jobState,
       "isOwnerCompleted": isOwnerCompleted,
       "isFreelancerCompleted": isFreelancerCompleted,
       "createdAt": FieldValue.serverTimestamp(),
@@ -811,7 +827,7 @@ class Job {
       "jobFreelancerId": null,
       "jobFreelancerName": null,
       "jobFreelancerEmail": null,
-      "isVacant": true,
+      "jobState": true,
       "isOwnerCompleted": false,
       "hasFreelancerUpdateRequest": false,
     }).then((value) {
@@ -819,7 +835,7 @@ class Job {
       jobFreelancerId = null;
       jobFreelancerName = null;
       jobFreelancerEmail = null;
-      isVacant = true;
+      jobState = "open";
       isOwnerCompleted = false;
       hasFreelancerUpdateRequest = false;
     });
@@ -861,29 +877,66 @@ class Job {
     });
   }
 
-  Future<void> addUserReview({
+  Future<void> addUserReviewAndUpdateUserJob({
     @required String id,
     @required String type,
     @required String freelancerReview,
-    @required double freelancerJobQualityRating,
-    @required double freelancerMannersRating,
+    @required double freelancerQualityRating,
+    @required double freelancerAttitudeRating,
     @required double freelancerTimeManagementRating,
   }) async {
-    usersRef.document(id).updateData({
-      "reviews.$jobId": {
-        "type": type,
-        "jobId": jobId,
-        "jobTitle": jobTitle,
-        "professionalTitle": professionalTitle,
-        "jobOwnerName": jobOwnerName,
-        "jobOwnerId": jobOwnerId,
-        "freelancerReview": freelancerReview,
-        "freelancerJobQualityRating": freelancerJobQualityRating,
-        "freelancerMannersRating": freelancerMannersRating,
-        "freelancerTimeManagementRating": freelancerTimeManagementRating,
-        "createdAt": FieldValue.serverTimestamp(),
-      }
+    AppUser user;
+    await usersRef.document(id).get().then((doc) {
+      user = AppUser.fromDocument(doc);
+      double reviewsCount = user.reviews.length.toDouble();
+      double jobsCount = user.jobs.length.toDouble();
+      double newCompletedJobsCount = 0;
+      user.jobs.values.forEach((job) {
+        if (job['jobState'] == "jobCompleted") newCompletedJobsCount += 1.0;
+      });
+      double newCompletionRate = newCompletedJobsCount / jobsCount;
+      double newQualityRateAverage = computeNewAverage(
+          user.qualityRating, reviewsCount, freelancerQualityRating);
+      double newAttitudeRateAverage = computeNewAverage(
+          user.attitudeRating, reviewsCount, freelancerAttitudeRating);
+      double newTimeManagementRateAverage = computeNewAverage(
+          user.timeManagementRating,
+          reviewsCount,
+          freelancerTimeManagementRating);
+      double newGlobalRateAverage = (newQualityRateAverage +
+              newAttitudeRateAverage +
+              newTimeManagementRateAverage) /
+          3;
+      usersRef.document(id).updateData({
+        "qualityRate": newQualityRateAverage,
+        "attitudeRate": newAttitudeRateAverage,
+        "timeManagementRate": newTimeManagementRateAverage,
+        "globalRate": newGlobalRateAverage,
+        "completionRate": newCompletionRate,
+        "jobsCount": newCompletedJobsCount,
+        "job.$jobId": {
+          "jobState": type,
+        },
+        "reviews.$jobId": {
+          "type": type,
+          "jobId": jobId,
+          "jobTitle": jobTitle,
+          "professionalTitle": professionalTitle,
+          "jobOwnerName": jobOwnerName,
+          "jobOwnerId": jobOwnerId,
+          "freelancerReview": freelancerReview,
+          "freelancerQualityRating": freelancerQualityRating,
+          "freelancerAttitudeRating": freelancerAttitudeRating,
+          "freelancerTimeManagementRating": freelancerTimeManagementRating,
+          "createdAt": FieldValue.serverTimestamp(),
+        }
+      });
     });
+  }
+
+  double computeNewAverage(
+      double currentValue, double length, double newValue) {
+    return ((currentValue * length) + newValue) / (length + 1);
   }
 }
 
@@ -910,13 +963,13 @@ class JobFirestoreFieldName {
   static String ffnNewDateRange = "ffnNewDateRange";
   static String ffnOwnerReview = "ffnOwnerReview";
   static String ffnFreelancerReview = "ffnFreelancerReview";
-  static String ffnFreelancerJobQualityRating = "ffnFreelancerJobQualityRating";
-  static String ffnMannersRating = "ffnMannersRating";
+  static String ffnFreelancerQualityRating = "ffnFreelancerQualityRating";
+  static String ffnAttitudeRating = "ffnAttitudeRating";
   static String ffnTimeManagement = "ffnTimeManagement";
   static String ffnApplications = "ffnApplications";
   static String ffnHasFreelancerUpdateRequest = "ffnHasFreelancerUpdateRequest";
   static String ffnHasOwnerUpdateRequest = "ffnHasOwnerUpdateRequest";
-  static String ffnIsVacant = "ffnIsVacant";
+  static String jobState = "ffnJobState";
   static String ffnIsOwnerCompleted = "ffnIsOwnerCompleted";
   static String ffnIsFreelancerCompleted = "ffnIsFreelancerCompleted";
   static String ffnCreatedAt = "ffnCreatedAt";

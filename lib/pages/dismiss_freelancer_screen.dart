@@ -26,7 +26,7 @@ class _DismissFreelancerScreenState extends State<DismissFreelancerScreen> {
 
   double freelancerWorkQuality;
 
-  double freelancerManners;
+  double freelancerAttitude;
 
   double freelancerTimeManagement;
 
@@ -83,8 +83,8 @@ class _DismissFreelancerScreenState extends State<DismissFreelancerScreen> {
                     onRatingUpdate: (rating) => freelancerWorkQuality = rating,
                   ),
                   buildRatingBar(
-                    title: kFreelancerManners,
-                    onRatingUpdate: (rating) => freelancerManners = rating,
+                    title: kFreelancerAttitude,
+                    onRatingUpdate: (rating) => freelancerAttitude = rating,
                   ),
                   buildRatingBar(
                     title: kFreelancerTimeManagement,
@@ -137,7 +137,7 @@ class _DismissFreelancerScreenState extends State<DismissFreelancerScreen> {
                       bottomRight: Radius.circular(10.0)),
                   color: Colors.white,
                 ),
-                child: RatingBar(
+                child: RatingBar.builder(
                   initialRating: 3,
                   minRating: 1,
                   direction: Axis.horizontal,
@@ -163,15 +163,15 @@ class _DismissFreelancerScreenState extends State<DismissFreelancerScreen> {
         ? await job
             .handleDismissAndReviewFreelancer(
             freelancerReview: reviewController.text,
-            freelancerJobQualityRating: freelancerWorkQuality,
-            freelancerMannersRating: freelancerManners,
+            freelancerQualityRating: freelancerWorkQuality,
+            freelancerAttitudeRating: freelancerAttitude,
             freelancerTimeManagementRating: freelancerTimeManagement,
           )
             .then((value) {
             job.jobFreelancerId = null;
             job.jobFreelancerName = null;
             job.jobFreelancerEmail = null;
-            job.isVacant = true;
+            job.jobState = "open";
           })
         : await job
             .freelancerQuitAndReviewOwner(
@@ -182,7 +182,7 @@ class _DismissFreelancerScreenState extends State<DismissFreelancerScreen> {
             job.jobFreelancerId = null;
             job.jobFreelancerName = null;
             job.jobFreelancerEmail = null;
-            job.isVacant = true;
+            job.jobState = "open";
           });
     Navigator.pop(context);
   }
