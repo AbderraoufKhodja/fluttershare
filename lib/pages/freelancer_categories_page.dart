@@ -56,14 +56,14 @@ class _FreelancerCategoriesPage extends State<FreelancerCategoriesPage> {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: currentUser.preferences)
-        .getDocuments();
+        .get();
   }
 
   Future<QuerySnapshot> getSuggestedForYouSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: currentUser.preferences)
-        .getDocuments();
+        .get();
   }
 
   Future<QuerySnapshot> getRecentlyReviewdSection() {
@@ -71,7 +71,7 @@ class _FreelancerCategoriesPage extends State<FreelancerCategoriesPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: currentUser.preferences)
         .orderBy("reviews.lastReviewTimestamp", descending: true)
-        .getDocuments();
+        .get();
   }
 
   Future<QuerySnapshot> getNewTalentsSection() {
@@ -80,7 +80,7 @@ class _FreelancerCategoriesPage extends State<FreelancerCategoriesPage> {
         .where("professionalCategory", whereIn: currentUser.preferences)
         .orderBy("createdAt", descending: true)
         .limit(10)
-        .getDocuments();
+        .get();
   }
 
   Future<QuerySnapshot> getTopFreelancerSection() {
@@ -88,7 +88,7 @@ class _FreelancerCategoriesPage extends State<FreelancerCategoriesPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: currentUser.preferences)
         .orderBy("reviews.rating", descending: true)
-        .getDocuments();
+        .get();
   }
 
   Future<QuerySnapshot> getTeamChoiceFreelancerSection() {
@@ -96,7 +96,7 @@ class _FreelancerCategoriesPage extends State<FreelancerCategoriesPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: currentUser.preferences)
         .where("teamChoice", isEqualTo: true)
-        .getDocuments();
+        .get();
   }
 
   Future<QuerySnapshot> getBeTheFirstToHireSection() {
@@ -104,13 +104,13 @@ class _FreelancerCategoriesPage extends State<FreelancerCategoriesPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: currentUser.preferences)
         .where("jobs", isNull: true)
-        .getDocuments();
+        .get();
   }
 
   Future<QuerySnapshot> getAroundMeSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: currentUser.preferences)
-        .getDocuments();
+        .get();
   }
 }

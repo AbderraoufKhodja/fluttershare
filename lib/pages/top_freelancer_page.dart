@@ -65,7 +65,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("globalRate", descending: true)
-        .getDocuments();
+        .get();
   }
 
   Future<QuerySnapshot> getMostExperiencedSection() {
@@ -73,7 +73,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("experienceRate", descending: true)
-        .getDocuments();
+        .get();
   }
 
   Future<QuerySnapshot> getHighestCompletionRateSection() {
@@ -81,7 +81,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("completionRate", descending: true)
-        .getDocuments();
+        .get();
   }
 
   Future<QuerySnapshot> getPopularAdvisorsSection() {
@@ -90,7 +90,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("popularityRate", descending: true)
         .limit(10)
-        .getDocuments();
+        .get();
   }
 
   Future<QuerySnapshot> getTopFreelancersAroundMeSection() {
@@ -99,7 +99,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("location", descending: true)
         .orderBy("experienceRate", descending: true)
-        .getDocuments();
+        .get();
   }
 
   Future<QuerySnapshot> getTopTeamChoiceFreelancersSection() {
@@ -108,7 +108,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("professionalCategory", whereIn: popularCategories)
         .where("teamChoice", isEqualTo: true)
         .orderBy("globalRate", descending: true)
-        .getDocuments();
+        .get();
   }
 
   Future<QuerySnapshot> getFastCompletionsSection() {
@@ -116,7 +116,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("reviews.rating", descending: true)
-        .getDocuments();
+        .get();
   }
 
   Future<QuerySnapshot> getHighQualityFreelancersSection() {
@@ -124,13 +124,13 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("reviews.rating", descending: true)
-        .getDocuments();
+        .get();
   }
 
   Future<void> getPopularCategories() async {
-    QuerySnapshot snap = await popularCategoriesRef.getDocuments();
+    QuerySnapshot snap = await popularCategoriesRef.get();
     setState(() {
-      popularCategories = snap.documents.map((doc) => doc.documentID).toList();
+      popularCategories = snap.docs.map((doc) => doc.id).toList();
     });
   }
 }

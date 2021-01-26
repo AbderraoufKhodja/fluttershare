@@ -36,7 +36,7 @@ class _JobsScreen extends State<JobsScreen> {
             return circularProgress();
           }
           List<JobCard> jobs = [];
-          snapshot.data.documents.forEach((doc) {
+          snapshot.data.docs.forEach((doc) {
             jobs.add(JobCard(Job.fromDocument(doc)));
           });
           print(jobs);

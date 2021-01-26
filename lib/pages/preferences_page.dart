@@ -54,9 +54,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
   }
 
   Future<List<C2Choice<String>>> getChoices() async {
-    QuerySnapshot snapshot = await categoriesRef.getDocuments();
+    QuerySnapshot snapshot = await categoriesRef.get();
     return C2Choice.listFrom<String, dynamic>(
-      source: snapshot.documents.map((doc) => doc.documentID).toList(),
+      source: snapshot.docs.map((doc) => doc.id).toList(),
       value: (index, item) => item,
       label: (index, item) => item,
       meta: (index, item) => item,
@@ -64,7 +64,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
   }
 
   updatePreferances() {
-    usersRef.document(currentUser.id).updateData({"preferences": value}).then(
+    usersRef.doc(currentUser.id).update({"preferences": value}).then(
         (val) => currentUser.preferences = value);
   }
 }

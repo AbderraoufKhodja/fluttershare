@@ -9,7 +9,7 @@ PODS:
     - Firebase/Auth
     - Firebase/Core
     - Firebase/Database
-    - Firebase/Firestore
+    - Firebase/FirebaseFirestore
     - Flutter
   - Firebase/Auth (5.20.2):
     - Firebase/CoreOnly
@@ -22,7 +22,7 @@ PODS:
   - Firebase/Database (5.20.2):
     - Firebase/CoreOnly
     - FirebaseDatabase (= 5.1.1)
-  - Firebase/Firestore (5.20.2):
+  - Firebase/FirebaseFirestore (5.20.2):
     - Firebase/CoreOnly
     - FirebaseFirestore (= 1.2.1)
   - Firebase/Messaging (5.20.2):

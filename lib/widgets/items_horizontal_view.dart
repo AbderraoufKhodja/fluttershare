@@ -32,7 +32,7 @@ class ItemsHorizontalView extends StatelessWidget {
               return circularProgress();
             }
             List<FreelancerCard> freelancersList = [];
-            snapshot.data.documents.forEach((doc) {
+            snapshot.data.docs.forEach((doc) {
               AppUser user = AppUser.fromDocument(doc);
               FreelancerCard freelancer = FreelancerCard(user);
               freelancersList.add(freelancer);

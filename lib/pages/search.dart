@@ -19,9 +19,8 @@ class _SearchState extends State<Search>
   Future<QuerySnapshot> searchResultsFuture;
 
   handleSearch(String query) {
-    Future<QuerySnapshot> users = usersRef
-        .where("googleName", isGreaterThanOrEqualTo: query)
-        .getDocuments();
+    Future<QuerySnapshot> users =
+        usersRef.where("googleName", isGreaterThanOrEqualTo: query).get();
     setState(() {
       searchResultsFuture = users;
     });
@@ -88,7 +87,7 @@ class _SearchState extends State<Search>
           return circularProgress();
         }
         List<FreelancerCard> searchResults = [];
-        snapshot.data.documents.forEach((doc) {
+        snapshot.data.docs.forEach((doc) {
           AppUser user = AppUser.fromDocument(doc);
           FreelancerCard searchResult = FreelancerCard(user);
           searchResults.add(searchResult);

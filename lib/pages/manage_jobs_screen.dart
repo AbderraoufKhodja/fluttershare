@@ -23,16 +23,16 @@ class _JobsScreen extends State<ManageJobsScreen> {
 buildListJobs() {
   return FutureBuilder(
       future: usersRef
-          .document(currentUser.id)
+          .doc(currentUser.id)
           .collection('userJobs')
           .orderBy("createdAt", descending: false)
-          .getDocuments(),
+          .get(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return circularProgress();
         }
         List<JobContainer> job = [];
-        snapshot.data.documents.forEach((doc) {
+        snapshot.data.docs.forEach((doc) {
           job.add(JobContainer.fromDocument(doc));
         });
         return ListView(

@@ -32,8 +32,11 @@ class _ActivityFeedState extends State<ActivityFeed> {
               if (!snapshot.hasData) {
                 return circularProgress();
               }
+              if (snapshot.data == null) {
+                return Center(child: Text(kEmpty));
+              }
               List<ActivityFeedItem> feedItems = [];
-              snapshot.data.documents.forEach((doc) {
+              snapshot.data.docs.forEach((doc) {
                 feedItems.add(ActivityFeedItem.fromDocument(doc));
               });
               return ListView(
@@ -48,7 +51,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
 
   getActivityFeed() {
     return activityFeedRef
-        .document(currentUser.id)
+        .doc(currentUser.id)
         .collection('feedItems')
         .orderBy('createdAt', descending: true)
         .limit(30)
@@ -113,26 +116,30 @@ class ActivityFeedItem extends StatelessWidget {
 
   factory ActivityFeedItem.fromDocument(DocumentSnapshot doc) {
     return ActivityFeedItem(
-      type: doc['type'],
-      jobId: doc['jobId'],
-      jobChatId: doc['jobChatId'],
-      professionalTitle: doc['professionalTitle'],
-      jobTitle: doc['jobTitle'],
-      jobOwnerName: doc['jobOwnerName'],
-      jobOwnerId: doc['jobOwnerId'],
-      jobFreelancerName: doc['jobFreelancerName'],
-      jobFreelancerId: doc['jobFreelancerId'],
-      applicantName: doc['applicantName'],
-      applicantId: doc['applicantId'],
-      requestOwnerName: doc['requestOwnerName'],
-      requestOwnerId: doc['requestOwnerId'],
-      newPrice: doc['newPrice'],
-      newLocation: doc['newLocation'],
-      newDateRange: doc['newDateRange'],
-      userProfileImg: doc['userProfileImg'],
-      createdAt: doc['createdAt'],
-      feedReference: doc.reference,
-    );
+        type: fieldGetter(document: doc, field: 'type'),
+        jobId: fieldGetter(document: doc, field: 'jobId'),
+        jobChatId: fieldGetter(document: doc, field: 'jobChatId'),
+        professionalTitle:
+            fieldGetter(document: doc, field: 'professionalTitle'),
+        jobTitle: fieldGetter(document: doc, field: 'jobTitle'),
+        jobOwnerName: fieldGetter(document: doc, field: 'jobOwnerName'),
+        jobOwnerId: fieldGetter(document: doc, field: 'jobOwnerId'),
+        jobFreelancerName:
+            fieldGetter(document: doc, field: 'jobFreelancerName'),
+        jobFreelancerId: fieldGetter(document: doc, field: 'jobFreelancerId'),
+        applicantName: fieldGetter(document: doc, field: 'applicantName'),
+        applicantId: fieldGetter(document: doc, field: 'applicantId'),
+        requestOwnerName: fieldGetter(document: doc, field: 'requestOwnerName'),
+        requestOwnerId: fieldGetter(document: doc, field: 'requestOwnerId'),
+        newPrice: fieldGetter(document: doc, field: 'newPrice'),
+        newLocation: fieldGetter(document: doc, field: 'newLocation'),
+        newDateRange: fieldGetter(document: doc, field: 'newDateRange'),
+        userProfileImg: fieldGetter(document: doc, field: 'userProfileImg'),
+        createdAt: fieldGetter(document: doc, field: 'createdAt'),
+        feedReference: fieldGetter(
+          document: doc,
+          field: doc.reference.id,
+        ));
   }
 
   bool get isJobOwner => currentUser.id == jobOwnerId;
@@ -155,7 +162,7 @@ class ActivityFeedItem extends StatelessWidget {
         color: Colors.blue,
       );
       onTap = () async {
-        DocumentSnapshot doc = await jobsRef.document(jobId).get();
+        DocumentSnapshot doc = await jobsRef.doc(jobId).get();
         if (doc.exists) {
           Job job = Job.fromDocument(doc);
           if (job.jobState == "open")
@@ -283,7 +290,7 @@ class ActivityFeedItem extends StatelessWidget {
     }
   }
 
-  Future<void> markAsRead() => feedReference.updateData({"read": true});
+  Future<void> markAsRead() => feedReference.update({"read": true});
 
   bool get isRequestOwner => requestOwnerId == currentUser.id;
 

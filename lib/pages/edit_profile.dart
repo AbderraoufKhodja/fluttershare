@@ -110,7 +110,7 @@ class _EditProfileState extends State<EditProfile> {
     setState(() {
       isLoading = true;
     });
-    DocumentSnapshot doc = await usersRef.document(currentUser.id).get();
+    DocumentSnapshot doc = await usersRef.doc(currentUser.id).get();
     user = AppUser.fromDocument(doc);
     googleNameController.text = user.googleName;
     bioController.text = user.personalBio;
@@ -174,7 +174,7 @@ class _EditProfileState extends State<EditProfile> {
     });
 
     if (_googleNameValid && _bioValid) {
-      usersRef.document(currentUser.id).updateData({
+      usersRef.doc(currentUser.id).update({
         "googleName": googleNameController.text,
         "bio": bioController.text,
       });

@@ -684,29 +684,27 @@ class _UploadJobState extends State<UploadJob>
   }
 
   Future<void> getCategoriesList() async {
-    QuerySnapshot snapshot = await categoriesRef.getDocuments();
+    QuerySnapshot snapshot = await categoriesRef.get();
     setState(() {
-      professionalCategoriesList =
-          snapshot.documents.map((doc) => doc.documentID).toList();
+      professionalCategoriesList = snapshot.docs.map((doc) => doc.id).toList();
       professionalTitlesList = [""];
     });
   }
 
   Future<void> getProfessionalTitlesList(StateSetter setState) async {
     QuerySnapshot snapshot = await categoriesRef
-        .document(professionalCategory)
+        .doc(professionalCategory)
         .collection("professionalTitles")
-        .getDocuments();
+        .get();
     setState(() {
-      professionalTitlesList =
-          snapshot.documents.map((doc) => doc.documentID).toList();
+      professionalTitlesList = snapshot.docs.map((doc) => doc.id).toList();
     });
   }
 
   getCountriesList() async {
-    QuerySnapshot snapshot = await locationsRef.getDocuments();
+    QuerySnapshot snapshot = await locationsRef.get();
     setState(() {
-      countriesList = snapshot.documents.map((doc) => doc.documentID).toList();
+      countriesList = snapshot.docs.map((doc) => doc.id).toList();
       administrativeAreasList = [""];
       subAdministrativeAreasList = [""];
     });
@@ -715,12 +713,11 @@ class _UploadJobState extends State<UploadJob>
   Future<void> getAdministrativeAreasList(StateSetter setState) async {
     if (country.isNotEmpty) {
       QuerySnapshot snapshot = await locationsRef
-          .document(country)
+          .doc(country)
           .collection("administrativeAreas")
-          .getDocuments();
+          .get();
       setState(() {
-        administrativeAreasList =
-            snapshot.documents.map((doc) => doc.documentID).toList();
+        administrativeAreasList = snapshot.docs.map((doc) => doc.id).toList();
         subAdministrativeAreasList = [""];
       });
     }
@@ -729,14 +726,14 @@ class _UploadJobState extends State<UploadJob>
   Future<void> getSubAdministrativeAreasList(StateSetter setState) async {
     if (country.isNotEmpty && administrativeArea.isNotEmpty) {
       QuerySnapshot snapshot = await locationsRef
-          .document(country)
+          .doc(country)
           .collection("administrativeAreas")
-          .document(administrativeArea)
+          .doc(administrativeArea)
           .collection("subAdministrativeAreas")
-          .getDocuments();
+          .get();
       setState(() {
         subAdministrativeAreasList =
-            snapshot.documents.map((doc) => doc.documentID).toList();
+            snapshot.docs.map((doc) => doc.id).toList();
       });
     }
   }
@@ -744,7 +741,7 @@ class _UploadJobState extends State<UploadJob>
   Future<void> handleAddProfessionalCategoriesList(
       {StateSetter setState, String professionalCategory}) async {
     if (professionalCategory.isNotEmpty) {
-      await categoriesRef.document(professionalCategory).setData({});
+      await categoriesRef.doc(professionalCategory).set({});
       await getCategoriesList();
     }
   }
@@ -753,10 +750,10 @@ class _UploadJobState extends State<UploadJob>
       {StateSetter setState, String professionalTitle}) async {
     if (professionalTitle.isNotEmpty) {
       await categoriesRef
-          .document(professionalCategory)
+          .doc(professionalCategory)
           .collection("professionalTitles")
-          .document(professionalTitle)
-          .setData({});
+          .doc(professionalTitle)
+          .set({});
       await getProfessionalTitlesList(setState);
     }
   }
@@ -766,12 +763,12 @@ class _UploadJobState extends State<UploadJob>
       String administrativeArea,
       String subAdministrativeArea}) async {
     return await locationsRef
-        .document(country)
+        .doc(country)
         .collection("administrativeAreas")
-        .document(administrativeArea)
+        .doc(administrativeArea)
         .collection("subAdministrativeAreas")
-        .document(subAdministrativeArea)
-        .setData({});
+        .doc(subAdministrativeArea)
+        .set({});
   }
 }
 

@@ -22,7 +22,7 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-      usersRef.document(widget.firebaseUser.uid).setData({
+      usersRef.doc(widget.firebaseUser.uid).set({
         "id": widget.firebaseUser.uid,
         "googleName": widget.firebaseUser.displayName,
         "photoUrl": widget.firebaseUser.photoUrl,

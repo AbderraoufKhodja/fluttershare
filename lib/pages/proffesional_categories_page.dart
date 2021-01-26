@@ -33,9 +33,8 @@ class _ProfessionalCategoriesPageState extends State<ProfessionalCategoriesPage>
   }
 
   getProfessionalCategoriesList() async {
-    QuerySnapshot snapshot = await categoriesRef.getDocuments();
-    List<String> jobs =
-        snapshot.documents.map((doc) => doc.documentID).toList();
+    QuerySnapshot snapshot = await categoriesRef.get();
+    List<String> jobs = snapshot.docs.map((doc) => doc.id).toList();
     setState(() {
       this.professionalCategoriesList = jobs;
     });
@@ -46,7 +45,7 @@ class _ProfessionalCategoriesPageState extends State<ProfessionalCategoriesPage>
 //        .where("hobTitle", isEqualTo: currentUser.professionalTitle)
 //        .where("jobState", isEqualTo: false)
 //        .orderBy("createdAt", descending: true)
-//        .getDocuments();
+//        .get();
 //    List<JobCard> jobs = snapshot.documents
 //        .map((doc) => JobCard(Job.fromDocument(doc)))
 //        .toList();
@@ -76,7 +75,7 @@ class _ProfessionalCategoriesPageState extends State<ProfessionalCategoriesPage>
 //          return circularProgress();
 //        }
 //        List<UserResult> userResults = [];
-//        snapshot.data.documents.forEach((doc) {
+//        snapshot.data.docs.forEach((doc) {
 //          User user = User.fromDocument(doc);
 //          final bool isAuthUser = currentUser.id == user.id;
 //          final bool isFollowingUser = followingList.contains(user.id);

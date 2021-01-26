@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:khadamat/constants.dart';
 
 class AppUser {
   final String id;
@@ -8,11 +9,11 @@ class AppUser {
   String email;
   bool isFreelancer;
   bool teamChoice;
-  String professionalPhoto;
+  String professionalPhotoUrl;
   String personalBio;
   String gender;
   String location;
-  String birthDate;
+  Timestamp birthDate;
   String professionalCategory;
   String professionalTitle;
   String professionalDescription;
@@ -45,7 +46,7 @@ class AppUser {
     this.email,
     this.isFreelancer,
     this.teamChoice,
-    this.professionalPhoto,
+    this.professionalPhotoUrl,
     this.personalBio,
     this.gender,
     this.location,
@@ -90,40 +91,43 @@ class AppUser {
   }
   factory AppUser.freelancerFromDocument(DocumentSnapshot doc) {
     return AppUser(
-      id: doc['id'],
-      username: doc['username'],
-      googleName: doc['googleName'],
-      photoUrl: doc['photoUrl'],
-      email: doc['email'],
-      isFreelancer: doc['isFreelancer'],
-      teamChoice: doc['teamChoice'],
-      professionalPhoto: doc['professionalPhoto'],
-      personalBio: doc['personalBio'],
-      gender: doc['gender'],
-      location: doc['location'],
-      birthDate: doc['birthDate'],
-      professionalCategory: doc['professionalCategory'],
-      professionalTitle: doc['professionalTitle'],
-      professionalDescription: doc['professionalDescription'],
-      globalRate: doc['globalRate'],
-      jobsCount: doc['jobsCount'],
-      completionRate: doc['completionRate'],
-      popularityRate: doc['popularityRate'],
-      qualityRating: doc['qualityRate'],
-      attitudeRating: doc['attitudeRate'],
-      preferences: doc['preferences'],
-      reviews: doc['reviews'],
-      jobs: doc['jobs'],
-      diploma: doc['diploma'],
-      licence: doc['licence'],
-      certification: doc['certification'],
-      language: doc['language'],
-      experience: doc['experience'],
-      internship: doc['internship'],
-      competence: doc['competence'],
-      achievement: doc['achievement'],
-      recommendation: doc['recommendation'],
-      createdAt: doc['createdAt'],
+      id: fieldGetter(document: doc, field: 'id'),
+      username: fieldGetter(document: doc, field: 'username'),
+      googleName: fieldGetter(document: doc, field: 'googleName'),
+      photoUrl: fieldGetter(document: doc, field: 'photoUrl'),
+      email: fieldGetter(document: doc, field: 'email'),
+      isFreelancer: fieldGetter(document: doc, field: 'isFreelancer'),
+      teamChoice: fieldGetter(document: doc, field: 'teamChoice'),
+      professionalPhotoUrl:
+          fieldGetter(document: doc, field: 'professionalPhotoUrl'),
+      personalBio: fieldGetter(document: doc, field: 'personalBio'),
+      gender: fieldGetter(document: doc, field: 'gender'),
+      location: fieldGetter(document: doc, field: 'location'),
+      birthDate: fieldGetter(document: doc, field: 'birthDate'),
+      professionalCategory:
+          fieldGetter(document: doc, field: 'professionalCategory'),
+      professionalTitle: fieldGetter(document: doc, field: 'professionalTitle'),
+      professionalDescription:
+          fieldGetter(document: doc, field: 'professionalDescription'),
+      globalRate: fieldGetter(document: doc, field: 'globalRate'),
+      jobsCount: fieldGetter(document: doc, field: 'jobsCount'),
+      completionRate: fieldGetter(document: doc, field: 'completionRate'),
+      popularityRate: fieldGetter(document: doc, field: 'popularityRate'),
+      qualityRating: fieldGetter(document: doc, field: 'qualityRate'),
+      attitudeRating: fieldGetter(document: doc, field: 'attitudeRate'),
+      preferences: fieldGetter(document: doc, field: 'preferences'),
+      reviews: fieldGetter(document: doc, field: 'reviews'),
+      jobs: fieldGetter(document: doc, field: 'jobs'),
+      diploma: fieldGetter(document: doc, field: 'diploma'),
+      licence: fieldGetter(document: doc, field: 'licence'),
+      certification: fieldGetter(document: doc, field: 'certification'),
+      language: fieldGetter(document: doc, field: 'language'),
+      experience: fieldGetter(document: doc, field: 'experience'),
+      internship: fieldGetter(document: doc, field: 'internship'),
+      competence: fieldGetter(document: doc, field: 'competence'),
+      achievement: fieldGetter(document: doc, field: 'achievement'),
+      recommendation: fieldGetter(document: doc, field: 'recommendation'),
+      createdAt: fieldGetter(document: doc, field: 'createdAt'),
     );
   }
   factory AppUser.fromDocument(DocumentSnapshot doc) {

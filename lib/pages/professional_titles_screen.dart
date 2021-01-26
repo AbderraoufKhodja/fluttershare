@@ -34,11 +34,11 @@ class _ProfessionalTitlesScreenState extends State<ProfessionalTitlesScreen> {
 
   getProfessionalTitlesList() async {
     QuerySnapshot snapshot = await categoriesRef
-        .document(widget.professionalTitle)
+        .doc(widget.professionalTitle)
         .collection("professionalTitles")
-        .getDocuments();
+        .get();
     List<String> professionalTitle =
-        snapshot.documents.map((doc) => doc.documentID).toList();
+        snapshot.docs.map((doc) => doc.id).toList();
     setState(() {
       professionalTitlesList = professionalTitle;
     });
@@ -68,7 +68,7 @@ class _ProfessionalTitlesScreenState extends State<ProfessionalTitlesScreen> {
 //          return circularProgress();
 //        }
 //        List<UserResult> userResults = [];
-//        snapshot.data.documents.forEach((doc) {
+//        snapshot.data.docs.forEach((doc) {
 //          User user = User.fromDocument(doc);
 //          final bool isAuthUser = currentUser.id == user.id;
 //          final bool isFollowingUser = followingList.contains(user.id);

@@ -43,7 +43,7 @@ class _ManageJobState extends State<ManageJob> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: jobsRef.document(widget.jobId).snapshots(),
+      stream: jobsRef.doc(widget.jobId).snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData)
           return linearProgress();
@@ -166,7 +166,7 @@ class _ManageJobState extends State<ManageJob> {
           return circularProgress();
         }
         List<ActivityFeedItem> feedItems = [];
-        snapshot.data.documents.forEach((doc) {
+        snapshot.data.docs.forEach((doc) {
           feedItems.add(ActivityFeedItem.fromDocument(doc));
         });
         return ListView(
@@ -476,7 +476,7 @@ class _ManageJobState extends State<ManageJob> {
 
   getActivityFeed() {
     return activityFeedRef
-        .document(currentUser.id)
+        .doc(currentUser.id)
         .collection('feedItems')
         .where("jobId", isEqualTo: job.jobId)
         .orderBy('createdAt', descending: true)

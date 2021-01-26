@@ -59,7 +59,7 @@ class _ProfileState extends State<Profile>
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: usersRef.document(widget.profileId).get(),
+        future: usersRef.doc(widget.profileId).get(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return linearProgress();
           user = AppUser.fromDocument(snapshot.data);
@@ -85,8 +85,8 @@ class _ProfileState extends State<Profile>
                 color: Colors.white),
             child: buildButton(
                 text: kCreateCard,
-                function: () => showCreateFreelanceAccount(context,
-                    appUser: currentUser)),
+                function: () =>
+                    showCreateFreelanceAccount(context, appUser: currentUser)),
           ),
         ],
       ),
@@ -126,7 +126,7 @@ class _ProfileState extends State<Profile>
 
   buildProfileHeader() {
     return FutureBuilder(
-        future: usersRef.document(widget.profileId).get(),
+        future: usersRef.doc(widget.profileId).get(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Padding(
@@ -174,7 +174,7 @@ class _ProfileState extends State<Profile>
                       radius: 40.0,
                       backgroundColor: Theme.of(context).primaryColor,
                       backgroundImage: CachedNetworkImageProvider(
-                          user.professionalPhoto ?? kBlankProfileUrl),
+                          user.professionalPhotoUrl ?? kBlankProfileUrl),
                     ),
                     Expanded(
                       flex: 1,
@@ -239,7 +239,8 @@ class _ProfileState extends State<Profile>
           buildProfileInfoField(label: kPersonalBio, text: user.personalBio),
           buildProfileInfoField(label: kGender, text: user.gender),
           buildProfileInfoField(label: kLocation, text: user.location),
-          buildProfileInfoField(label: kBirthDate, text: user.birthDate),
+          buildProfileInfoField(
+              label: kBirthDate, text: user.birthDate.toDate.toString()),
           buildProfileInfoField(
               label: kProfessionalCategory, text: user.professionalCategory),
           buildProfileInfoField(
@@ -479,9 +480,9 @@ class _ProfileState extends State<Profile>
     });
     // remove hire
     hiresRef
-        .document(widget.profileId)
+        .doc(widget.profileId)
         .collection('userHires')
-        .document(currentUser.id)
+        .doc(currentUser.id)
         .get()
         .then((doc) {
       if (doc.exists) {
@@ -490,9 +491,9 @@ class _ProfileState extends State<Profile>
     });
     // remove following
     hiresRef
-        .document(currentUser.id)
+        .doc(currentUser.id)
         .collection('userHires')
-        .document(widget.profileId)
+        .doc(widget.profileId)
         .get()
         .then((doc) {
       if (doc.exists) {
@@ -501,9 +502,9 @@ class _ProfileState extends State<Profile>
     });
     // delete activity feed item for them
     activityFeedRef
-        .document(widget.profileId)
+        .doc(widget.profileId)
         .collection('feedItems')
-        .document(currentUser.id)
+        .doc(currentUser.id)
         .get()
         .then((doc) {
       if (doc.exists) {
@@ -520,32 +521,32 @@ class _ProfileState extends State<Profile>
     });
     // Make auth user hire of THAT user (update THEIR hires collection)
     hiresRef
-        .document(widget.profileId)
+        .doc(widget.profileId)
         .collection('userHires')
-        .document(currentUser.id)
-        .setData({});
+        .doc(currentUser.id)
+        .set({});
 
     jobsRef
-        .document(currentUser.id)
+        .doc(currentUser.id)
         .collection("userJobs")
-        .document(job.jobId)
+        .doc(job.jobId)
         .collection("application")
-        .document(widget.profileId)
-        .setData({
+        .doc(widget.profileId)
+        .set({
       "accepted": true,
     });
     // Put THAT user on YOUR following collection (update your following collection)
 //    followingRef
-//        .document(currentUser.id)
+//        .doc(currentUser.id)
 //        .collection('userFollowing')
-//        .document(widget.profileId)
-//        .setData({});
+//        .doc(widget.profileId)
+//        .set({});
     // add activity feed item for that user to notify about new hire (us)
     activityFeedRef
-        .document(widget.profileId)
+        .doc(widget.profileId)
         .collection('feedItems')
-        .document(currentUser.id)
-        .setData({
+        .doc(currentUser.id)
+        .set({
       "type": "accepted",
       "jobOwnerId": widget.profileId,
       "username": currentUser.username,
@@ -555,10 +556,10 @@ class _ProfileState extends State<Profile>
     });
 
     activityFeedRef
-        .document(currentUser.id)
+        .doc(currentUser.id)
         .collection('feedItems')
-        .document(widget.profileId)
-        .setData({
+        .doc(widget.profileId)
+        .set({
       "type": "accept",
       "jobOwnerId": widget.profileId,
       "username": currentUser.username,
@@ -592,9 +593,9 @@ class _ProfileState extends State<Profile>
 
   Future<void> checkIfHired() async {
     DocumentSnapshot doc = await jobsRef
-        .document(widget.profileId)
+        .doc(widget.profileId)
         .collection("userJobs")
-        .document("jobId")
+        .doc("jobId")
         .get();
     setState(() {
       isHired = doc.exists;
@@ -624,14 +625,14 @@ class _ProfileState extends State<Profile>
   Future<void> getProfilePosts() async {
     toggleIsLoading();
     QuerySnapshot snapshot = await postsRef
-        .document(widget.profileId)
+        .doc(widget.profileId)
         .collection('userPosts')
         .orderBy('createdAt', descending: true)
-        .getDocuments();
+        .get();
     toggleIsLoading();
     setState(() {
-      postCount = snapshot.documents.length;
-      posts = snapshot.documents.map((doc) => Post.fromDocument(doc)).toList();
+      postCount = snapshot.docs.length;
+      posts = snapshot.docs.map((doc) => Post.fromDocument(doc)).toList();
     });
   }
 

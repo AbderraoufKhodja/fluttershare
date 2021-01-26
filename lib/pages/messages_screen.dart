@@ -27,16 +27,16 @@ class MessagesScreenState extends State<MessagesScreen> {
 buildListMessages() {
   return FutureBuilder(
       future: usersRef
-          .document(currentUser.id)
+          .doc(currentUser.id)
           .collection('userChats')
           .orderBy("createdAt", descending: false)
-          .getDocuments(),
+          .get(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return circularProgress();
         }
         List<MessageContainer> messages = [];
-        snapshot.data.documents.forEach((doc) {
+        snapshot.data.docs.forEach((doc) {
           messages.add(MessageContainer.fromDocument(doc));
         });
         return ListView(

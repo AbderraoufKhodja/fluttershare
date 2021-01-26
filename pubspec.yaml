@@ -26,17 +26,17 @@ dependencies:
   cloud_firestore: ^0.14.0+2
   cupertino_icons: null
   eva_icons_flutter: null
+  firebase_core: null
   firebase_auth: null
   firebase_messaging: null
   firebase_storage: null
   flappy_search_bar: ^1.7.2
-  flutter_geofire: ^1.0.3
   flutter_mailer: ^1.0.0
   flutter_rating_bar: ^3.2.0+1
   flutter_svg: ^0.18.0
   geocoding: ^1.0.3
   geoflutterfire: ^2.2.1
-  geolocator: ^6.1.13
+  geolocator: ^6.1.14
   google_sign_in: null
   image: null
   image_picker: null

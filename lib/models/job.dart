@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/manage_job.dart';
@@ -84,42 +85,53 @@ class Job {
 
   factory Job.fromDocument(DocumentSnapshot doc) {
     return Job(
-      jobId: doc["jobId"],
-      jobOwnerId: doc["jobOwnerId"],
-      jobOwnerName: doc["jobOwnerName"],
-      jobOwnerEmail: doc["jobOwnerEmail"],
-      jobFreelancerId: doc["jobFreelancerId"],
-      jobFreelancerName: doc["jobFreelancerName"],
-      jobFreelancerEmail: doc["jobFreelancerEmail"],
-      jobFreelancerEnrollmentDate: doc["jobFreelancerEnrollmentDate"],
-      isOwnerFreelancer: doc["isOwnerFreelancer"],
-      jobTitle: doc["jobTitle"],
-      jobPhotoUrl: doc["jobPhotoUrl"],
-      professionalCategory: doc["professionalCategory"],
-      professionalTitle: doc["professionalTitle"],
-      jobDescription: doc["jobDescription"],
-      location: doc["location"],
-      dateRange: doc["dateRange"],
-      price: doc["price"],
-      newJobDescription: doc['newJobDescription'],
-      newLocation: doc['newLocation'],
-      newDateRange: doc['newDateRange'],
-      newPrice: doc['newPrice'],
-      ownerReview: doc['ownerReview'],
-      ownerAttitudeRating: doc['ownerAttitudeRating'],
-      freelancerReview: doc['freelancerReview'],
-      freelancerQualityRating: doc['freelancerQualityRating'],
-      freelancerAttitudeRating: doc['freelancerAttitudeRating'],
-      freelancerTimeManagementRating: doc['timeManagementRating'],
-      applications: doc["applications"],
-      hasFreelancerUpdateRequest: doc["hasFreelancerUpdateRequest"],
-      hasOwnerUpdateRequest: doc["hasOwnerUpdateRequest"],
-      jobState: doc["jobState"],
-      isOwnerCompleted: doc["isOwnerCompleted"],
-      isFreelancerCompleted: doc["isFreelancerCompleted"],
-      ownerCompletedAt: doc["ownerCompletedAt"],
-      freelancerCompletedAt: doc["freelancerCompletedAt"],
-      createdAt: doc["createdAt"],
+      jobId: fieldGetter(document: doc, field: "jobId"),
+      jobOwnerId: fieldGetter(document: doc, field: "jobOwnerId"),
+      jobOwnerName: fieldGetter(document: doc, field: "jobOwnerName"),
+      jobOwnerEmail: fieldGetter(document: doc, field: "jobOwnerEmail"),
+      jobFreelancerId: fieldGetter(document: doc, field: "jobFreelancerId"),
+      jobFreelancerName: fieldGetter(document: doc, field: "jobFreelancerName"),
+      jobFreelancerEmail:
+          fieldGetter(document: doc, field: "jobFreelancerEmail"),
+      jobFreelancerEnrollmentDate:
+          fieldGetter(document: doc, field: "jobFreelancerEnrollmentDate"),
+      isOwnerFreelancer: fieldGetter(document: doc, field: "isOwnerFreelancer"),
+      jobTitle: fieldGetter(document: doc, field: "jobTitle"),
+      jobPhotoUrl: fieldGetter(document: doc, field: "jobPhotoUrl"),
+      professionalCategory:
+          fieldGetter(document: doc, field: "professionalCategory"),
+      professionalTitle: fieldGetter(document: doc, field: "professionalTitle"),
+      jobDescription: fieldGetter(document: doc, field: "jobDescription"),
+      location: fieldGetter(document: doc, field: "location"),
+      dateRange: fieldGetter(document: doc, field: "dateRange"),
+      price: fieldGetter(document: doc, field: "price"),
+      newJobDescription: fieldGetter(document: doc, field: 'newJobDescription'),
+      newLocation: fieldGetter(document: doc, field: 'newLocation'),
+      newDateRange: fieldGetter(document: doc, field: 'newDateRange'),
+      newPrice: fieldGetter(document: doc, field: 'newPrice'),
+      ownerReview: fieldGetter(document: doc, field: 'ownerReview'),
+      ownerAttitudeRating:
+          fieldGetter(document: doc, field: 'ownerAttitudeRating'),
+      freelancerReview: fieldGetter(document: doc, field: 'freelancerReview'),
+      freelancerQualityRating:
+          fieldGetter(document: doc, field: 'freelancerQualityRating'),
+      freelancerAttitudeRating:
+          fieldGetter(document: doc, field: 'freelancerAttitudeRating'),
+      freelancerTimeManagementRating:
+          fieldGetter(document: doc, field: 'timeManagementRating'),
+      applications: fieldGetter(document: doc, field: "applications"),
+      hasFreelancerUpdateRequest:
+          fieldGetter(document: doc, field: "hasFreelancerUpdateRequest"),
+      hasOwnerUpdateRequest:
+          fieldGetter(document: doc, field: "hasOwnerUpdateRequest"),
+      jobState: fieldGetter(document: doc, field: "jobState"),
+      isOwnerCompleted: fieldGetter(document: doc, field: "isOwnerCompleted"),
+      isFreelancerCompleted:
+          fieldGetter(document: doc, field: "isFreelancerCompleted"),
+      ownerCompletedAt: fieldGetter(document: doc, field: "ownerCompletedAt"),
+      freelancerCompletedAt:
+          fieldGetter(document: doc, field: "freelancerCompletedAt"),
+      createdAt: fieldGetter(document: doc, field: "createdAt"),
     );
   }
   int getApplicationsCount() {
@@ -139,8 +151,8 @@ class Job {
   Future<void> closeJob({@required String closingReason}) async {
     final bool isJobOwner = currentUser.id == jobOwnerId;
     if (isJobOwner) {
-      jobsRef.document(jobId).updateData({"jobState": "closed"});
-      usersRef.document(jobOwnerId).updateData({
+      jobsRef.doc(jobId).update({"jobState": "closed"});
+      usersRef.doc(jobOwnerId).update({
         "jobs.$jobId.state": "closed",
       });
       addDeleteJobFeed(id: jobOwnerId);
@@ -151,7 +163,7 @@ class Job {
           messageText: closingReason, type: "deletJustification");
 
       if (jobFreelancerId != null)
-        usersRef.document(jobFreelancerId).updateData({
+        usersRef.doc(jobFreelancerId).update({
           "jobs.$jobId.state": "closed",
         });
     }
@@ -196,16 +208,14 @@ class Job {
         applications[applicantId] == null;
     if (_isApplied) {
       jobsRef
-          .document(jobId)
-          .updateData({'applications.$applicantId': FieldValue.delete()}).then(
+          .doc(jobId)
+          .update({'applications.$applicantId': FieldValue.delete()}).then(
               (value) => applications.remove(applicantId));
       removeApplyFromActivityFeed(
           applicantId: applicantId, applicantName: applicantName);
     } else if (!_isApplied) {
-      jobsRef
-          .document(jobId)
-          .updateData({'applications.$applicantId': null}).then(
-              (value) => applications[applicantId] = null);
+      jobsRef.doc(jobId).update({'applications.$applicantId': null}).then(
+          (value) => applications[applicantId] = null);
       addApplyToActivityFeed(
           applicantId: applicantId, applicantName: applicantName);
     }
@@ -234,27 +244,27 @@ class Job {
     @required String applicantName,
   }) async {
     activityFeedRef
-        .document(jobOwnerId)
+        .doc(jobOwnerId)
         .collection("feedItems")
         .where("jobId", isEqualTo: jobId)
         .where("type", isEqualTo: "apply")
-        .getDocuments()
+        .get()
         .then((snapshot) {
-      if (snapshot.documents.isNotEmpty) {
-        snapshot.documents.forEach((doc) {
+      if (snapshot.docs.isNotEmpty) {
+        snapshot.docs.forEach((doc) {
           doc.reference.delete();
         });
       }
     });
     activityFeedRef
-        .document(applicantId)
+        .doc(applicantId)
         .collection("feedItems")
         .where("jobId", isEqualTo: jobId)
         .where("type", isEqualTo: "apply")
-        .getDocuments()
+        .get()
         .then((snapshot) {
-      if (snapshot.documents.isNotEmpty) {
-        snapshot.documents.forEach((doc) {
+      if (snapshot.docs.isNotEmpty) {
+        snapshot.docs.forEach((doc) {
           doc.reference.delete();
         });
       }
@@ -318,11 +328,7 @@ class Job {
       @required String type,
       @required String applicantId,
       @required String applicantName}) async {
-    return await activityFeedRef
-        .document(id)
-        .collection("feedItems")
-        .document()
-        .setData({
+    return await activityFeedRef.doc(id).collection("feedItems").doc().set({
       "type": type,
       "jobId": jobId,
       "jobTitle": jobTitle,
@@ -341,11 +347,7 @@ class Job {
       @required String type,
       @required String jobFreelancerId,
       @required String jobFreelancerName}) async {
-    return await activityFeedRef
-        .document(id)
-        .collection("feedItems")
-        .document()
-        .setData({
+    return await activityFeedRef.doc(id).collection("feedItems").doc().set({
       "type": type,
       "jobId": this.jobId,
       "jobTitle": this.jobTitle,
@@ -364,11 +366,7 @@ class Job {
       @required String type,
       @required String jobFreelancerId,
       @required String jobFreelancerName}) async {
-    return await activityFeedRef
-        .document(id)
-        .collection("feedItems")
-        .document()
-        .setData({
+    return await activityFeedRef.doc(id).collection("feedItems").doc().set({
       "type": type,
       "jobId": this.jobId,
       "jobTitle": this.jobTitle,
@@ -383,11 +381,7 @@ class Job {
   }
 
   Future<void> addDeleteJobFeed({@required String id}) async {
-    return await activityFeedRef
-        .document(id)
-        .collection("feedItems")
-        .document()
-        .setData({
+    return await activityFeedRef.doc(id).collection("feedItems").doc().set({
       "type": "deleteJob",
       "jobId": this.jobId,
       "jobTitle": this.jobTitle,
@@ -403,7 +397,7 @@ class Job {
       String applicantEmail = "",
       @required bool isAccept}) async {
     if (isAccept)
-      jobsRef.document(jobId).updateData({
+      jobsRef.doc(jobId).update({
         'jobFreelancerId': applicantId,
         'jobFreelancerName': applicantName,
         'jobFreelancerEmail': applicantEmail,
@@ -419,7 +413,7 @@ class Job {
         jobState = "onGoing";
       });
     else
-      jobsRef.document(jobId).updateData({
+      jobsRef.doc(jobId).update({
         'applications.$applicantId': isAccept,
         'jobState': "open",
       }).then((_) {
@@ -429,7 +423,7 @@ class Job {
   }
 
   Future<void> createUserJob({@required String id}) {
-    return usersRef.document(id).updateData({
+    return usersRef.doc(id).update({
       "jobs.$jobId": {
         "jobId": jobId,
         "jobTitle": jobTitle,
@@ -445,19 +439,16 @@ class Job {
   }
 
   Future<void> openChat({@required String applicantId}) async {
-    messagesRef
-        .document(jobId)
-        .collection(jobOwnerId + "&&" + applicantId)
-        .add({
+    messagesRef.doc(jobId).collection(jobOwnerId + "&&" + applicantId).add({
       "type": "open",
       "professionalTitle": professionalTitle,
       "jobTitle": jobTitle,
     });
     usersRef
-        .document(jobOwnerId)
+        .doc(jobOwnerId)
         .collection("userChats")
-        .document(jobOwnerId + "&&" + applicantId)
-        .setData({
+        .doc(jobOwnerId + "&&" + applicantId)
+        .set({
       "jobChatId": jobOwnerId + "&&" + applicantId,
       "jobId": jobId,
       "professionalTitle": professionalTitle,
@@ -467,10 +458,10 @@ class Job {
       "createdAt": FieldValue.serverTimestamp(),
     });
     usersRef
-        .document(applicantId)
+        .doc(applicantId)
         .collection("userChats")
-        .document(jobOwnerId + "&&" + applicantId)
-        .setData({
+        .doc(jobOwnerId + "&&" + applicantId)
+        .set({
       "jobChatId": jobOwnerId + "&&" + applicantId,
       "jobId": jobId,
       "professionalTitle": professionalTitle,
@@ -488,7 +479,7 @@ class Job {
     addCompleteAndReviewFeed(id: jobOwnerId);
     addCompleteAndReviewFeed(id: jobFreelancerId);
 
-    usersRef.document(jobOwnerId).updateData({
+    usersRef.doc(jobOwnerId).update({
       "job.$jobId": {
         "isOwnerCompleted": true,
       },
@@ -505,7 +496,7 @@ class Job {
       }
     });
 
-    jobsRef.document(jobId).updateData({
+    jobsRef.doc(jobId).update({
       "ownerReview": ownerReview,
       "ownerAttitudeRating": ownerRating,
       "isFreelancerCompleted": true,
@@ -554,7 +545,7 @@ class Job {
       freelancerTimeManagementRating: freelancerTimeManagementRating,
     );
 
-    jobsRef.document(jobId).updateData({
+    jobsRef.doc(jobId).update({
       "freelancerReview": freelancerReview,
       "freelancerQualityRating": freelancerQualityRating,
       "freelancerAttitudeRating": freelancerAttitudeRating,
@@ -574,7 +565,7 @@ class Job {
   Future<void> addCompleteAndReviewFeed({
     @required String id,
   }) async {
-    activityFeedRef.document(id).collection("feedItems").document().setData({
+    activityFeedRef.doc(id).collection("feedItems").doc().set({
       "type": "jobCompleted",
       "jobId": jobId,
       "jobTitle": jobTitle,
@@ -601,11 +592,7 @@ class Job {
       @required GeoPoint newLocation,
       @required String newDateRange,
       @required String newJobDescription}) {
-    return activityFeedRef
-        .document(id)
-        .collection("feedItems")
-        .document()
-        .setData({
+    return activityFeedRef.doc(id).collection("feedItems").doc().set({
       "type": type,
       "jobId": jobId,
       "jobTitle": jobTitle,
@@ -631,11 +618,7 @@ class Job {
     @required String decisionOwnerName,
     @required String decisionOwnerId,
   }) {
-    return activityFeedRef
-        .document(id)
-        .collection("feedItems")
-        .document()
-        .setData({
+    return activityFeedRef.doc(id).collection("feedItems").doc().set({
       "type": type,
       "jobId": jobId,
       "jobTitle": jobTitle,
@@ -672,7 +655,7 @@ class Job {
       decisionOwnerId: decisionOwnerId,
     );
 
-    jobsRef.document(jobId).updateData({
+    jobsRef.doc(jobId).update({
       "jobDescription": newJobDescription,
       "dateRange": newDateRange,
       "location": newLocation,
@@ -706,7 +689,7 @@ class Job {
       decisionOwnerId: decisionOwnerId,
     );
 
-    jobsRef.document(jobId).updateData({
+    jobsRef.doc(jobId).update({
       "newJobDescription": null,
       "newDateRange": null,
       "newLocation": null,
@@ -754,7 +737,7 @@ class Job {
 
     final bool isJobFreelancer = jobFreelancerId == currentUser.id;
     final bool isJobOwner = jobOwnerId == currentUser.id;
-    jobsRef.document(jobId).updateData({
+    jobsRef.doc(jobId).update({
       "newJobDescription": newJobDescription,
       "newPrice": newPrice,
       "newLocation": newLocation,
@@ -772,7 +755,7 @@ class Job {
   }
 
   Future<void> clearJobFreelancerAndMakeJobVaccant() async {
-    await jobsRef.document(jobId).updateData({
+    await jobsRef.doc(jobId).update({
       "jobFreelancerId": null,
       "jobFreelancerName": null,
       "jobFreelancerEmail": null,
@@ -782,7 +765,7 @@ class Job {
   }
 
   Future<void> createJob() async {
-    jobsRef.document(jobId).setData({
+    jobsRef.doc(jobId).set({
       "jobId": jobId,
       "jobOwnerId": jobOwnerId,
       "jobOwnerName": jobOwnerName,
@@ -822,7 +805,7 @@ class Job {
     addDisposeFeed(id: jobOwnerId, type: "dispose");
     addDisposeFeed(id: jobFreelancerId, type: "dispose");
 
-    jobsRef.document(jobId).updateData({
+    jobsRef.doc(jobId).update({
       "applications.$jobFreelancerId": false,
       "jobFreelancerId": null,
       "jobFreelancerName": null,
@@ -842,11 +825,7 @@ class Job {
   }
 
   Future<void> addDisposeFeed({@required String id, @required String type}) {
-    return activityFeedRef
-        .document(id)
-        .collection("feedItems")
-        .document()
-        .setData({
+    return activityFeedRef.doc(id).collection("feedItems").doc().set({
       "type": type,
       "jobId": jobId,
       "jobTitle": jobTitle,
@@ -862,7 +841,7 @@ class Job {
 
   Future<void> uploadTeamNotification(
       {@required String messageText, @required String type}) async {
-    complaintRef.document(currentUser.id).setData({
+    complaintRef.doc(currentUser.id).set({
       "type": type,
       "messageText": messageText,
       "jobId": jobId,
@@ -886,7 +865,7 @@ class Job {
     @required double freelancerTimeManagementRating,
   }) async {
     AppUser user;
-    await usersRef.document(id).get().then((doc) {
+    await usersRef.doc(id).get().then((doc) {
       user = AppUser.fromDocument(doc);
       double reviewsCount = user.reviews.length.toDouble();
       double jobsCount = user.jobs.length.toDouble();
@@ -907,7 +886,7 @@ class Job {
               newAttitudeRateAverage +
               newTimeManagementRateAverage) /
           3;
-      usersRef.document(id).updateData({
+      usersRef.doc(id).update({
         "qualityRate": newQualityRateAverage,
         "attitudeRate": newAttitudeRateAverage,
         "timeManagementRate": newTimeManagementRateAverage,

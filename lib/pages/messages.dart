@@ -117,7 +117,7 @@ class MessagesState extends State<Messages> {
   buildMessages() {
     return StreamBuilder(
         stream: messagesRef
-            .document(jobId)
+            .doc(jobId)
             .collection(jobChatId)
             .orderBy("createdAt", descending: true)
             .snapshots(),
@@ -126,7 +126,7 @@ class MessagesState extends State<Messages> {
             return circularProgress();
           }
           List<Message> messages = [];
-          snapshot.data.documents.forEach((doc) {
+          snapshot.data.docs.forEach((doc) {
             messages.add(Message.fromDocument(doc));
           });
           return ListView(
@@ -138,7 +138,7 @@ class MessagesState extends State<Messages> {
 
   Future<void> addMessage({@required String type}) async {
     if (messageController.text.trim().isNotEmpty) {
-      messagesRef.document(jobId).collection(jobChatId).add({
+      messagesRef.doc(jobId).collection(jobChatId).add({
         "type": type,
         "userId": currentUser.id,
         "username": currentUser.username,
@@ -152,10 +152,10 @@ class MessagesState extends State<Messages> {
       else if (currentUser.id == jobFreelancerId) feedId = jobOwnerId;
       print(feedId);
       activityFeedRef
-          .document(feedId)
+          .doc(feedId)
           .collection('feedItems')
-          .document(currentUser.id + jobId)
-          .setData({
+          .doc(currentUser.id + jobId)
+          .set({
         "type": "message",
         "messageText": messageController.text,
         "jobId": jobId,

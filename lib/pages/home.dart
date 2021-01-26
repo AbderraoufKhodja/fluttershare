@@ -19,19 +19,20 @@ import 'package:outline_material_icons/outline_material_icons.dart';
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final Reference storageRef = FirebaseStorage.instance.ref();
 final FirebaseAuth auth = FirebaseAuth.instance;
-final usersRef = Firestore.instance.collection('users');
-final cardsRef = Firestore.instance.collection('cards');
-final postsRef = Firestore.instance.collection('posts');
-final jobsRef = Firestore.instance.collection('jobs');
-final popularCategoriesRef = Firestore.instance.collection('popularCategories');
-final categoriesRef = Firestore.instance.collection('categories');
-final locationsRef = Firestore.instance.collection('locations');
-final commentsRef = Firestore.instance.collection('comments');
-final messagesRef = Firestore.instance.collection('messages');
-final activityFeedRef = Firestore.instance.collection('feeds');
-final hiresRef = Firestore.instance.collection('hires');
-final timelineRef = Firestore.instance.collection('timeline');
-final complaintRef = Firestore.instance.collection('complaint');
+final usersRef = FirebaseFirestore.instance.collection('users');
+final cardsRef = FirebaseFirestore.instance.collection('cards');
+final postsRef = FirebaseFirestore.instance.collection('posts');
+final jobsRef = FirebaseFirestore.instance.collection('jobs');
+final popularCategoriesRef =
+    FirebaseFirestore.instance.collection('popularCategories');
+final categoriesRef = FirebaseFirestore.instance.collection('categories');
+final locationsRef = FirebaseFirestore.instance.collection('locations');
+final commentsRef = FirebaseFirestore.instance.collection('comments');
+final messagesRef = FirebaseFirestore.instance.collection('messages');
+final activityFeedRef = FirebaseFirestore.instance.collection('feeds');
+final hiresRef = FirebaseFirestore.instance.collection('hires');
+final timelineRef = FirebaseFirestore.instance.collection('timeline');
+final complaintRef = FirebaseFirestore.instance.collection('complaint');
 AppUser currentUser;
 
 class Home extends StatefulWidget {
@@ -57,7 +58,7 @@ class _HomeState extends State<Home> {
     pageController = PageController();
     // Detects when user signed in
     // logout();
-    auth.onAuthStateChanged.listen((account) {
+    auth.authStateChanges().listen((account) {
       // Obtain the auth details from the request
       handleSignIn(account);
     }, onError: (err) {
@@ -78,7 +79,7 @@ class _HomeState extends State<Home> {
     final GoogleSignInAuthentication googleAuth =
         await googleSignIn.currentUser.authentication;
     // Create a new credential
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
+    final AuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
@@ -86,7 +87,7 @@ class _HomeState extends State<Home> {
     auth.signInWithCredential(credential);
   }
 
-  handleSignIn(FirebaseUser account) async {
+  handleSignIn(User account) async {
     print(account.email);
     if (account != null) {
       print('User is signed in!');
@@ -111,9 +112,7 @@ class _HomeState extends State<Home> {
 
     _firebaseMessaging.getToken().then((token) {
       print("Firebase Messaging Token: $token\n");
-      usersRef
-          .document(user.id)
-          .updateData({"androidNotificationToken": token});
+      usersRef.doc(user.id).update({"androidNotificationToken": token});
     });
 
     _firebaseMessaging.configure(
@@ -163,7 +162,7 @@ class _HomeState extends State<Home> {
                   )));
       if (isSuccessful == true) {
         // 3) get username from create account, use it to make new user document in users collection
-        doc = await usersRef.document(firebaseUser.uid).get();
+        doc = await usersRef.doc(firebaseUser.uid).get();
         currentUser = AppUser.fromDocument(doc);
       } else
         logout();
