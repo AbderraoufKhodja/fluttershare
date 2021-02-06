@@ -20,7 +20,7 @@ class _SearchState extends State<Search>
 
   handleSearch(String query) {
     Future<QuerySnapshot> users =
-        usersRef.where("googleName", isGreaterThanOrEqualTo: query).get();
+        usersRef.where("displayName", isGreaterThanOrEqualTo: query).get();
     setState(() {
       searchResultsFuture = users;
     });
@@ -124,7 +124,7 @@ class FreelancerCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => showProfile(
         context,
-        profileId: user.id,
+        profileId: user.uid,
         profileName: user.username,
       ),
       child: Padding(
@@ -142,7 +142,7 @@ class FreelancerCard extends StatelessWidget {
                     fit: BoxFit.cover,
                     alignment: Alignment.centerRight,
                     image: CachedNetworkImageProvider(
-                        user.photoUrl ?? kBlankProfileUrl),
+                        user.photoURL ?? kBlankProfileUrl),
                   ),
                 ),
               ),
@@ -167,8 +167,7 @@ class FreelancerCard extends StatelessWidget {
                       children: <Widget>[
                         Row(
                           children: [
-                            Text(user.reviews['rating']?.toString() ??
-                                kMissingData),
+                            Text(user.globalRate?.toString() ?? kMissingData),
                             Icon(
                               Icons.star,
                               color: Colors.amber[600],

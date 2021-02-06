@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/models/job.dart';
@@ -30,6 +31,7 @@ class _ProfileState extends State<Profile>
     with AutomaticKeepAliveClientMixin<Profile> {
   AppUser user;
   String selectedTab = "info";
+  String formattedAddress = "";
   bool isHired = false;
   bool isLoading = false;
   int postCount = 0;
@@ -39,7 +41,7 @@ class _ProfileState extends State<Profile>
     return job != null &&
         job.applications[widget.profileId] == null &&
         job.jobOwnerId != widget.profileId &&
-        job.jobOwnerId == currentUser.id &&
+        job.jobOwnerId == currentUser.uid &&
         job.jobState == "open" &&
         job.isOwnerCompleted == false;
   }
@@ -54,6 +56,7 @@ class _ProfileState extends State<Profile>
     super.initState();
     getProfilePosts();
     checkIfHired();
+    formatLocation();
   }
 
   @override
@@ -184,7 +187,7 @@ class _ProfileState extends State<Profile>
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
-                              buildCountColumn(kRating, getRating()),
+                              buildCountColumn(kRating, user.globalRate),
                               buildCountColumn(
                                   kJobsCount, getCompletedJobsCount()),
                               buildCountColumn(kEvaluation, getEvaluation()),
@@ -211,7 +214,7 @@ class _ProfileState extends State<Profile>
                   alignment: Alignment.centerLeft,
                   padding: EdgeInsets.only(top: 4.0),
                   child: Text(
-                    user.googleName ?? "",
+                    user.displayName ?? "",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
@@ -238,9 +241,11 @@ class _ProfileState extends State<Profile>
           buildProfileInfoField(label: kEmail, text: user.email),
           buildProfileInfoField(label: kPersonalBio, text: user.personalBio),
           buildProfileInfoField(label: kGender, text: user.gender),
-          buildProfileInfoField(label: kLocation, text: user.location),
+          buildProfileInfoField(label: kLocation, text: formattedAddress),
           buildProfileInfoField(
-              label: kBirthDate, text: user.birthDate.toDate.toString()),
+              label: kBirthDate,
+              text: timeago.format(
+                  user.birthDate?.toDate() ?? Timestamp.now().toDate())),
           buildProfileInfoField(
               label: kProfessionalCategory, text: user.professionalCategory),
           buildProfileInfoField(
@@ -248,7 +253,8 @@ class _ProfileState extends State<Profile>
           buildProfileInfoField(
               label: kProfessionalDescription,
               text: user.professionalDescription),
-          buildProfileInfoField(label: kPreferences, text: user.preferences[0]),
+          buildProfileInfoField(
+              label: kPreferences, text: user.preferences.toString()),
           buildProfileInfoField(label: kDiploma, text: user.diploma),
           buildProfileInfoField(label: kLicence, text: user.licence),
           buildProfileInfoField(
@@ -453,7 +459,7 @@ class _ProfileState extends State<Profile>
 
   buildProfileButton() {
     // viewing your own profile - should show edit profile button
-    bool isProfileOwner = currentUser.id == widget.profileId;
+    bool isProfileOwner = currentUser.uid == widget.profileId;
     if (isProfileOwner) {
       return buildButton(
         text: kEditProfile,
@@ -482,7 +488,7 @@ class _ProfileState extends State<Profile>
     hiresRef
         .doc(widget.profileId)
         .collection('userHires')
-        .doc(currentUser.id)
+        .doc(currentUser.uid)
         .get()
         .then((doc) {
       if (doc.exists) {
@@ -491,7 +497,7 @@ class _ProfileState extends State<Profile>
     });
     // remove following
     hiresRef
-        .doc(currentUser.id)
+        .doc(currentUser.uid)
         .collection('userHires')
         .doc(widget.profileId)
         .get()
@@ -504,7 +510,7 @@ class _ProfileState extends State<Profile>
     activityFeedRef
         .doc(widget.profileId)
         .collection('feedItems')
-        .doc(currentUser.id)
+        .doc(currentUser.uid)
         .get()
         .then((doc) {
       if (doc.exists) {
@@ -523,11 +529,11 @@ class _ProfileState extends State<Profile>
     hiresRef
         .doc(widget.profileId)
         .collection('userHires')
-        .doc(currentUser.id)
+        .doc(currentUser.uid)
         .set({});
 
     jobsRef
-        .doc(currentUser.id)
+        .doc(currentUser.uid)
         .collection("userJobs")
         .doc(job.jobId)
         .collection("application")
@@ -537,7 +543,7 @@ class _ProfileState extends State<Profile>
     });
     // Put THAT user on YOUR following collection (update your following collection)
 //    followingRef
-//        .doc(currentUser.id)
+//        .doc(currentUser.uid)
 //        .collection('userFollowing')
 //        .doc(widget.profileId)
 //        .set({});
@@ -545,33 +551,33 @@ class _ProfileState extends State<Profile>
     activityFeedRef
         .doc(widget.profileId)
         .collection('feedItems')
-        .doc(currentUser.id)
+        .doc(currentUser.uid)
         .set({
       "type": "accepted",
       "jobOwnerId": widget.profileId,
       "username": currentUser.username,
-      "userId": currentUser.id,
-      "userProfileImg": currentUser.photoUrl,
+      "userId": currentUser.uid,
+      "userProfileImg": currentUser.photoURL,
       "createdAt": FieldValue.serverTimestamp(),
     });
 
     activityFeedRef
-        .doc(currentUser.id)
+        .doc(currentUser.uid)
         .collection('feedItems')
         .doc(widget.profileId)
         .set({
       "type": "accept",
       "jobOwnerId": widget.profileId,
       "username": currentUser.username,
-      "userId": currentUser.id,
-      "userProfileImg": currentUser.photoUrl,
+      "userId": currentUser.uid,
+      "userProfileImg": currentUser.photoURL,
       "createdAt": FieldValue.serverTimestamp(),
     });
   }
 
   Future<void> handleRejectApplication() async {
     return job.handleRejectApplication(
-        applicantId: user.id,
+        applicantId: user.uid,
         applicantName: user.username,
         applicantEmail: user.email);
   }
@@ -579,12 +585,12 @@ class _ProfileState extends State<Profile>
   Future<void> handleAcceptApplication() async {
     return job
         .handleAcceptApplication(
-      applicantId: user.id,
+      applicantId: user.uid,
       applicantName: user.username,
       applicantEmail: user.email,
     )
         .then((value) {
-      job.jobFreelancerId = user.id;
+      job.jobFreelancerId = user.uid;
       job.jobFreelancerName = user.username;
       job.jobFreelancerEmail = user.email;
       job.jobState = "onGoing";
@@ -616,10 +622,6 @@ class _ProfileState extends State<Profile>
       if (element['isCompleted'] == true) count += 1;
     });
     return count;
-  }
-
-  double getRating() {
-    return user.reviews["rating"];
   }
 
   Future<void> getProfilePosts() async {
@@ -675,6 +677,19 @@ class _ProfileState extends State<Profile>
         ),
       ),
     );
+  }
+
+  Future<void> formatLocation() async {
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+        currentUser.location["geopoint"].latitude,
+        currentUser.location["geopoint"].longitude);
+    Placemark placemark = placemarks[0];
+    String formattedAddress =
+        " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"
+        " ${placemark.country}";
+    setState(() {
+      this.formattedAddress = formattedAddress;
+    });
   }
 }
 

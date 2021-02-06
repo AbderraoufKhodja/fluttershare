@@ -289,7 +289,7 @@ class _UploadJobState extends State<UploadJob>
           file == null ? kBlankProfileUrl : await uploadImage(file);
       Job(
         jobId: jobId,
-        jobOwnerId: currentUser.id,
+        jobOwnerId: currentUser.uid,
         jobOwnerName: currentUser.username,
         jobOwnerEmail: currentUser.email,
         isOwnerFreelancer: currentUser.isFreelancer,

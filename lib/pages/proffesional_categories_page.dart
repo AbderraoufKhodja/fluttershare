@@ -77,8 +77,8 @@ class _ProfessionalCategoriesPageState extends State<ProfessionalCategoriesPage>
 //        List<UserResult> userResults = [];
 //        snapshot.data.docs.forEach((doc) {
 //          User user = User.fromDocument(doc);
-//          final bool isAuthUser = currentUser.id == user.id;
-//          final bool isFollowingUser = followingList.contains(user.id);
+//          final bool isAuthUser = currentUser.uid == user.uid;
+//          final bool isFollowingUser = followingList.contains(user.uid);
 //          // remove auth user from recommended list
 //          if (isAuthUser) {
 //            return;

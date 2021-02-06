@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Review {
-  final String id;
+  final String uid;
   final String username;
   final String photoUrl;
   final String email;
@@ -16,7 +16,7 @@ class Review {
   final Timestamp createdAt;
 
   Review({
-    this.id,
+    this.uid,
     this.username,
     this.photoUrl,
     this.email,
@@ -33,7 +33,7 @@ class Review {
 
   factory Review.clientFromDocument(Map map) {
     return Review(
-      id: map['id'],
+      uid: map['uid'],
       email: map['email'],
       username: map['username'],
       photoUrl: map['photoUrl'],
@@ -48,7 +48,7 @@ class Review {
   }
   factory Review.freelancerFromDocument(Map map) {
     return Review(
-      id: map['id'],
+      uid: map['uid'],
       username: map['username'],
       photoUrl: map['photoUrl'],
       email: map['email'],

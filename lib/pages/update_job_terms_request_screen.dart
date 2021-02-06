@@ -176,9 +176,7 @@ class _UpdateJobTermsScreenRequestState
       priceController.text.trim().length < 3 || priceController.text.isEmpty
           ? _priceValid = false
           : _priceValid = true;
-      locationGeoPoint != null
-          ? _locationValid = false
-          : _locationValid = true;
+      locationGeoPoint != null ? _locationValid = false : _locationValid = true;
     });
 
     if (_priceValid &&
@@ -188,7 +186,7 @@ class _UpdateJobTermsScreenRequestState
       await job
           .requestUpdateJobTermsFeed(
         requestOwnerName: currentUser.username,
-        requestOwnerId: currentUser.id,
+        requestOwnerId: currentUser.uid,
         newJobDescription: jobDescriptionController.text,
         newPrice: priceController.text,
         newLocation: locationGeoPoint,

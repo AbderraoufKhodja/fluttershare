@@ -64,7 +64,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
   }
 
   updatePreferances() {
-    usersRef.doc(currentUser.id).update({"preferences": value}).then(
+    usersRef.doc(currentUser.uid).update({"preferences": value}).then(
         (val) => currentUser.preferences = value);
   }
 }

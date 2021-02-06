@@ -51,7 +51,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
 
   getActivityFeed() {
     return activityFeedRef
-        .doc(currentUser.id)
+        .doc(currentUser.uid)
         .collection('feedItems')
         .orderBy('createdAt', descending: true)
         .limit(30)
@@ -142,7 +142,7 @@ class ActivityFeedItem extends StatelessWidget {
         ));
   }
 
-  bool get isJobOwner => currentUser.id == jobOwnerId;
+  bool get isJobOwner => currentUser.uid == jobOwnerId;
 
   showJob(context) {
     Navigator.push(
@@ -292,7 +292,7 @@ class ActivityFeedItem extends StatelessWidget {
 
   Future<void> markAsRead() => feedReference.update({"read": true});
 
-  bool get isRequestOwner => requestOwnerId == currentUser.id;
+  bool get isRequestOwner => requestOwnerId == currentUser.uid;
 
   @override
   Widget build(BuildContext context) {

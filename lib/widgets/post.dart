@@ -70,7 +70,7 @@ class Post extends StatefulWidget {
 }
 
 class _PostState extends State<Post> {
-  final String currentUserId = currentUser?.id;
+  final String currentUserId = currentUser?.uid;
   final String postId;
   final String jobOwnerId;
   final String username;
@@ -104,12 +104,12 @@ class _PostState extends State<Post> {
         bool isPostOwner = currentUserId == jobOwnerId;
         return ListTile(
           leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(appUser.photoUrl),
+            backgroundImage: CachedNetworkImageProvider(appUser.photoURL),
             backgroundColor: Theme.of(context).primaryColor,
           ),
           title: GestureDetector(
             onTap: () => showProfile(context,
-                profileId: appUser.id, profileName: appUser.username),
+                profileId: appUser.uid, profileName: appUser.username),
             child: Text(
               appUser.username,
               style: TextStyle(
@@ -233,8 +233,8 @@ class _PostState extends State<Post> {
       activityFeedRef.doc(jobOwnerId).collection("feedItems").doc(postId).set({
         "type": "like",
         "username": currentUser.username,
-        "userId": currentUser.id,
-        "userProfileImg": currentUser.photoUrl,
+        "userId": currentUser.uid,
+        "userProfileImg": currentUser.photoURL,
         "postId": postId,
         "mediaUrl": mediaUrl,
         "createdAt": FieldValue.serverTimestamp(),

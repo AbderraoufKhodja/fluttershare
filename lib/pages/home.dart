@@ -7,7 +7,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/create_account.dart';
-import 'package:khadamat/pages/create_freelance_account.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:khadamat/pages/screen_four.dart';
@@ -58,9 +57,9 @@ class _HomeState extends State<Home> {
     pageController = PageController();
     // Detects when user signed in
     // logout();
-    auth.authStateChanges().listen((account) {
+    auth.authStateChanges().listen((User firebaseUser) {
       // Obtain the auth details from the request
-      handleSignIn(account);
+      handleSignIn(firebaseUser);
     }, onError: (err) {
       print('Error signing in: $err');
     });
@@ -73,24 +72,28 @@ class _HomeState extends State<Home> {
     // });
   }
 
-  Future<void> signInFirbaseAuth() async {
-    googleSignIn.signIn();
+  Future<UserCredential> signInFirbaseAuthWithGoogle() async {
+    // Trigger the authentication flow
+    final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+
     // Obtain the auth details from the request
     final GoogleSignInAuthentication googleAuth =
-        await googleSignIn.currentUser.authentication;
+        await googleUser.authentication;
+
     // Create a new credential
     final AuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
+
     // Once signed in, return the UserCredential
-    auth.signInWithCredential(credential);
+    return await auth.signInWithCredential(credential);
   }
 
-  handleSignIn(User account) async {
-    print(account.email);
-    if (account != null) {
+  handleSignIn(User firebaseUser) async {
+    if (firebaseUser != null) {
       print('User is signed in!');
+      print(firebaseUser.email);
       bool isSuccessful = await createUserInFirestore();
       if (isSuccessful == true) {
         setState(() {
@@ -107,12 +110,12 @@ class _HomeState extends State<Home> {
   }
 
   configurePushNotifications() {
-    final GoogleSignInAccount user = googleSignIn.currentUser;
+    // final GoogleSignInAccount user = googleSignIn.currentUser;
     if (Platform.isIOS) getiOSPermission();
 
     _firebaseMessaging.getToken().then((token) {
       print("Firebase Messaging Token: $token\n");
-      usersRef.doc(user.id).update({"androidNotificationToken": token});
+      usersRef.doc(currentUser.uid).update({"androidNotificationToken": token});
     });
 
     _firebaseMessaging.configure(
@@ -122,7 +125,7 @@ class _HomeState extends State<Home> {
         print("on message: $message\n");
         final String recipientId = message['data']['recipient'];
         final String body = message['notification']['body'];
-        if (recipientId == user.id) {
+        if (recipientId == currentUser.uid) {
           print("Notification shown!");
           SnackBar snackbar = SnackBar(
               content: Text(
@@ -146,7 +149,7 @@ class _HomeState extends State<Home> {
 
   Future<bool> createUserInFirestore() async {
     bool isSuccessful = true;
-    // 1) check if user exists in users collection in database (according to their id)
+    // 1) check if user exists in users collection in database (according to their uid)
     final User firebaseUser = auth.currentUser;
     print("firebaseUser.uid: ${firebaseUser.uid}");
 
@@ -199,15 +202,13 @@ class _HomeState extends State<Home> {
       key: _scaffoldKey,
       body: PageView(
         children: <Widget>[
-          CreateFreelanceAccount(),
+          ScreenOne(),
           ScreenTwo(),
           ScreenThree(),
           ScreenFour(),
           Profile(
-            profileId: currentUser?.id,
+            profileId: currentUser?.uid,
           ),
-          // Search(),
-          // UploadJob(currentUser: currentUser),
         ],
         controller: pageController,
         onPageChanged: onPageChanged,
@@ -276,7 +277,7 @@ class _HomeState extends State<Home> {
               textAlign: TextAlign.center,
             ),
             GestureDetector(
-              onTap: signInFirbaseAuth,
+              onTap: signInFirbaseAuthWithGoogle,
               child: Container(
                 width: 260.0,
                 height: 60.0,

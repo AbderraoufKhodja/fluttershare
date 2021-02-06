@@ -2,17 +2,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:khadamat/constants.dart';
 
 class AppUser {
-  final String id;
+  final String uid;
   String username;
-  String googleName;
-  String photoUrl;
+  String displayName;
+  String photoURL;
   String email;
   bool isFreelancer;
   bool teamChoice;
   String professionalPhotoUrl;
   String personalBio;
   String gender;
-  String location;
+  Map<String, dynamic> location;
   Timestamp birthDate;
   String professionalCategory;
   String professionalTitle;
@@ -39,10 +39,10 @@ class AppUser {
   final Timestamp createdAt;
 
   AppUser({
-    this.id,
+    this.uid,
     this.username,
-    this.googleName,
-    this.photoUrl,
+    this.displayName,
+    this.photoURL,
     this.email,
     this.isFreelancer,
     this.teamChoice,
@@ -77,24 +77,25 @@ class AppUser {
 
   factory AppUser.clientFromDocument(DocumentSnapshot doc) {
     return AppUser(
-      id: doc['id'],
-      email: doc['email'],
-      username: doc['username'],
-      photoUrl: doc['photoUrl'],
-      googleName: doc['googleName'],
-      isFreelancer: doc['isFreelancer'],
-      preferences: doc['preferences'],
-      reviews: doc['reviews'],
-      jobs: doc['jobs'],
-      createdAt: doc['createdAt'],
+      uid: fieldGetter(document: doc, field: 'uid'),
+      displayName: fieldGetter(document: doc, field: 'displayName'),
+      email: fieldGetter(document: doc, field: 'email'),
+      username: fieldGetter(document: doc, field: 'username'),
+      photoURL: fieldGetter(document: doc, field: 'photoURL'),
+      isFreelancer: fieldGetter(document: doc, field: 'isFreelancer'),
+      preferences: fieldGetter(document: doc, field: 'preferences'),
+      reviews: fieldGetter(document: doc, field: 'reviews'),
+      jobs: fieldGetter(document: doc, field: 'jobs'),
+      createdAt: fieldGetter(document: doc, field: 'createdAt'),
     );
   }
   factory AppUser.freelancerFromDocument(DocumentSnapshot doc) {
+    // TODO fix int double type error for number fields
     return AppUser(
-      id: fieldGetter(document: doc, field: 'id'),
+      uid: fieldGetter(document: doc, field: 'uid'),
       username: fieldGetter(document: doc, field: 'username'),
-      googleName: fieldGetter(document: doc, field: 'googleName'),
-      photoUrl: fieldGetter(document: doc, field: 'photoUrl'),
+      displayName: fieldGetter(document: doc, field: 'displayName'),
+      photoURL: fieldGetter(document: doc, field: 'photoURL'),
       email: fieldGetter(document: doc, field: 'email'),
       isFreelancer: fieldGetter(document: doc, field: 'isFreelancer'),
       teamChoice: fieldGetter(document: doc, field: 'teamChoice'),

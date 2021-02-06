@@ -85,7 +85,7 @@ class UpdateJobTermsDialogueScreen extends StatelessWidget {
 
   Future<void> handleAcceptUpdateJobTerms() {
     return job.acceptUpdateJobTerms(
-      decisionOwnerId: currentUser.id,
+      decisionOwnerId: currentUser.uid,
       decisionOwnerName: currentUser.username,
     );
   }
@@ -93,7 +93,7 @@ class UpdateJobTermsDialogueScreen extends StatelessWidget {
   Future<void> handleRejectUpdateJobTerms() async {
     return job.rejectUpdateJobTerms(
       decisionOwnerName: currentUser.username,
-      decisionOwnerId: currentUser.id,
+      decisionOwnerId: currentUser.uid,
     );
   }
 }

@@ -6,7 +6,7 @@ import 'package:khadamat/pages/create_freelance_account.dart';
 import 'package:khadamat/widgets/custom_button.dart';
 
 class CreateAccount extends StatefulWidget {
-  final FirebaseUser firebaseUser;
+  final User firebaseUser;
   CreateAccount({@required this.firebaseUser});
 
   @override
@@ -28,9 +28,9 @@ class _CreateAccountState extends State<CreateAccount> {
               function: () async {
                 final isSuccessful = await showCreateClientAccount(context,
                     firebaseUser: widget.firebaseUser);
-               if (isSuccessful == true) {
-                 Navigator.pop(context, isSuccessful);
-               }
+                if (isSuccessful == true) {
+                  Navigator.pop(context, isSuccessful);
+                }
               },
               text: kCreateClientAccount,
               fillColor: Colors.blue,

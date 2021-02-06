@@ -32,7 +32,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   TextEditingController usernameController = TextEditingController();
   TextEditingController personalBioController = TextEditingController();
   TextEditingController locationController = TextEditingController();
-  GeoPoint locationGeoPoint;
+  GeoFirePoint locationGeoFirePoint;
   TextEditingController birthDateController = TextEditingController();
   Timestamp birthDateTimestamp;
   TextEditingController genderController = TextEditingController();
@@ -94,28 +94,6 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     super.build(context);
     return Scaffold(
       backgroundColor: Colors.white70,
-//      appBar: AppBar(
-//        backgroundColor: Colors.white,
-//        leading: IconButton(
-//            icon: Icon(Icons.arrow_back, color: Colors.black), onPressed: null),
-//        title: Text(
-//          kProfessionalInfo,
-//          style: TextStyle(color: Colors.black),
-//        ),
-//        actions: [
-//          FlatButton(
-//            onPressed: isUploading ? null : () => handleSubmit(),
-//            child: Text(
-//              kSubmit,
-//              style: TextStyle(
-//                color: Colors.blueAccent,
-//                fontWeight: FontWeight.bold,
-//                fontSize: 20.0,
-//              ),
-//            ),
-//          ),
-//        ],
-//      ),
       body: Form(
         key: _formKey,
         child: Column(
@@ -408,30 +386,37 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       return null;
   }
 
-  uploadUsersProfessionalInfo(String professionalPhotoUrl) {
-    usersRef.doc(user.id).set({
-      "id": user.id,
-      "googleName": user.googleName,
-      "photoUrl": user.photoUrl,
+  Future<void> uploadUsersProfessionalInfo(String professionalPhotoUrl) async {
+    return usersRef.doc(user.uid).set({
+      "uid": user.uid,
+      "displayName": user.displayName,
+      "photoURL": user.photoURL,
       "email": user.email,
       "isFreelancer": true,
       "professionalPhotoUrl": professionalPhotoUrl,
       "username": usernameController.text,
       "personalBio": personalBioController.text,
-      "location": locationGeoPoint,
+      "location": locationGeoFirePoint.data,
       "birthDate": birthDateTimestamp,
       "gender": genderController.text,
       "professionalCategory": professionalCategoryController.text,
       "professionalTitle": professionalTitleController.text,
       "professionalDescription": professionalDescriptionController.text,
-      "preferences": "${keyWord1Controller.text};${keyWord2Controller.text};"
-          "${keyWord3Controller.text};${keyWord4Controller.text};",
+      "preferences": [
+        keyWord1Controller.text,
+        keyWord2Controller.text,
+        keyWord3Controller.text,
+        keyWord4Controller.text
+      ],
       "jobs": null,
       "reviews": null,
       "globalRate": null,
       "jobsCount": null,
       "completionRate": null,
       "popularityRate": null,
+      "qualityRate": null,
+      "timeManagementRating": null,
+      "attitudeRate": null,
       "teamChoice": false,
       "lastReviewTimestamp": null,
       "diploma": diplomaController.text,
@@ -458,7 +443,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       if (file != null) await compressImage();
       String mediaUrl =
           file == null ? kBlankProfileUrl : await uploadImage(file);
-      uploadUsersProfessionalInfo(mediaUrl);
+      await uploadUsersProfessionalInfo(mediaUrl);
       clearControllers();
       setState(() {
         clearImage();
@@ -476,7 +461,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       maxWidth: 960,
     );
     setState(() {
-      this.file = File(imageFile.path);
+      if (imageFile != null) this.file = File(imageFile.path);
     });
   }
 
@@ -488,7 +473,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       maxWidth: 960,
     );
     setState(() {
-      this.file = File(imageFile.path);
+      if (imageFile != null) this.file = File(imageFile.path);
     });
   }
 
@@ -604,7 +589,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     final tempDir = await getTemporaryDirectory();
     final path = tempDir.path;
     Im.Image imageFile = Im.decodeImage(file.readAsBytesSync());
-    final compressedImageFile = File('$path/img_${user.id}.jpg')
+    final compressedImageFile = File('$path/img_${user.uid}.jpg')
       ..writeAsBytesSync(Im.encodeJpg(imageFile, quality: 85));
     setState(() {
       file = compressedImageFile;
@@ -613,7 +598,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
 
   Future<String> uploadImage(imageFile) async {
     UploadTask uploadCardTask =
-        storageRef.child("freelancer_${user.id}.jpg").putFile(imageFile);
+        storageRef.child("freelancer_${user.uid}.jpg").putFile(imageFile);
     TaskSnapshot storageSnap = await uploadCardTask.whenComplete(() {});
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     return downloadUrl;
@@ -917,7 +902,8 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
         " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"
         " ${placemark.country}";
     locationController.text = formattedAddress;
-    locationGeoPoint = GeoPoint(position.latitude, position.longitude);
+    locationGeoFirePoint =
+        geo.point(latitude: position.latitude, longitude: position.longitude);
     addLocation(
         latitude: position.latitude,
         longitude: position.longitude,

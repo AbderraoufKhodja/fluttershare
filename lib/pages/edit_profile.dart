@@ -13,11 +13,11 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  TextEditingController googleNameController = TextEditingController();
+  TextEditingController displayNameController = TextEditingController();
   TextEditingController bioController = TextEditingController();
   bool isLoading = false;
   AppUser user;
-  bool _googleNameValid = true;
+  bool _displayNameValid = true;
   bool _bioValid = true;
 
   @override
@@ -64,14 +64,14 @@ class _EditProfileState extends State<EditProfile> {
                         child: CircleAvatar(
                           radius: 50.0,
                           backgroundImage: CachedNetworkImageProvider(
-                              user.photoUrl ?? kBlankProfileUrl),
+                              user.photoURL ?? kBlankProfileUrl),
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.all(16.0),
                         child: Column(
                           children: <Widget>[
-                            buildGoogleNameField(),
+                            builddisplayNameField(),
                             buildBioField(),
                           ],
                         ),
@@ -110,16 +110,16 @@ class _EditProfileState extends State<EditProfile> {
     setState(() {
       isLoading = true;
     });
-    DocumentSnapshot doc = await usersRef.doc(currentUser.id).get();
+    DocumentSnapshot doc = await usersRef.doc(currentUser.uid).get();
     user = AppUser.fromDocument(doc);
-    googleNameController.text = user.googleName;
+    displayNameController.text = user.displayName;
     bioController.text = user.personalBio;
     setState(() {
       isLoading = false;
     });
   }
 
-  Column buildGoogleNameField() {
+  Column builddisplayNameField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -130,10 +130,10 @@ class _EditProfileState extends State<EditProfile> {
               style: TextStyle(color: Theme.of(context).primaryColor),
             )),
         TextField(
-          controller: googleNameController,
+          controller: displayNameController,
           decoration: InputDecoration(
             hintText: "Update Display Name",
-            errorText: _googleNameValid ? null : "Display Name too short",
+            errorText: _displayNameValid ? null : "Display Name too short",
           ),
         )
       ],
@@ -164,18 +164,18 @@ class _EditProfileState extends State<EditProfile> {
 
   updateProfileData() {
     setState(() {
-      googleNameController.text.trim().length < 3 ||
-              googleNameController.text.isEmpty
-          ? _googleNameValid = false
-          : _googleNameValid = true;
+      displayNameController.text.trim().length < 3 ||
+              displayNameController.text.isEmpty
+          ? _displayNameValid = false
+          : _displayNameValid = true;
       bioController.text.trim().length > 100
           ? _bioValid = false
           : _bioValid = true;
     });
 
-    if (_googleNameValid && _bioValid) {
-      usersRef.doc(currentUser.id).update({
-        "googleName": googleNameController.text,
+    if (_displayNameValid && _bioValid) {
+      usersRef.doc(currentUser.uid).update({
+        "displayName": displayNameController.text,
         "bio": bioController.text,
       });
       SnackBar snackbar = SnackBar(content: Text("Profile updated!"));
@@ -185,6 +185,7 @@ class _EditProfileState extends State<EditProfile> {
 
   logout() async {
     await googleSignIn.signOut();
+    await auth.signOut();
     Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
   }
 }

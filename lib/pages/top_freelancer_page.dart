@@ -89,7 +89,6 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("popularityRate", descending: true)
-        .limit(10)
         .get();
   }
 
@@ -98,7 +97,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("location", descending: true)
-        .orderBy("experienceRate", descending: true)
+        .orderBy("globalRate", descending: true)
         .get();
   }
 
@@ -115,7 +114,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
-        .orderBy("reviews.rating", descending: true)
+        .orderBy("timeManagementRating", descending: true)
         .get();
   }
 
@@ -123,7 +122,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
-        .orderBy("reviews.rating", descending: true)
+        .orderBy("qualityRating", descending: true)
         .get();
   }
 

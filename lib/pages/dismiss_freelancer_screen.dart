@@ -32,9 +32,9 @@ class _DismissFreelancerScreenState extends State<DismissFreelancerScreen> {
 
   double ownerRating;
 
-  bool get isJobFreelancer => currentUser.id == job.jobFreelancerId;
+  bool get isJobFreelancer => currentUser.uid == job.jobFreelancerId;
 
-  bool get isJobOwner => currentUser.id == job.jobOwnerId;
+  bool get isJobOwner => currentUser.uid == job.jobOwnerId;
 
   Job get job => widget.job;
 

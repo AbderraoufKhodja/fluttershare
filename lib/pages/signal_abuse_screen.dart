@@ -10,7 +10,7 @@ class SignalAbuseScreen extends StatelessWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final Job job;
   final TextEditingController natureOfAbuseController = TextEditingController();
-  bool get isJobOwner => currentUser.id == job.jobOwnerId;
+  bool get isJobOwner => currentUser.uid == job.jobOwnerId;
 
   SignalAbuseScreen({
     @required this.job,

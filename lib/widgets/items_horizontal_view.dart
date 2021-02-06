@@ -1,11 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/search.dart';
 import 'package:khadamat/widgets/progress.dart';
 
 class ItemsHorizontalView extends StatelessWidget {
-  final Future<QuerySnapshot> futureItems;
+  final Future futureItems;
   final String title;
 
   const ItemsHorizontalView(
@@ -32,11 +31,19 @@ class ItemsHorizontalView extends StatelessWidget {
               return circularProgress();
             }
             List<FreelancerCard> freelancersList = [];
-            snapshot.data.docs.forEach((doc) {
-              AppUser user = AppUser.fromDocument(doc);
-              FreelancerCard freelancer = FreelancerCard(user);
-              freelancersList.add(freelancer);
-            });
+            try {
+              snapshot.data.docs.forEach((doc) {
+                AppUser user = AppUser.fromDocument(doc);
+                FreelancerCard freelancer = FreelancerCard(user);
+                freelancersList.add(freelancer);
+              });
+            } catch (e) {
+              snapshot.data.forEach((doc) {
+                AppUser user = AppUser.fromDocument(doc);
+                FreelancerCard freelancer = FreelancerCard(user);
+                freelancersList.add(freelancer);
+              });
+            }
             return Container(
               height: 180,
               child: ListView(

@@ -226,6 +226,18 @@ const String kInternshipInstruction = "kInternshipInstruction";
 const String kCompetencesInstruction = "kCompetencesInstruction";
 const String kAchievementInstruction = "kAchievementInstruction";
 const String kRecommendationInstruction = "kRecommendationInstruction";
+const String kTrendingTopRatedSection = "kTrendingTopRatedSection";
+const String kTrendingExperiencedSection = "kTrendingExperiencedSection";
+const String kTrendingHighestCompletionRateSection =
+    "kTrendingHighestCompletionRateSection";
+const String kTrendingPopularAdvisorsSection =
+    "kTrendingPopularAdvisorsSection";
+const String kTrendingHighQualityFreelancersSection =
+    "kTrendingHighQualityFreelancersSection";
+const String kTrendingTopTeamChoiceFreelancersSection =
+    "kTrendingTopTeamChoiceFreelancersSection";
+const String kTrendingTopFreelancersAroundMeSection =
+    "kTrendingTopFreelancersAroundMeSection";
 
 const String kBlankProfileUrl =
     "https://firebasestorage.googleapis.com/v0/b/khadamat-2dbbb.appspot.com/o/freelancer_105303619841718040097.jpg?alt=media&token=cee059e4-bbf9-48ad-b668-88b5282d2339";

@@ -34,7 +34,7 @@ class _ManageJobState extends State<ManageJob> {
   bool get hasRequest =>
       job.hasOwnerUpdateRequest || job.hasFreelancerUpdateRequest;
 
-  bool get isJobOwner => currentUser.id == job.jobOwnerId;
+  bool get isJobOwner => currentUser.uid == job.jobOwnerId;
   bool get hasJobFreelancer =>
       job.jobState == "onGoing" &&
       job.applications.containsValue(true) &&
@@ -103,8 +103,8 @@ class _ManageJobState extends State<ManageJob> {
     if (job.isFreelancerCompleted) return kFreelancerCompleted;
 
     // job freelancer dismissed
-    if (job.jobFreelancerId != currentUser.id &&
-        job.jobOwnerId != currentUser.id) return kFreelancerDismissed;
+    if (job.jobFreelancerId != currentUser.uid &&
+        job.jobOwnerId != currentUser.uid) return kFreelancerDismissed;
 
     // job on going
     if (job.jobState == "onGoing" && job.applications.containsValue(true))
@@ -476,7 +476,7 @@ class _ManageJobState extends State<ManageJob> {
 
   getActivityFeed() {
     return activityFeedRef
-        .doc(currentUser.id)
+        .doc(currentUser.uid)
         .collection('feedItems')
         .where("jobId", isEqualTo: job.jobId)
         .orderBy('createdAt', descending: true)

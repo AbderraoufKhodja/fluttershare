@@ -7,7 +7,7 @@ import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/header.dart';
 
 class CreateClientAccount extends StatefulWidget {
-  final FirebaseUser firebaseUser;
+  final User firebaseUser;
   CreateClientAccount({this.firebaseUser});
   @override
   _CreateClientAccountState createState() => _CreateClientAccountState();
@@ -23,9 +23,9 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
     if (form.validate()) {
       form.save();
       usersRef.doc(widget.firebaseUser.uid).set({
-        "id": widget.firebaseUser.uid,
-        "googleName": widget.firebaseUser.displayName,
-        "photoUrl": widget.firebaseUser.photoUrl,
+        "uid": widget.firebaseUser.uid,
+        "displayName": widget.firebaseUser.displayName,
+        "photoURL": widget.firebaseUser.photoURL,
         "email": widget.firebaseUser.email,
         "username": username,
         "isFreelancer": false,
@@ -35,6 +35,7 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
             SnackBar(content: Text("Welcome $username!"));
         _scaffoldKey.currentState.showSnackBar(welcomeSnackbar);
         Timer(Duration(seconds: 1), () {
+          Navigator.pop(context);
           Navigator.push(
               context,
               MaterialPageRoute(
@@ -135,7 +136,7 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
 }
 
 Future<bool> showCreateClientAccount(BuildContext context,
-    {@required FirebaseUser firebaseUser}) async {
+    {@required User firebaseUser}) async {
   return await Navigator.push(
     context,
     MaterialPageRoute(

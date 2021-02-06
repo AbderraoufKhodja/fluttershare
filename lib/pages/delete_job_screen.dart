@@ -13,7 +13,7 @@ class DeleteJobScreen extends StatelessWidget {
     @required this.job,
   });
 
-  bool get isJobOwner => currentUser.id == job.jobOwnerId;
+  bool get isJobOwner => currentUser.uid == job.jobOwnerId;
   final TextEditingController reasonOfClosingController =
       TextEditingController();
 

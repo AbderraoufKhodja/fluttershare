@@ -27,7 +27,7 @@ class _JobCardState extends State<JobCard> {
 
   _JobCardState({this.job});
 
-  final String currentUserId = currentUser?.id;
+  final String currentUserId = currentUser?.uid;
   bool isJobOwner;
   bool isLoading;
   bool isApplied;
@@ -37,7 +37,7 @@ class _JobCardState extends State<JobCard> {
   void initState() {
     super.initState();
     applicationsCount = job.getApplicationsCount();
-    isJobOwner = currentUser.id == job.jobOwnerId;
+    isJobOwner = currentUser.uid == job.jobOwnerId;
     isApplied = (job.applications[currentUserId] == null &&
         job.applications.containsKey(currentUserId));
   }

@@ -147,15 +147,15 @@ class Job {
     return count;
   }
 
-  // Note: To delete job, jobOwnerId and currentUser.id must be equal, so they can be used interchangeably
+  // Note: To delete job, jobOwnerId and currentUser.uid must be equal, so they can be used interchangeably
   Future<void> closeJob({@required String closingReason}) async {
-    final bool isJobOwner = currentUser.id == jobOwnerId;
+    final bool isJobOwner = currentUser.uid == jobOwnerId;
     if (isJobOwner) {
       jobsRef.doc(jobId).update({"jobState": "closed"});
       usersRef.doc(jobOwnerId).update({
         "jobs.$jobId.state": "closed",
       });
-      addDeleteJobFeed(id: jobOwnerId);
+      addDeleteJobFeed(uid: jobOwnerId);
 
       storageRef.child("job_$jobId.jpg").delete();
 
@@ -176,12 +176,12 @@ class Job {
     @required double freelancerTimeManagementRating,
   }) async {
     addDismissFeed(
-        id: this.jobOwnerId,
+        uid: this.jobOwnerId,
         type: "dismissFreelancer",
         jobFreelancerId: this.jobFreelancerId,
         jobFreelancerName: this.jobFreelancerName);
     addDismissFeed(
-        id: this.jobFreelancerId,
+        uid: this.jobFreelancerId,
         type: "dismissFreelancer",
         jobFreelancerId: this.jobFreelancerId,
         jobFreelancerName: this.jobFreelancerName);
@@ -190,7 +190,7 @@ class Job {
     // Update on firestore
     clearJobFreelancerAndMakeJobVaccant();
     addUserReviewAndUpdateUserJob(
-      id: jobFreelancerId,
+      uid: jobFreelancerId,
       type: "dismiss",
       freelancerReview: freelancerReview,
       freelancerQualityRating: freelancerQualityRating,
@@ -228,12 +228,12 @@ class Job {
     // add a notification to the jobOwner's activity feed only if message made
     // by OTHER user (to avoid getting notification for our own mark)
     addApplicationFeed(
-        id: jobOwnerId,
+        uid: jobOwnerId,
         type: "apply",
         applicantId: applicantId,
         applicantName: applicantName);
     addApplicationFeed(
-        id: applicantId,
+        uid: applicantId,
         type: "apply",
         applicantId: applicantId,
         applicantName: applicantName);
@@ -287,16 +287,16 @@ class Job {
             isAccept: true)
         .then((_) {
       addApplicationFeed(
-          id: jobOwnerId,
+          uid: jobOwnerId,
           type: "acceptApplication",
           applicantId: applicantId,
           applicantName: applicantName);
       addApplicationFeed(
-          id: applicantId,
+          uid: applicantId,
           type: "acceptApplication",
           applicantId: applicantId,
           applicantName: applicantName);
-      createUserJob(id: applicantId);
+      createUserJob(uid: applicantId);
       // create a chat reference on firestore
       openChat(applicantId: applicantId);
     });
@@ -312,23 +312,23 @@ class Job {
         applicantEmail: "",
         isAccept: false);
     addApplicationFeed(
-        id: jobOwnerId,
+        uid: jobOwnerId,
         type: "rejectApplication",
         applicantId: applicantId,
         applicantName: applicantName);
     addApplicationFeed(
-        id: applicantId,
+        uid: applicantId,
         type: "rejectApplication",
         applicantId: applicantId,
         applicantName: applicantName);
   }
 
   Future<void> addApplicationFeed(
-      {@required String id,
+      {@required String uid,
       @required String type,
       @required String applicantId,
       @required String applicantName}) async {
-    return await activityFeedRef.doc(id).collection("feedItems").doc().set({
+    return await activityFeedRef.doc(uid).collection("feedItems").doc().set({
       "type": type,
       "jobId": jobId,
       "jobTitle": jobTitle,
@@ -343,11 +343,11 @@ class Job {
   }
 
   Future<void> addDismissFeed(
-      {@required String id,
+      {@required String uid,
       @required String type,
       @required String jobFreelancerId,
       @required String jobFreelancerName}) async {
-    return await activityFeedRef.doc(id).collection("feedItems").doc().set({
+    return await activityFeedRef.doc(uid).collection("feedItems").doc().set({
       "type": type,
       "jobId": this.jobId,
       "jobTitle": this.jobTitle,
@@ -362,11 +362,11 @@ class Job {
   }
 
   Future<void> addQuitFeed(
-      {@required String id,
+      {@required String uid,
       @required String type,
       @required String jobFreelancerId,
       @required String jobFreelancerName}) async {
-    return await activityFeedRef.doc(id).collection("feedItems").doc().set({
+    return await activityFeedRef.doc(uid).collection("feedItems").doc().set({
       "type": type,
       "jobId": this.jobId,
       "jobTitle": this.jobTitle,
@@ -380,8 +380,8 @@ class Job {
     });
   }
 
-  Future<void> addDeleteJobFeed({@required String id}) async {
-    return await activityFeedRef.doc(id).collection("feedItems").doc().set({
+  Future<void> addDeleteJobFeed({@required String uid}) async {
+    return await activityFeedRef.doc(uid).collection("feedItems").doc().set({
       "type": "deleteJob",
       "jobId": this.jobId,
       "jobTitle": this.jobTitle,
@@ -422,8 +422,8 @@ class Job {
       });
   }
 
-  Future<void> createUserJob({@required String id}) {
-    return usersRef.doc(id).update({
+  Future<void> createUserJob({@required String uid}) {
+    return usersRef.doc(uid).update({
       "jobs.$jobId": {
         "jobId": jobId,
         "jobTitle": jobTitle,
@@ -476,8 +476,8 @@ class Job {
     @required String ownerReview,
     @required double ownerRating,
   }) async {
-    addCompleteAndReviewFeed(id: jobOwnerId);
-    addCompleteAndReviewFeed(id: jobFreelancerId);
+    addCompleteAndReviewFeed(uid: jobOwnerId);
+    addCompleteAndReviewFeed(uid: jobFreelancerId);
 
     usersRef.doc(jobOwnerId).update({
       "job.$jobId": {
@@ -514,12 +514,12 @@ class Job {
     @required double ownerRating,
   }) async {
     addQuitFeed(
-        id: this.jobOwnerId,
+        uid: this.jobOwnerId,
         type: "freelancerQuit",
         jobFreelancerId: this.jobFreelancerId,
         jobFreelancerName: this.jobFreelancerName);
     addQuitFeed(
-        id: this.jobFreelancerId,
+        uid: this.jobFreelancerId,
         type: "freelancerQuit",
         jobFreelancerId: this.jobFreelancerId,
         jobFreelancerName: this.jobFreelancerName);
@@ -534,10 +534,10 @@ class Job {
     @required double freelancerAttitudeRating,
     @required double freelancerTimeManagementRating,
   }) async {
-    addCompleteAndReviewFeed(id: jobOwnerId);
-    addCompleteAndReviewFeed(id: jobFreelancerId);
+    addCompleteAndReviewFeed(uid: jobOwnerId);
+    addCompleteAndReviewFeed(uid: jobFreelancerId);
     addUserReviewAndUpdateUserJob(
-      id: jobFreelancerId,
+      uid: jobFreelancerId,
       type: "jobCompleted",
       freelancerReview: freelancerReview,
       freelancerQualityRating: freelancerQualityRating,
@@ -563,9 +563,9 @@ class Job {
   }
 
   Future<void> addCompleteAndReviewFeed({
-    @required String id,
+    @required String uid,
   }) async {
-    activityFeedRef.doc(id).collection("feedItems").doc().set({
+    activityFeedRef.doc(uid).collection("feedItems").doc().set({
       "type": "jobCompleted",
       "jobId": jobId,
       "jobTitle": jobTitle,
@@ -584,7 +584,7 @@ class Job {
   }
 
   Future<void> addRequestUpdateTermsFeed(
-      {@required String id,
+      {@required String uid,
       @required String type,
       @required String requestOwnerName,
       @required String requestOwnerId,
@@ -592,7 +592,7 @@ class Job {
       @required GeoPoint newLocation,
       @required String newDateRange,
       @required String newJobDescription}) {
-    return activityFeedRef.doc(id).collection("feedItems").doc().set({
+    return activityFeedRef.doc(uid).collection("feedItems").doc().set({
       "type": type,
       "jobId": jobId,
       "jobTitle": jobTitle,
@@ -613,12 +613,12 @@ class Job {
   }
 
   Future<void> addDecisionUpdateTermsFeed({
-    @required String id,
+    @required String uid,
     @required String type,
     @required String decisionOwnerName,
     @required String decisionOwnerId,
   }) {
-    return activityFeedRef.doc(id).collection("feedItems").doc().set({
+    return activityFeedRef.doc(uid).collection("feedItems").doc().set({
       "type": type,
       "jobId": jobId,
       "jobTitle": jobTitle,
@@ -643,13 +643,13 @@ class Job {
     @required String decisionOwnerId,
   }) async {
     addDecisionUpdateTermsFeed(
-      id: jobOwnerId,
+      uid: jobOwnerId,
       type: "acceptTerms",
       decisionOwnerName: decisionOwnerName,
       decisionOwnerId: decisionOwnerId,
     );
     addDecisionUpdateTermsFeed(
-      id: jobFreelancerId,
+      uid: jobFreelancerId,
       type: "acceptTerms",
       decisionOwnerName: decisionOwnerName,
       decisionOwnerId: decisionOwnerId,
@@ -677,13 +677,13 @@ class Job {
     @required String decisionOwnerId,
   }) async {
     addDecisionUpdateTermsFeed(
-      id: jobOwnerId,
+      uid: jobOwnerId,
       type: "rejectTerms",
       decisionOwnerName: decisionOwnerName,
       decisionOwnerId: decisionOwnerId,
     );
     addDecisionUpdateTermsFeed(
-      id: jobFreelancerId,
+      uid: jobFreelancerId,
       type: "rejectTerms",
       decisionOwnerName: decisionOwnerName,
       decisionOwnerId: decisionOwnerId,
@@ -715,7 +715,7 @@ class Job {
     @required String newDateRange,
   }) async {
     addRequestUpdateTermsFeed(
-      id: jobOwnerId,
+      uid: jobOwnerId,
       type: "updateTerms",
       requestOwnerName: requestOwnerName,
       requestOwnerId: requestOwnerId,
@@ -725,7 +725,7 @@ class Job {
       newDateRange: newDateRange,
     );
     addRequestUpdateTermsFeed(
-      id: jobFreelancerId,
+      uid: jobFreelancerId,
       type: "updateTerms",
       requestOwnerName: requestOwnerName,
       requestOwnerId: requestOwnerId,
@@ -735,8 +735,8 @@ class Job {
       newDateRange: newDateRange,
     );
 
-    final bool isJobFreelancer = jobFreelancerId == currentUser.id;
-    final bool isJobOwner = jobOwnerId == currentUser.id;
+    final bool isJobFreelancer = jobFreelancerId == currentUser.uid;
+    final bool isJobOwner = jobOwnerId == currentUser.uid;
     jobsRef.doc(jobId).update({
       "newJobDescription": newJobDescription,
       "newPrice": newPrice,
@@ -798,12 +798,12 @@ class Job {
       "isOwnerCompleted": isOwnerCompleted,
       "isFreelancerCompleted": isFreelancerCompleted,
       "createdAt": FieldValue.serverTimestamp(),
-    }).then((value) => createUserJob(id: jobOwnerId));
+    }).then((value) => createUserJob(uid: jobOwnerId));
   }
 
   Future<void> disposeCurrentFreelancerAndDeleteJob() async {
-    addDisposeFeed(id: jobOwnerId, type: "dispose");
-    addDisposeFeed(id: jobFreelancerId, type: "dispose");
+    addDisposeFeed(uid: jobOwnerId, type: "dispose");
+    addDisposeFeed(uid: jobFreelancerId, type: "dispose");
 
     jobsRef.doc(jobId).update({
       "applications.$jobFreelancerId": false,
@@ -824,8 +824,8 @@ class Job {
     });
   }
 
-  Future<void> addDisposeFeed({@required String id, @required String type}) {
-    return activityFeedRef.doc(id).collection("feedItems").doc().set({
+  Future<void> addDisposeFeed({@required String uid, @required String type}) {
+    return activityFeedRef.doc(uid).collection("feedItems").doc().set({
       "type": type,
       "jobId": jobId,
       "jobTitle": jobTitle,
@@ -841,7 +841,7 @@ class Job {
 
   Future<void> uploadTeamNotification(
       {@required String messageText, @required String type}) async {
-    complaintRef.doc(currentUser.id).set({
+    complaintRef.doc(currentUser.uid).set({
       "type": type,
       "messageText": messageText,
       "jobId": jobId,
@@ -857,7 +857,7 @@ class Job {
   }
 
   Future<void> addUserReviewAndUpdateUserJob({
-    @required String id,
+    @required String uid,
     @required String type,
     @required String freelancerReview,
     @required double freelancerQualityRating,
@@ -865,7 +865,7 @@ class Job {
     @required double freelancerTimeManagementRating,
   }) async {
     AppUser user;
-    await usersRef.doc(id).get().then((doc) {
+    await usersRef.doc(uid).get().then((doc) {
       user = AppUser.fromDocument(doc);
       double reviewsCount = user.reviews.length.toDouble();
       double jobsCount = user.jobs.length.toDouble();
@@ -886,7 +886,7 @@ class Job {
               newAttitudeRateAverage +
               newTimeManagementRateAverage) /
           3;
-      usersRef.doc(id).update({
+      usersRef.doc(uid).update({
         "qualityRate": newQualityRateAverage,
         "attitudeRate": newAttitudeRateAverage,
         "timeManagementRate": newTimeManagementRateAverage,
