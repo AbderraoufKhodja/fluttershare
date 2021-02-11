@@ -61,7 +61,7 @@ class _ProfileState extends State<Profile>
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return FutureBuilder<DocumentSnapshot>(
         future: usersRef.doc(widget.profileId).get(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return linearProgress();
@@ -128,7 +128,7 @@ class _ProfileState extends State<Profile>
   }
 
   buildProfileHeader() {
-    return FutureBuilder(
+    return FutureBuilder<DocumentSnapshot>(
         future: usersRef.doc(widget.profileId).get(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {

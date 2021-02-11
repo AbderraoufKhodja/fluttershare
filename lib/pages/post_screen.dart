@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/header.dart';
@@ -12,7 +13,7 @@ class PostScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return FutureBuilder<DocumentSnapshot>(
       future: postsRef.doc(userId).collection('userPosts').doc(postId).get(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {

@@ -94,7 +94,7 @@ class _PostState extends State<Post> {
   });
 
   buildPostHeader() {
-    return FutureBuilder(
+    return FutureBuilder<DocumentSnapshot>(
       future: usersRef.doc(jobOwnerId).get(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {

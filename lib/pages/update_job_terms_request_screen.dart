@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/home.dart';
@@ -25,7 +26,7 @@ class _UpdateJobTermsScreenRequestState
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   TextEditingController jobDescriptionController = TextEditingController();
-  GeoPoint locationGeoPoint;
+  GeoFirePoint locationGeoPoint;
   TextEditingController dateRangeController = TextEditingController();
   TextEditingController priceController = TextEditingController();
 

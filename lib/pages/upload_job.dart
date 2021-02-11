@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/models/job.dart';
@@ -27,7 +28,8 @@ class UploadJob extends StatefulWidget {
 class _UploadJobState extends State<UploadJob>
     with AutomaticKeepAliveClientMixin<UploadJob> {
   TextEditingController jobTitleController = TextEditingController();
-  GeoPoint locationGeoPoint;
+  GeoFirePoint jobGeoFirePoint;
+  TextEditingController jobLocationController = TextEditingController();
   TextEditingController dateRangeController = TextEditingController();
   TextEditingController jobDescriptionController = TextEditingController();
   TextEditingController professionalCategoryController =
@@ -46,10 +48,13 @@ class _UploadJobState extends State<UploadJob>
   List<String> subAdministrativeAreasList = [""];
   final _formKey = GlobalKey<FormState>();
   final _categoryScaffoldKey = GlobalKey<ScaffoldState>();
+  final picker = ImagePicker();
+  final geo = Geoflutterfire();
 
   String jobId = Uuid().v4();
   File file;
   bool isUploading = false;
+
   int valIndex = 0;
   String instruction = kTellUsAboutYou;
   DateTimeRange dateRange;
@@ -297,7 +302,7 @@ class _UploadJobState extends State<UploadJob>
         professionalCategory: professionalCategoryController.text,
         professionalTitle: professionalTitleController.text,
         jobDescription: jobDescriptionController.text,
-        location: locationGeoPoint,
+        location: jobGeoFirePoint,
         dateRange: dateRangeController.text,
         jobPhotoUrl: jobPhotoUrl,
         price: priceController.text,
@@ -320,21 +325,25 @@ class _UploadJobState extends State<UploadJob>
 
   handleTakePhoto() async {
     Navigator.pop(context);
-    File file = await ImagePicker.pickImage(
+    PickedFile imageFile = await picker.getImage(
       source: ImageSource.camera,
       maxHeight: 675,
       maxWidth: 960,
     );
     setState(() {
-      this.file = file;
+      if (imageFile != null) this.file = File(imageFile.path);
     });
   }
 
   handleChooseFromGallery() async {
     Navigator.pop(context);
-    File file = await ImagePicker.pickImage(source: ImageSource.gallery);
+    PickedFile imageFile = await picker.getImage(
+      source: ImageSource.gallery,
+      maxHeight: 675,
+      maxWidth: 960,
+    );
     setState(() {
-      this.file = file;
+      if (imageFile != null) this.file = File(imageFile.path);
     });
   }
 
@@ -437,7 +446,7 @@ class _UploadJobState extends State<UploadJob>
 
   clearControllers() {
     professionalTitleController.clear();
-    locationGeoPoint = null;
+    jobGeoFirePoint = null;
     jobDescriptionController.clear();
     dateRangeController.clear();
   }
@@ -654,27 +663,50 @@ class _UploadJobState extends State<UploadJob>
           color: Colors.white,
         ),
       ),
-      onTap: getUserLocation,
+      onTap: getJobLocation,
     );
   }
 
-  getUserLocation() async {
-    // TODO fix permission issue
-    Position position =
-        await getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+  getJobLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    Position position;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permantly denied, we cannot request permissions.');
+    }
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.whileInUse &&
+          permission != LocationPermission.always) {
+        return Future.error(
+            'Location permissions are denied (actual value: $permission).');
+      }
+    }
+    position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
     List<Placemark> placemarks =
         await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark placemark = placemarks[0];
     String formattedAddress =
         " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"
         " ${placemark.country}";
-    setState(() {
-      locationGeoPoint = GeoPoint(position.latitude, position.longitude);
-    });
-    addLocation(
-        country: country,
-        administrativeArea: administrativeArea,
-        subAdministrativeArea: subAdministrativeArea);
+    jobLocationController.text = formattedAddress;
+    jobGeoFirePoint =
+        geo.point(latitude: position.latitude, longitude: position.longitude);
+    // addLocation(
+    //     latitude: position.latitude,
+    //     longitude: position.longitude,
+    //     country: country,
+    //     administrativeArea: administrativeArea,
+    //     subAdministrativeArea: subAdministrativeArea);
   }
 
   updateInstruction(String instruction) {
@@ -758,18 +790,18 @@ class _UploadJobState extends State<UploadJob>
     }
   }
 
-  Future<void> addLocation(
-      {String country,
-      String administrativeArea,
-      String subAdministrativeArea}) async {
-    return await locationsRef
-        .doc(country)
-        .collection("administrativeAreas")
-        .doc(administrativeArea)
-        .collection("subAdministrativeAreas")
-        .doc(subAdministrativeArea)
-        .set({});
-  }
+  // Future<void> addLocation(
+  //     {String country,
+  //     String administrativeArea,
+  //     String subAdministrativeArea}) async {
+  //   return await locationsRef
+  //       .doc(country)
+  //       .collection("administrativeAreas")
+  //       .doc(administrativeArea)
+  //       .collection("subAdministrativeAreas")
+  //       .doc(subAdministrativeArea)
+  //       .set({});
+  // }
 }
 
 Future<bool> showUploadJobScreen(BuildContext context,

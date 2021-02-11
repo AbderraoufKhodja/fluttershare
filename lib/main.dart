@@ -1,17 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:khadamat/pages/home.dart';
 
 void main() {
-  // TODO: fix createdAt bug
-//  WidgetsFlutterBinding.ensureInitialized();
-//  FirebaseFirestore.instance.settings(createdAtsInSnapshotsEnabled: true).then((_) {
-//    print("Timestamps enabled in snapshot\n");
-//  }, onError: () {
-//    print("Error in enabling createdAts in snapshot\n");
-//  });
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MyApp());
 }
@@ -56,6 +48,5 @@ class MyApp extends StatelessWidget {
         return CircularProgressIndicator();
       },
     );
-    ;
   }
 }

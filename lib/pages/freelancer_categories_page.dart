@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/widgets/items_horizontal_view.dart';
+import 'package:khadamat/widgets/progress.dart';
 
 class FreelancerCategoriesPage extends StatefulWidget {
   @override
@@ -14,43 +13,52 @@ class _FreelancerCategoriesPage extends State<FreelancerCategoriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: EdgeInsets.only(left: 20, top: 20),
-      children: [
-        ItemsHorizontalView(
-          title: kRecommendedForYouSection,
-          futureItems: getRecommendedForYouSection(),
-        ),
-        ItemsHorizontalView(
-            title: kSuggestedForYouSection,
-            futureItems: getSuggestedForYouSection()),
-        ItemsHorizontalView(
-          title: kRecentlyReviewdSection,
-          futureItems: getRecentlyReviewdSection(),
-        ),
-        ItemsHorizontalView(
-          title: kNewTalentsSection,
-          futureItems: getNewTalentsSection(),
-        ),
-        ItemsHorizontalView(
-          title: kTopFreelancerSection,
-          futureItems: getTopFreelancerSection(),
-        ),
-        ItemsHorizontalView(
-          title: kTeamChoiceFreelancers,
-          futureItems: getTeamChoiceFreelancerSection(),
-        ),
-        ItemsHorizontalView(
-          title: kBeTheFirstToHire,
-          futureItems: getBeTheFirstToHireSection(),
-        ),
-        ItemsHorizontalView(
-          title: kAroundMe,
-          futureItems: getAroundMeSection(),
-        ),
-      ],
-    );
+    return FutureBuilder<QuerySnapshot>(
+        future: categoriesList(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return circularProgress();
+          } else {
+            return ListView(
+              padding: EdgeInsets.only(left: 20, top: 20),
+              children: snapshot.data.docs.map((doc) => Text(doc.id)).toList(),
+            );
+          }
+        });
+    // ItemsHorizontalView(
+    //   title: kRecommendedForYouSection,
+    //   futureItems: getRecommendedForYouSection(),
+    // ),
+    // ItemsHorizontalView(
+    //     title: kSuggestedForYouSection,
+    //     futureItems: getSuggestedForYouSection()),
+    // ItemsHorizontalView(
+    //   title: kRecentlyReviewdSection,
+    //   futureItems: getRecentlyReviewdSection(),
+    // ),
+    // ItemsHorizontalView(
+    //   title: kNewTalentsSection,
+    //   futureItems: getNewTalentsSection(),
+    // ),
+    // ItemsHorizontalView(
+    //   title: kTopFreelancerSection,
+    //   futureItems: getTopFreelancerSection(),
+    // ),
+    // ItemsHorizontalView(
+    //   title: kTeamChoiceFreelancers,
+    //   futureItems: getTeamChoiceFreelancerSection(),
+    // ),
+    // ItemsHorizontalView(
+    //   title: kBeTheFirstToHire,
+    //   futureItems: getBeTheFirstToHireSection(),
+    // ),
+    // ItemsHorizontalView(
+    //   title: kAroundMe,
+    //   futureItems: getAroundMeSection(),
+    // ),
   }
+
+  Future<QuerySnapshot> categoriesList() => categoriesRef.get();
 
   Future<QuerySnapshot> getRecommendedForYouSection() {
     return usersRef

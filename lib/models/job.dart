@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/home.dart';
@@ -20,11 +21,11 @@ class Job {
   final String professionalTitle;
   final String professionalCategory;
   String jobDescription;
-  GeoPoint location;
+  GeoFirePoint location;
   String dateRange;
   String price;
   String newJobDescription;
-  GeoPoint newLocation;
+  GeoFirePoint newLocation;
   String newDateRange;
   String newPrice;
   String ownerReview;
@@ -84,6 +85,7 @@ class Job {
   });
 
   factory Job.fromDocument(DocumentSnapshot doc) {
+    //TODO read GeofirePoint object from firebase
     return Job(
       jobId: fieldGetter(document: doc, field: "jobId"),
       jobOwnerId: fieldGetter(document: doc, field: "jobOwnerId"),
@@ -589,7 +591,7 @@ class Job {
       @required String requestOwnerName,
       @required String requestOwnerId,
       @required String newPrice,
-      @required GeoPoint newLocation,
+      @required GeoFirePoint newLocation,
       @required String newDateRange,
       @required String newJobDescription}) {
     return activityFeedRef.doc(uid).collection("feedItems").doc().set({
@@ -605,7 +607,7 @@ class Job {
       "requestOwnerId": requestOwnerId,
       "newJobDescription": newJobDescription,
       "newPrice": newPrice,
-      "newLocation": newLocation,
+      "newLocation": newLocation.data,
       "newDateRange": newDateRange,
       "read": false,
       "createdAt": FieldValue.serverTimestamp(),
@@ -631,7 +633,7 @@ class Job {
       "decisionOwnerId": decisionOwnerId,
       "newJobDescription": newJobDescription,
       "newPrice": newPrice,
-      "newLocation": newLocation,
+      "newLocation": newLocation.data,
       "newDateRange": newDateRange,
       "read": false,
       "createdAt": FieldValue.serverTimestamp(),
@@ -658,7 +660,7 @@ class Job {
     jobsRef.doc(jobId).update({
       "jobDescription": newJobDescription,
       "dateRange": newDateRange,
-      "location": newLocation,
+      "location": newLocation.data,
       "price": newPrice,
       "hasFreelancerUpdateRequest": false,
       "hasOwnerUpdateRequest": false,
@@ -711,7 +713,7 @@ class Job {
     @required String requestOwnerId,
     @required String newJobDescription,
     @required String newPrice,
-    @required GeoPoint newLocation,
+    @required GeoFirePoint newLocation,
     @required String newDateRange,
   }) async {
     addRequestUpdateTermsFeed(
@@ -740,7 +742,7 @@ class Job {
     jobsRef.doc(jobId).update({
       "newJobDescription": newJobDescription,
       "newPrice": newPrice,
-      "newLocation": newLocation,
+      "newLocation": newLocation.data,
       "newDateRange": newDateRange,
       "hasFreelancerUpdateRequest": isJobFreelancer,
       "hasOwnerUpdateRequest": isJobOwner,
@@ -780,10 +782,10 @@ class Job {
       "professionalTitle": professionalTitle,
       "jobDescription": jobDescription,
       "price": price,
-      "location": location,
+      "location": location.data,
       "dateRange": dateRange,
       "newJobDescription": newJobDescription,
-      "newLocation": newLocation,
+      "newLocation": newLocation.data,
       "newPrice": newPrice,
       "newDateRange": newDateRange,
       "ownerReview": ownerReview,

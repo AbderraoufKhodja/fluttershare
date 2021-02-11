@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/search.dart';
@@ -24,7 +25,7 @@ class ItemsHorizontalView extends StatelessWidget {
         SizedBox(
           height: 10,
         ),
-        FutureBuilder(
+        FutureBuilder<dynamic>(
           future: futureItems,
           builder: (context, snapshot) {
             if (!snapshot.hasData) {

@@ -6,6 +6,9 @@ import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/items_horizontal_view.dart';
 
 class FreelancerForYouPage extends StatefulWidget {
+  final List<String> preferences;
+
+  FreelancerForYouPage({this.preferences});
   @override
   _FreelancerForYouPage createState() => _FreelancerForYouPage();
 }
@@ -13,6 +16,19 @@ class FreelancerForYouPage extends StatefulWidget {
 class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   Future<QuerySnapshot> searchResultsFuture;
   final geo = Geoflutterfire();
+  List<String> preferences;
+  @override
+  void initState() {
+    super.initState();
+    getPreferences();
+  }
+
+  void getPreferences() {
+    if (widget.preferences != null)
+      preferences = widget.preferences;
+    else
+      preferences = currentUser.preferences;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,21 +73,21 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   Future<QuerySnapshot> getRecommendedForYouSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
-        .where("professionalCategory", whereIn: currentUser.preferences)
+        .where("professionalCategory", whereIn: preferences)
         .get();
   }
 
   Future<QuerySnapshot> getSuggestedForYouSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
-        .where("professionalCategory", whereIn: currentUser.preferences)
+        .where("professionalCategory", whereIn: preferences)
         .get();
   }
 
   Future<QuerySnapshot> getRecentlyReviewdSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
-        .where("professionalCategory", whereIn: currentUser.preferences)
+        .where("professionalCategory", whereIn: preferences)
         .orderBy("reviews.lastReviewTimestamp", descending: true)
         .get();
   }
@@ -79,7 +95,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   Future<QuerySnapshot> getNewTalentsSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
-        .where("professionalCategory", whereIn: currentUser.preferences)
+        .where("professionalCategory", whereIn: preferences)
         .orderBy("createdAt", descending: true)
         .limit(10)
         .get();
@@ -88,7 +104,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   Future<QuerySnapshot> getTopFreelancerSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
-        .where("professionalCategory", whereIn: currentUser.preferences)
+        .where("professionalCategory", whereIn: preferences)
         .orderBy("reviews.rating", descending: true)
         .get();
   }
@@ -96,7 +112,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   Future<QuerySnapshot> getTeamChoiceFreelancerSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
-        .where("professionalCategory", whereIn: currentUser.preferences)
+        .where("professionalCategory", whereIn: preferences)
         .where("teamChoice", isEqualTo: true)
         .get();
   }
@@ -104,7 +120,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   Future<QuerySnapshot> getBeTheFirstToHireSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
-        .where("professionalCategory", whereIn: currentUser.preferences)
+        .where("professionalCategory", whereIn: preferences)
         .where("jobs", isNull: true)
         .get();
   }
@@ -120,8 +136,8 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
 
     Stream<List<DocumentSnapshot>> stream = geo
         .collection(
-            collectionRef: usersRef.where("professionalCategory",
-                whereIn: currentUser.preferences))
+            collectionRef:
+                usersRef.where("professionalCategory", whereIn: preferences))
         .within(center: center, radius: radius, field: field);
 
     return stream.first;

@@ -21,7 +21,7 @@ class _JobsScreen extends State<ManageJobsScreen> {
 }
 
 buildListJobs() {
-  return FutureBuilder(
+  return FutureBuilder<QuerySnapshot>(
       future: usersRef
           .doc(currentUser.uid)
           .collection('userJobs')

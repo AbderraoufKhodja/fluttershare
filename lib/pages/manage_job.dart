@@ -413,7 +413,7 @@ class _ManageJobState extends State<ManageJob> {
                       job: job,
                       newJobDescription: job.newJobDescription,
                       newPrice: job.newPrice,
-                      newLocation: job.newLocation,
+                      newLocation: job.newLocation.data,
                       newDateRange: job.newDateRange);
                 }
               : null
@@ -423,7 +423,7 @@ class _ManageJobState extends State<ManageJob> {
                       job: job,
                       newJobDescription: job.newJobDescription,
                       newPrice: job.newPrice,
-                      newLocation: job.newLocation,
+                      newLocation: job.newLocation.data,
                       newDateRange: job.newDateRange);
                 }
               : null,

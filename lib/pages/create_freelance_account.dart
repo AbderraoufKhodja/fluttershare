@@ -43,7 +43,6 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   TextEditingController professionalTitleController = TextEditingController();
 
 // Init firestore and geoFlutterFire
-  final geo = Geoflutterfire();
   String professionalCategory;
   String professionalTitle;
   List<String> professionalCategoriesList = [""];
@@ -67,16 +66,16 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   TextEditingController achievementController = TextEditingController();
   TextEditingController recommendationController = TextEditingController();
   TextEditingController languageController = TextEditingController();
+  final geo = Geoflutterfire();
   final _formKey = GlobalKey<FormState>();
   final _categoryScaffoldKey = GlobalKey<ScaffoldState>();
+  final picker = ImagePicker();
 
   File file;
   bool isUploading = false;
   int valIndex = 0;
   String instruction = kTellUsAboutYou;
   DateTime birthDate;
-
-  final picker = ImagePicker();
 
   bool get wantKeepAlive => true;
   get user =>
