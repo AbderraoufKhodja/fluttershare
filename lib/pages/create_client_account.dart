@@ -56,6 +56,7 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
       appBar: header(context,
           titleText: "Set up your profile", implyBackButton: true),
       body: ListView(
+        physics: BouncingScrollPhysics(),
         children: <Widget>[
           Container(
             child: Column(

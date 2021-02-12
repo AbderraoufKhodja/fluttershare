@@ -66,6 +66,7 @@ class _ManageJobState extends State<ManageJob> {
 
   ListView buildJobInfoListView() {
     return ListView(
+      physics: BouncingScrollPhysics(),
       children: <Widget>[
         Padding(
           padding: EdgeInsets.all(16.0),
@@ -132,6 +133,7 @@ class _ManageJobState extends State<ManageJob> {
         children: [
           Expanded(
             child: ListView(
+              physics: BouncingScrollPhysics(),
               // Important: Remove any padding from the ListView.
               padding: EdgeInsets.zero,
               children: <Widget>[
@@ -170,6 +172,7 @@ class _ManageJobState extends State<ManageJob> {
           feedItems.add(ActivityFeedItem.fromDocument(doc));
         });
         return ListView(
+          physics: BouncingScrollPhysics(),
           children: feedItems,
         );
       },

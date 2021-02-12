@@ -45,6 +45,7 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
           children: [
             Expanded(
               child: ListView(
+                physics: BouncingScrollPhysics(),
                 children: [
                   buildRatingColumn(),
                   CustomTextField(label: kReview, controller: reviewController),

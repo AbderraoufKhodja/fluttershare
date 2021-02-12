@@ -34,6 +34,7 @@ class UpdateJobTermsDialogueScreen extends StatelessWidget {
         children: [
           Expanded(
             child: ListView(
+              physics: BouncingScrollPhysics(),
               children: [
                 CustomField(
                   text: newJobDescription,

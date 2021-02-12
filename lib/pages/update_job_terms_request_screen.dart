@@ -52,6 +52,7 @@ class _UpdateJobTermsScreenRequestState
         titleText: kRequestUpdateJobTerms,
       ),
       body: ListView(
+        physics: BouncingScrollPhysics(),
         padding: EdgeInsets.all(10.0),
         children: [
           buildUpdateButtons(),

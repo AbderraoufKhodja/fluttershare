@@ -40,6 +40,7 @@ buildListMessages() {
           messages.add(MessageContainer.fromDocument(doc));
         });
         return ListView(
+          physics: BouncingScrollPhysics(),
           children: messages,
         );
       });

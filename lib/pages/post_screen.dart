@@ -24,6 +24,7 @@ class PostScreen extends StatelessWidget {
           child: Scaffold(
             appBar: header(context, titleText: post.description),
             body: ListView(
+              physics: BouncingScrollPhysics(),
               children: <Widget>[
                 Container(
                   child: post,

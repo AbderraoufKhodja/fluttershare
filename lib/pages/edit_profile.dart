@@ -52,6 +52,7 @@ class _EditProfileState extends State<EditProfile> {
       body: isLoading
           ? circularProgress()
           : ListView(
+              physics: BouncingScrollPhysics(),
               children: <Widget>[
                 Container(
                   child: Column(

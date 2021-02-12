@@ -152,6 +152,7 @@ class _ProfessionalCategoriesPageState extends State<ProfessionalCategoriesPage>
             GridTile(child: CategoryButton(professionalCategory: category)));
       });
       return ListView(
+        physics: BouncingScrollPhysics(),
         children: [
           GridView.count(
             crossAxisCount: 3,

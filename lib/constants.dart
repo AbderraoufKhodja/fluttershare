@@ -154,7 +154,8 @@ const TextStyle kTextStyleProfileInfo = TextStyle(fontSize: 16.0);
 const TextStyle kTextStyleProfileInfoHeader =
     TextStyle(fontSize: 17.0, fontWeight: FontWeight.bold);
 const String kDisplayName = "kDisplayName";
-const String kPhotoUrl = "kPhotoUrl";
+const String kBlankCategoryUrl =
+    "https://firebasestorage.googleapis.com/v0/b/khadamat-2dbbb.appspot.com/o/category.jpg?alt=media&token=ed73d107-a621-4de1-98cd-7e0bad173269";
 const String kEmail = "kEmail";
 const String kJobs = "kJobs";
 const String kProfessionalPhoto = "kProfessionalPhoto";

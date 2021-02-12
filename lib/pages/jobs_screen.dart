@@ -42,6 +42,7 @@ class _JobsScreen extends State<JobsScreen> {
           print(jobs);
           return Container(
             child: ListView(
+              physics: BouncingScrollPhysics(),
               children: jobs,
             ),
           );

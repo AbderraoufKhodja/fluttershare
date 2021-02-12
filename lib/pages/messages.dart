@@ -130,6 +130,7 @@ class MessagesState extends State<Messages> {
             messages.add(Message.fromDocument(doc));
           });
           return ListView(
+            physics: BouncingScrollPhysics(),
             reverse: true,
             children: messages,
           );

@@ -23,7 +23,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
       mainAxisSize: MainAxisSize.max,
       children: [
         Expanded(
-          child: ListView(children: [
+          child: ListView(physics: BouncingScrollPhysics(), children: [
             ChipsChoice<String>.multiple(
               value: value,
               onChanged: (val) => setState(() => value = val),

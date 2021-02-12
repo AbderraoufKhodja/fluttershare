@@ -6,7 +6,7 @@ import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/items_horizontal_view.dart';
 
 class FreelancerForYouPage extends StatefulWidget {
-  final List<String> preferences;
+  final List<dynamic> preferences;
 
   FreelancerForYouPage({this.preferences});
   @override
@@ -16,7 +16,7 @@ class FreelancerForYouPage extends StatefulWidget {
 class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   Future<QuerySnapshot> searchResultsFuture;
   final geo = Geoflutterfire();
-  List<String> preferences;
+  List<dynamic> preferences;
   @override
   void initState() {
     super.initState();
@@ -33,6 +33,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      physics: BouncingScrollPhysics(),
       padding: EdgeInsets.only(left: 20, top: 20),
       children: [
         ItemsHorizontalView(
@@ -142,4 +143,18 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
 
     return stream.first;
   }
+}
+
+showFreelancerForYouPage(
+  BuildContext context, {
+  @required List<dynamic> preferences,
+}) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => FreelancerForYouPage(
+        preferences: preferences,
+      ),
+    ),
+  );
 }

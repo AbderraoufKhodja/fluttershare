@@ -137,6 +137,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                         topRight: Radius.circular(30.0)),
                     color: Colors.white),
                 child: ListView(
+                  physics: BouncingScrollPhysics(),
                   children: <Widget>[
                     CustomTextFormField(
                       validator: (text) =>

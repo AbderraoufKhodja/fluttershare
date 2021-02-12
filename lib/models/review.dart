@@ -32,6 +32,7 @@ class Review {
   });
 
   factory Review.clientFromDocument(Map map) {
+    //TODO solve null problem
     return Review(
       uid: map['uid'],
       email: map['email'],

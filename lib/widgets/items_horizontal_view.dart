@@ -1,7 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/app_user.dart';
-import 'package:khadamat/pages/search.dart';
+import 'package:khadamat/widgets/freelancer_card.dart';
 import 'package:khadamat/widgets/progress.dart';
 
 class ItemsHorizontalView extends StatelessWidget {
@@ -48,6 +47,7 @@ class ItemsHorizontalView extends StatelessWidget {
             return Container(
               height: 180,
               child: ListView(
+                physics: BouncingScrollPhysics(),
                 scrollDirection: Axis.horizontal,
                 children: freelancersList,
               ),

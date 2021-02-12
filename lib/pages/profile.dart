@@ -236,6 +236,7 @@ class _ProfileState extends State<Profile>
   Expanded buildProfileInfo() {
     return Expanded(
       child: ListView(
+        physics: BouncingScrollPhysics(),
         children: [
           buildProfileInfoField(label: kUsername, text: user.username),
           buildProfileInfoField(label: kEmail, text: user.email),

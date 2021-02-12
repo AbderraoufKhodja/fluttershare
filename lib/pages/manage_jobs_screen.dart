@@ -36,6 +36,7 @@ buildListJobs() {
           job.add(JobContainer.fromDocument(doc));
         });
         return ListView(
+          physics: BouncingScrollPhysics(),
           children: job,
         );
       });

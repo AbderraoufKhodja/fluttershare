@@ -144,6 +144,7 @@ class _ProfessionalTitlesScreenState extends State<ProfessionalTitlesScreen> {
             GridTile(child: TitleButton(professionalTitle: professionalTitle)));
       });
       return ListView(
+        physics: BouncingScrollPhysics(),
         children: [
           GridView.count(
             crossAxisCount: 3,

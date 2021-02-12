@@ -24,6 +24,7 @@ class _TrendingFreelancersPage extends State<TrendingFreelancersPage> {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      physics: BouncingScrollPhysics(),
       padding: EdgeInsets.only(left: 20, top: 20),
       children: [
         ItemsHorizontalView(

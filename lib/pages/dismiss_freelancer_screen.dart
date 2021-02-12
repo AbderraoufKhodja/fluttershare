@@ -52,6 +52,7 @@ class _DismissFreelancerScreenState extends State<DismissFreelancerScreen> {
           children: [
             Expanded(
               child: ListView(
+                physics: BouncingScrollPhysics(),
                 children: [
                   buildRatingColumn(),
                   CustomTextField(label: kReview, controller: reviewController),

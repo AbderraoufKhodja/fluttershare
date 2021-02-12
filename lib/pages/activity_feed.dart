@@ -38,6 +38,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
                 feedItems.add(ActivityFeedItem.fromDocument(doc));
               });
               return ListView(
+                physics: BouncingScrollPhysics(),
                 children: feedItems,
               );
             },
