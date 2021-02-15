@@ -26,8 +26,8 @@ dependencies:
   cloud_firestore: ^0.14.0+2
   cupertino_icons: null
   eva_icons_flutter: null
-  firebase_core: null
   firebase_auth: null
+  firebase_core: null
   firebase_messaging: null
   firebase_storage: null
   flappy_search_bar: ^1.7.2
@@ -42,6 +42,7 @@ dependencies:
   image_picker: null
   outline_material_icons: null
   path_provider: null
+  place_picker: ^0.9.17
   timeago: null
   timeline_tile: ^1.0.0
   uuid: null

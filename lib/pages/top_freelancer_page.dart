@@ -94,10 +94,10 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
   }
 
   Future<QuerySnapshot> getTopFreelancersAroundMeSection() {
+    // TODO implement geofire query
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
-        .orderBy("location", descending: true)
         .orderBy("globalRate", descending: true)
         .get();
   }

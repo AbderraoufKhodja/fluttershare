@@ -4,6 +4,7 @@ import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/items_horizontal_view.dart';
+import 'package:khadamat/widgets/job_categories.dart';
 
 class FreelancerForYouPage extends StatefulWidget {
   final List<dynamic> preferences;
@@ -21,6 +22,28 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   void initState() {
     super.initState();
     getPreferences();
+    // usersRef.get(GetOptions(source: Source.server)).then(
+    //   (documents) {
+    //     print(documents.docs.length);
+    //     documents.docs.forEach(
+    //       (doc) {
+    //         if (doc.data().containsKey('latitude')) {
+    //           usersRef.doc(doc.id).update(
+    //             {
+    //               'location': GeoFirePoint(
+    //                       doc.data()['latitude'], doc.data()['longitude'])
+    //                   .data
+    //             },
+    //           );
+    //         }
+    //       },
+    //     );
+    //   },
+    // );
+
+    jobCategories.forEach((element) {
+      categoriesRef.doc(element).set({});
+    });
   }
 
   void getPreferences() {
@@ -106,7 +129,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: preferences)
-        .orderBy("reviews.rating", descending: true)
+        .orderBy("globalRate", descending: true)
         .get();
   }
 
