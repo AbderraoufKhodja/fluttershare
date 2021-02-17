@@ -1,5 +1,8 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:khadamat/constants.dart';
+import 'package:khadamat/pages/ultils.dart';
 
 class AppUser {
   final String uid;
@@ -12,7 +15,7 @@ class AppUser {
   String professionalPhotoUrl;
   String personalBio;
   String gender;
-  Map<String, dynamic> location;
+  Map location;
   Timestamp birthDate;
   String professionalCategory;
   String professionalTitle;
@@ -92,43 +95,56 @@ class AppUser {
   factory AppUser.freelancerFromDocument(DocumentSnapshot doc) {
     // TODO fix int double type error for number fields
     return AppUser(
-      uid: fieldGetter(document: doc, field: 'uid'),
-      username: fieldGetter(document: doc, field: 'username'),
-      displayName: fieldGetter(document: doc, field: 'displayName'),
-      photoURL: fieldGetter(document: doc, field: 'photoURL'),
-      email: fieldGetter(document: doc, field: 'email'),
-      isFreelancer: fieldGetter(document: doc, field: 'isFreelancer'),
-      teamChoice: fieldGetter(document: doc, field: 'teamChoice'),
-      professionalPhotoUrl:
-          fieldGetter(document: doc, field: 'professionalPhotoUrl'),
-      personalBio: fieldGetter(document: doc, field: 'personalBio'),
-      gender: fieldGetter(document: doc, field: 'gender'),
-      location: fieldGetter(document: doc, field: 'location'),
-      birthDate: fieldGetter(document: doc, field: 'birthDate'),
-      professionalCategory:
-          fieldGetter(document: doc, field: 'professionalCategory'),
-      professionalTitle: fieldGetter(document: doc, field: 'professionalTitle'),
-      professionalDescription:
-          fieldGetter(document: doc, field: 'professionalDescription'),
-      globalRate: fieldGetter(document: doc, field: 'globalRate'),
-      jobsCount: fieldGetter(document: doc, field: 'jobsCount'),
-      completionRate: fieldGetter(document: doc, field: 'completionRate'),
-      popularityRate: fieldGetter(document: doc, field: 'popularityRate'),
-      qualityRating: fieldGetter(document: doc, field: 'qualityRate'),
-      attitudeRating: fieldGetter(document: doc, field: 'attitudeRate'),
-      preferences: fieldGetter(document: doc, field: 'preferences'),
-      reviews: fieldGetter(document: doc, field: 'reviews'),
-      jobs: fieldGetter(document: doc, field: 'jobs'),
-      diploma: fieldGetter(document: doc, field: 'diploma'),
-      licence: fieldGetter(document: doc, field: 'licence'),
-      certification: fieldGetter(document: doc, field: 'certification'),
-      language: fieldGetter(document: doc, field: 'language'),
-      experience: fieldGetter(document: doc, field: 'experience'),
-      internship: fieldGetter(document: doc, field: 'internship'),
-      competence: fieldGetter(document: doc, field: 'competence'),
-      achievement: fieldGetter(document: doc, field: 'achievement'),
-      recommendation: fieldGetter(document: doc, field: 'recommendation'),
-      createdAt: fieldGetter(document: doc, field: 'createdAt'),
+      uid: fieldGetter(document: doc, field: 'uid', type: String),
+      username: fieldGetter(document: doc, field: 'username', type: String),
+      displayName:
+          fieldGetter(document: doc, field: 'displayName', type: String),
+      photoURL: fieldGetter(document: doc, field: 'photoURL', type: String),
+      email: fieldGetter(document: doc, field: 'email', type: String),
+      isFreelancer:
+          fieldGetter(document: doc, field: 'isFreelancer', type: bool),
+      teamChoice: fieldGetter(document: doc, field: 'teamChoice', type: bool),
+      professionalPhotoUrl: fieldGetter(
+          document: doc, field: 'professionalPhotoUrl', type: String),
+      personalBio:
+          fieldGetter(document: doc, field: 'personalBio', type: String),
+      gender: fieldGetter(document: doc, field: 'gender', type: String),
+      location: fieldGetter(document: doc, field: 'location', type: Map),
+      birthDate:
+          fieldGetter(document: doc, field: 'birthDate', type: Timestamp),
+      professionalCategory: fieldGetter(
+          document: doc, field: 'professionalCategory', type: String),
+      professionalTitle:
+          fieldGetter(document: doc, field: 'professionalTitle', type: String),
+      professionalDescription: fieldGetter(
+          document: doc, field: 'professionalDescription', type: String),
+      jobsCount: fieldGetter(document: doc, field: 'jobsCount', type: double),
+      globalRate: fieldGetter(document: doc, field: 'globalRate', type: double),
+      completionRate:
+          fieldGetter(document: doc, field: 'completionRate', type: double),
+      popularityRate:
+          fieldGetter(document: doc, field: 'popularityRate', type: double),
+      qualityRating:
+          fieldGetter(document: doc, field: 'qualityRate', type: double),
+      attitudeRating:
+          fieldGetter(document: doc, field: 'attitudeRate', type: double),
+      preferences: fieldGetter(document: doc, field: 'preferences', type: List),
+      reviews: fieldGetter(document: doc, field: 'reviews', type: Map),
+      jobs: fieldGetter(document: doc, field: 'jobs', type: Map),
+      diploma: fieldGetter(document: doc, field: 'diploma', type: String),
+      licence: fieldGetter(document: doc, field: 'licence', type: String),
+      certification:
+          fieldGetter(document: doc, field: 'certification', type: String),
+      language: fieldGetter(document: doc, field: 'language', type: String),
+      experience: fieldGetter(document: doc, field: 'experience', type: String),
+      internship: fieldGetter(document: doc, field: 'internship', type: String),
+      competence: fieldGetter(document: doc, field: 'competence', type: String),
+      achievement:
+          fieldGetter(document: doc, field: 'achievement', type: String),
+      recommendation:
+          fieldGetter(document: doc, field: 'recommendation', type: String),
+      createdAt:
+          fieldGetter(document: doc, field: 'createdAt', type: Timestamp),
     );
   }
   factory AppUser.fromDocument(DocumentSnapshot doc) {

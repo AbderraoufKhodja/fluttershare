@@ -11,7 +11,7 @@ class TopFreelancerPage extends StatefulWidget {
 
 class _TopFreelancerPage extends State<TopFreelancerPage> {
   Future<QuerySnapshot> searchResultsFuture;
-  List<String> popularCategories = ["Developper"];
+  List<String> popularCategories = ["Sales"];
 
   @override
   void initState() {

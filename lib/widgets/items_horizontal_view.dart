@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/widgets/freelancer_card.dart';
@@ -31,13 +32,13 @@ class ItemsHorizontalView extends StatelessWidget {
               return circularProgress();
             }
             List<FreelancerCard> freelancersList = [];
-            try {
+            if (snapshot.data is QuerySnapshot) {
               snapshot.data.docs.forEach((doc) {
                 AppUser user = AppUser.fromDocument(doc);
                 FreelancerCard freelancer = FreelancerCard(user);
                 freelancersList.add(freelancer);
               });
-            } catch (e) {
+            } else if (snapshot.data is List<DocumentSnapshot>) {
               snapshot.data.forEach((doc) {
                 AppUser user = AppUser.fromDocument(doc);
                 FreelancerCard freelancer = FreelancerCard(user);

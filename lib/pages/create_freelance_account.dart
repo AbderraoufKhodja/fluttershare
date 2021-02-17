@@ -870,7 +870,6 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   }
 
   getUserLocation() async {
-    // TODO fix permission issue
     bool serviceEnabled;
     LocationPermission permission;
     Position position;
@@ -904,12 +903,12 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     locationController.text = formattedAddress;
     locationGeoFirePoint =
         geo.point(latitude: position.latitude, longitude: position.longitude);
-    addLocation(
-        latitude: position.latitude,
-        longitude: position.longitude,
-        country: country,
-        administrativeArea: administrativeArea,
-        subAdministrativeArea: subAdministrativeArea);
+    // addLocation(
+    //     latitude: position.latitude,
+    //     longitude: position.longitude,
+    //     country: country,
+    //     administrativeArea: administrativeArea,
+    //     subAdministrativeArea: subAdministrativeArea);
   }
 
   updateInstruction(String instruction) {

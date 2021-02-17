@@ -242,13 +242,3 @@ const String kTrendingTopFreelancersAroundMeSection =
 
 const String kBlankProfileUrl =
     "https://firebasestorage.googleapis.com/v0/b/khadamat-2dbbb.appspot.com/o/freelancer_105303619841718040097.jpg?alt=media&token=cee059e4-bbf9-48ad-b668-88b5282d2339";
-
-dynamic fieldGetter(
-    {@required DocumentSnapshot document, @required String field}) {
-  try {
-    return document[field];
-  } catch (error) {
-    print("$error; missing field: $field");
-    return null;
-  }
-}

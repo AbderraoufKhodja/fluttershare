@@ -1,10 +1,12 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/home.dart';
+import 'package:khadamat/pages/ultils.dart';
 import 'package:khadamat/widgets/items_horizontal_view.dart';
-import 'package:khadamat/widgets/job_categories.dart';
 
 class FreelancerForYouPage extends StatefulWidget {
   final List<dynamic> preferences;
@@ -18,32 +20,41 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   Future<QuerySnapshot> searchResultsFuture;
   final geo = Geoflutterfire();
   List<dynamic> preferences;
+
+  final int limit = 30;
   @override
   void initState() {
     super.initState();
     getPreferences();
-    // usersRef.get(GetOptions(source: Source.server)).then(
+    // usersRef.get().then(
     //   (documents) {
     //     print(documents.docs.length);
+    //     Random random = new Random();
     //     documents.docs.forEach(
     //       (doc) {
-    //         if (doc.data().containsKey('latitude')) {
-    //           usersRef.doc(doc.id).update(
-    //             {
-    //               'location': GeoFirePoint(
-    //                       doc.data()['latitude'], doc.data()['longitude'])
-    //                   .data
-    //             },
-    //           );
-    //         }
+    //         final int a_year = random.nextInt(24) + 1980;
+    //         final int a_month = random.nextInt(5);
+    //         final int a_day = random.nextInt(20);
+    //         final int b_year = a_year + random.nextInt(20);
+    //         final int b_month = a_month + random.nextInt(2);
+    //         final int b_day = a_day + random.nextInt(4);
+    //         final int c_year = b_year;
+    //         final int c_month = b_month + random.nextInt(5);
+    //         final int c_day = b_day + random.nextInt(5);
+    //         usersRef.doc(doc.id).update(
+    //           {
+    //             'birthDate':
+    //                 Timestamp.fromDate(DateTime(a_year, a_month, a_day)),
+    //             'createdAt':
+    //                 Timestamp.fromDate(DateTime(b_year, b_month, b_day)),
+    //             "reviews.lastReviewTimestamp":
+    //                 Timestamp.fromDate(DateTime(c_year, c_month, c_day)),
+    //           },
+    //         );
     //       },
     //     );
     //   },
     // );
-
-    jobCategories.forEach((element) {
-      categoriesRef.doc(element).set({});
-    });
   }
 
   void getPreferences() {
@@ -90,6 +101,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
           title: kAroundMe,
           futureItems: getAroundMeSection(),
         ),
+        flutterMap(context),
       ],
     );
   }
@@ -98,6 +110,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: preferences)
+        .limit(limit)
         .get();
   }
 
@@ -105,6 +118,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: preferences)
+        .limit(limit)
         .get();
   }
 
@@ -113,6 +127,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: preferences)
         .orderBy("reviews.lastReviewTimestamp", descending: true)
+        .limit(limit)
         .get();
   }
 
@@ -121,7 +136,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: preferences)
         .orderBy("createdAt", descending: true)
-        .limit(10)
+        .limit(limit)
         .get();
   }
 
@@ -130,6 +145,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: preferences)
         .orderBy("globalRate", descending: true)
+        .limit(limit)
         .get();
   }
 
@@ -138,6 +154,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: preferences)
         .where("teamChoice", isEqualTo: true)
+        .limit(limit)
         .get();
   }
 
@@ -146,16 +163,21 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: preferences)
         .where("jobs", isNull: true)
+        .limit(limit)
         .get();
   }
 
   Future<List<DocumentSnapshot>> getAroundMeSection() {
     // Create a geoFirePoint
-    GeoPoint usersLocation = currentUser.location["geopoint"];
+    GeoPoint usersLocation;
+    if (currentUser.isFreelancer)
+      usersLocation = currentUser.location["geopoint"];
+    else
+      usersLocation = GeoPoint(0, 0);
     GeoFirePoint center = geo.point(
         latitude: usersLocation.latitude, longitude: usersLocation.longitude);
 
-    double radius = 50;
+    double radius = 80;
     String field = 'location';
 
     Stream<List<DocumentSnapshot>> stream = geo

@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:khadamat/pages/home.dart';
 
 void main() {
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
                 appBarTheme: AppBarTheme(color: Colors.white)),
             debugShowCheckedModeBanner: false,
             home: Home(),
+            builder: EasyLoading.init(),
           );
         }
 
