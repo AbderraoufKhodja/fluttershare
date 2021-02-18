@@ -13,6 +13,8 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
   Future<QuerySnapshot> searchResultsFuture;
   List<String> popularCategories = ["Sales"];
 
+  final int limit = 15;
+
   @override
   void initState() {
     super.initState();
@@ -66,6 +68,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("globalRate", descending: true)
+        .limit(limit)
         .get();
   }
 
@@ -74,6 +77,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("experienceRate", descending: true)
+        .limit(limit)
         .get();
   }
 
@@ -82,6 +86,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("completionRate", descending: true)
+        .limit(limit)
         .get();
   }
 
@@ -90,6 +95,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("popularityRate", descending: true)
+        .limit(limit)
         .get();
   }
 
@@ -99,6 +105,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("globalRate", descending: true)
+        .limit(limit)
         .get();
   }
 
@@ -108,6 +115,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("professionalCategory", whereIn: popularCategories)
         .where("teamChoice", isEqualTo: true)
         .orderBy("globalRate", descending: true)
+        .limit(limit)
         .get();
   }
 
@@ -116,6 +124,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("timeManagementRating", descending: true)
+        .limit(limit)
         .get();
   }
 
@@ -124,6 +133,7 @@ class _TopFreelancerPage extends State<TopFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
         .orderBy("qualityRating", descending: true)
+        .limit(limit)
         .get();
   }
 

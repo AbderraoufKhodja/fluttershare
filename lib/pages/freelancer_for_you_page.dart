@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
@@ -21,7 +19,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   final geo = Geoflutterfire();
   List<dynamic> preferences;
 
-  final int limit = 30;
+  final int limit = 15;
   @override
   void initState() {
     super.initState();
@@ -101,7 +99,6 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
           title: kAroundMe,
           futureItems: getAroundMeSection(),
         ),
-        flutterMap(context),
       ],
     );
   }
@@ -170,9 +167,12 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   Future<List<DocumentSnapshot>> getAroundMeSection() {
     // Create a geoFirePoint
     GeoPoint usersLocation;
-    if (currentUser.isFreelancer)
-      usersLocation = currentUser.location["geopoint"];
-    else
+    if (currentUser.location != null) {
+      if (currentUser.location.containsKey("geopoint"))
+        usersLocation = currentUser.location["geopoint"];
+      else
+        usersLocation = GeoPoint(0, 0);
+    } else
       usersLocation = GeoPoint(0, 0);
     GeoFirePoint center = geo.point(
         latitude: usersLocation.latitude, longitude: usersLocation.longitude);

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/widgets/freelancer_card.dart';
 import 'package:khadamat/widgets/progress.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ItemsHorizontalView extends StatelessWidget {
   final Future futureItems;
@@ -29,7 +30,20 @@ class ItemsHorizontalView extends StatelessWidget {
           future: futureItems,
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return circularProgress();
+              return SizedBox(
+                width: 280.0,
+                height: 180.0,
+                child: Shimmer.fromColors(
+                  baseColor: Colors.grey[350],
+                  highlightColor: Colors.grey[100],
+                  child: Container(
+                      decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  )),
+                ),
+              );
+              ;
             }
             List<FreelancerCard> freelancersList = [];
             if (snapshot.data is QuerySnapshot) {
