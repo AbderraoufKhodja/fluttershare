@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/create_account.dart';
+import 'package:khadamat/pages/create_freelance_account.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:khadamat/pages/screen_four.dart';
@@ -202,7 +203,8 @@ class _HomeState extends State<Home> {
       key: _scaffoldKey,
       body: PageView(
         children: <Widget>[
-          ScreenOne(),
+          // ScreenOne(),
+          CreateFreelanceAccount(),
           ScreenTwo(),
           ScreenThree(),
           ScreenFour(),
