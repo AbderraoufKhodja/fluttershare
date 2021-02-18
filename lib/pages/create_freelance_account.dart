@@ -5,9 +5,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/plugin_api.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_place_picker/google_maps_place_picker.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/app_user.dart';
+import 'package:khadamat/pages/google_map_page.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/custom_text_form_field.dart';
 import 'package:khadamat/widgets/progress.dart';
@@ -865,7 +869,14 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
           color: Colors.white,
         ),
       ),
-      onTap: getUserLocation,
+      // onTap: getUserLocation,
+      onTap: () async {
+        Map result = await showGoogleMaps(context);
+        if (result != null) {
+          locationController.text = result['address'];
+          locationGeoFirePoint = result['geopoint'];
+        }
+      },
     );
   }
 

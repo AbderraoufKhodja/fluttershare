@@ -1,7 +1,4 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/ultils.dart';
 
 class AppUser {
@@ -93,7 +90,6 @@ class AppUser {
     );
   }
   factory AppUser.freelancerFromDocument(DocumentSnapshot doc) {
-    // TODO fix int double type error for number fields
     return AppUser(
       uid: fieldGetter(document: doc, field: 'uid', type: String),
       username: fieldGetter(document: doc, field: 'username', type: String),
