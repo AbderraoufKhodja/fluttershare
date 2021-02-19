@@ -95,7 +95,7 @@ class _DismissFreelancerScreenState extends State<DismissFreelancerScreen> {
                 ],
               )
             : buildRatingBar(
-                title: kOwnerRating,
+                title: kOwnerRate,
                 onRatingUpdate: (rating) => ownerRating = rating,
               ),
       ],
@@ -164,9 +164,9 @@ class _DismissFreelancerScreenState extends State<DismissFreelancerScreen> {
         ? await job
             .handleDismissAndReviewFreelancer(
             freelancerReview: reviewController.text,
-            freelancerQualityRating: freelancerWorkQuality,
-            freelancerAttitudeRating: freelancerAttitude,
-            freelancerTimeManagementRating: freelancerTimeManagement,
+            freelancerQualityRate: freelancerWorkQuality,
+            freelancerAttitudeRate: freelancerAttitude,
+            freelancerTimeManagementRate: freelancerTimeManagement,
           )
             .then((value) {
             job.jobFreelancerId = null;
@@ -177,7 +177,7 @@ class _DismissFreelancerScreenState extends State<DismissFreelancerScreen> {
         : await job
             .freelancerQuitAndReviewOwner(
             ownerReview: reviewController.text,
-            ownerRating: ownerRating,
+            ownerRate: ownerRating,
           )
             .then((value) {
             job.jobFreelancerId = null;

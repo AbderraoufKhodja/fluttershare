@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
-import 'package:khadamat/pages/activity_feed.dart';
+import 'package:khadamat/models/activity_feed.dart';
 import 'package:khadamat/pages/manage_jobs_screen.dart';
 import 'package:khadamat/pages/messages_screen.dart';
 import 'package:khadamat/widgets/screen_layout.dart';
@@ -23,4 +23,3 @@ class _ScreenFour extends State<ScreenFour> {
     return ScreenLayout(tabsList: tabsList);
   }
 }
-

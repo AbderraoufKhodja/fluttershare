@@ -1,14 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:khadamat/models/firestore_field.dart';
 
 dynamic fieldGetter(
-    {@required DocumentSnapshot document,
-    @required String field,
-    @required Type type}) {
-  if (document.data().containsKey(field)) {
-    if (document.data()[field].runtimeType == type)
-      return document.data()[field];
+    {@required DocumentSnapshot document, @required FirestoreField field}) {
+  Map<String, dynamic> data = document.data();
+  if (data.containsKey(field.name)) {
+    if (data[field.name].runtimeType == field.type)
+      return data[field.name];
     else
       print("Type error: $field");
     return null;

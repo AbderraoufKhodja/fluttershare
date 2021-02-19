@@ -1,5 +1,8 @@
 class FirestoreField {
-  final String fieldName;
-  final Type fieldType;
-  FirestoreField(this.fieldName, this.fieldType);
+  final String name;
+  final Type type;
+  FirestoreField({
+    this.name,
+    this.type,
+  });
 }

@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
-import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/app_user.dart';
+import 'package:khadamat/models/firestore_field.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/manage_job.dart';
 import 'package:khadamat/pages/ultils.dart';
@@ -30,11 +30,11 @@ class Job {
   String newDateRange;
   String newPrice;
   String ownerReview;
-  double ownerAttitudeRating;
+  double ownerAttitudeRate;
   String freelancerReview;
-  double freelancerQualityRating;
-  double freelancerAttitudeRating;
-  double freelancerTimeManagementRating;
+  double freelancerQualityRate;
+  double freelancerAttitudeRate;
+  double freelancerTimeManagementRate;
   final Map applications;
   final Timestamp createdAt;
   Timestamp jobFreelancerEnrollmentDate;
@@ -69,11 +69,11 @@ class Job {
     this.newDateRange,
     this.newPrice,
     this.ownerReview,
-    this.ownerAttitudeRating,
+    this.ownerAttitudeRate,
     this.freelancerReview,
-    this.freelancerQualityRating,
-    this.freelancerAttitudeRating,
-    this.freelancerTimeManagementRating,
+    this.freelancerQualityRate,
+    this.freelancerAttitudeRate,
+    this.freelancerTimeManagementRate,
     this.applications,
     this.jobState,
     this.isOwnerCompleted,
@@ -88,53 +88,60 @@ class Job {
   factory Job.fromDocument(DocumentSnapshot doc) {
     //TODO read GeofirePoint object from firebase
     return Job(
-      jobId: fieldGetter(document: doc, field: "jobId"),
-      jobOwnerId: fieldGetter(document: doc, field: "jobOwnerId"),
-      jobOwnerName: fieldGetter(document: doc, field: "jobOwnerName"),
-      jobOwnerEmail: fieldGetter(document: doc, field: "jobOwnerEmail"),
-      jobFreelancerId: fieldGetter(document: doc, field: "jobFreelancerId"),
-      jobFreelancerName: fieldGetter(document: doc, field: "jobFreelancerName"),
+      jobId: fieldGetter(document: doc, field: ffJobJobId),
+      jobOwnerId: fieldGetter(document: doc, field: ffJobJobOwnerId),
+      jobOwnerName: fieldGetter(document: doc, field: ffJobJobOwnerName),
+      jobOwnerEmail: fieldGetter(document: doc, field: ffJobJobOwnerEmail),
+      jobFreelancerId: fieldGetter(document: doc, field: ffJobJobFreelancerId),
+      jobFreelancerName:
+          fieldGetter(document: doc, field: ffJobJobFreelancerName),
       jobFreelancerEmail:
-          fieldGetter(document: doc, field: "jobFreelancerEmail"),
+          fieldGetter(document: doc, field: ffJobJobFreelancerEmail),
       jobFreelancerEnrollmentDate:
-          fieldGetter(document: doc, field: "jobFreelancerEnrollmentDate"),
-      isOwnerFreelancer: fieldGetter(document: doc, field: "isOwnerFreelancer"),
-      jobTitle: fieldGetter(document: doc, field: "jobTitle"),
-      jobPhotoUrl: fieldGetter(document: doc, field: "jobPhotoUrl"),
+          fieldGetter(document: doc, field: ffJobJobFreelancerEnrollmentDate),
+      isOwnerFreelancer:
+          fieldGetter(document: doc, field: ffJobIsOwnerFreelancer),
+      jobTitle: fieldGetter(document: doc, field: ffJobJobTitle),
+      jobPhotoUrl: fieldGetter(document: doc, field: ffJobJobPhotoUrl),
       professionalCategory:
-          fieldGetter(document: doc, field: "professionalCategory"),
-      professionalTitle: fieldGetter(document: doc, field: "professionalTitle"),
-      jobDescription: fieldGetter(document: doc, field: "jobDescription"),
-      location: fieldGetter(document: doc, field: "location"),
-      dateRange: fieldGetter(document: doc, field: "dateRange"),
-      price: fieldGetter(document: doc, field: "price"),
-      newJobDescription: fieldGetter(document: doc, field: 'newJobDescription'),
-      newLocation: fieldGetter(document: doc, field: 'newLocation'),
-      newDateRange: fieldGetter(document: doc, field: 'newDateRange'),
-      newPrice: fieldGetter(document: doc, field: 'newPrice'),
-      ownerReview: fieldGetter(document: doc, field: 'ownerReview'),
-      ownerAttitudeRating:
-          fieldGetter(document: doc, field: 'ownerAttitudeRating'),
-      freelancerReview: fieldGetter(document: doc, field: 'freelancerReview'),
-      freelancerQualityRating:
-          fieldGetter(document: doc, field: 'freelancerQualityRating'),
-      freelancerAttitudeRating:
-          fieldGetter(document: doc, field: 'freelancerAttitudeRating'),
-      freelancerTimeManagementRating:
-          fieldGetter(document: doc, field: 'timeManagementRating'),
-      applications: fieldGetter(document: doc, field: "applications"),
+          fieldGetter(document: doc, field: ffJobProfessionalCategory),
+      professionalTitle:
+          fieldGetter(document: doc, field: ffJobProfessionalTitle),
+      jobDescription: fieldGetter(document: doc, field: ffJobJobDescription),
+      location: fieldGetter(document: doc, field: ffJobLocation),
+      dateRange: fieldGetter(document: doc, field: ffJobDateRange),
+      price: fieldGetter(document: doc, field: ffJobPrice),
+      newJobDescription:
+          fieldGetter(document: doc, field: ffJobNewJobDescription),
+      newLocation: fieldGetter(document: doc, field: ffJobNewLocation),
+      newDateRange: fieldGetter(document: doc, field: ffJobNewDateRange),
+      newPrice: fieldGetter(document: doc, field: ffJobNewPrice),
+      ownerReview: fieldGetter(document: doc, field: ffJobOwnerReview),
+      ownerAttitudeRate:
+          fieldGetter(document: doc, field: ffJobOwnerAttitudeRate),
+      freelancerReview:
+          fieldGetter(document: doc, field: ffJobFreelancerReview),
+      freelancerQualityRate:
+          fieldGetter(document: doc, field: ffJobFreelancerQualityRate),
+      freelancerAttitudeRate:
+          fieldGetter(document: doc, field: ffJobFreelancerAttitudeRate),
+      freelancerTimeManagementRate:
+          fieldGetter(document: doc, field: ffJobFreelancerTimeManagementRate),
+      applications: fieldGetter(document: doc, field: ffJobApplications),
       hasFreelancerUpdateRequest:
-          fieldGetter(document: doc, field: "hasFreelancerUpdateRequest"),
+          fieldGetter(document: doc, field: ffJobHasFreelancerUpdateRequest),
       hasOwnerUpdateRequest:
-          fieldGetter(document: doc, field: "hasOwnerUpdateRequest"),
-      jobState: fieldGetter(document: doc, field: "jobState"),
-      isOwnerCompleted: fieldGetter(document: doc, field: "isOwnerCompleted"),
+          fieldGetter(document: doc, field: ffJobHasOwnerUpdateRequest),
+      jobState: fieldGetter(document: doc, field: ffJobJobState),
+      isOwnerCompleted:
+          fieldGetter(document: doc, field: ffJobIsOwnerCompleted),
       isFreelancerCompleted:
-          fieldGetter(document: doc, field: "isFreelancerCompleted"),
-      ownerCompletedAt: fieldGetter(document: doc, field: "ownerCompletedAt"),
+          fieldGetter(document: doc, field: ffJobIsFreelancerCompleted),
+      ownerCompletedAt:
+          fieldGetter(document: doc, field: ffJobOwnerCompletedAt),
       freelancerCompletedAt:
-          fieldGetter(document: doc, field: "freelancerCompletedAt"),
-      createdAt: fieldGetter(document: doc, field: "createdAt"),
+          fieldGetter(document: doc, field: ffJobFreelancerCompletedAt),
+      createdAt: fieldGetter(document: doc, field: ffJobCreatedAt),
     );
   }
   int getApplicationsCount() {
@@ -174,9 +181,9 @@ class Job {
 
   Future<void> handleDismissAndReviewFreelancer({
     @required String freelancerReview,
-    @required double freelancerQualityRating,
-    @required double freelancerAttitudeRating,
-    @required double freelancerTimeManagementRating,
+    @required double freelancerQualityRate,
+    @required double freelancerAttitudeRate,
+    @required double freelancerTimeManagementRate,
   }) async {
     addDismissFeed(
         uid: this.jobOwnerId,
@@ -196,9 +203,9 @@ class Job {
       uid: jobFreelancerId,
       type: "dismiss",
       freelancerReview: freelancerReview,
-      freelancerQualityRating: freelancerQualityRating,
-      freelancerAttitudeRating: freelancerAttitudeRating,
-      freelancerTimeManagementRating: freelancerTimeManagementRating,
+      freelancerQualityRate: freelancerQualityRate,
+      freelancerAttitudeRate: freelancerAttitudeRate,
+      freelancerTimeManagementRate: freelancerTimeManagementRate,
     );
   }
 
@@ -477,7 +484,7 @@ class Job {
 
   Future<void> freelancerCompleteAndReviewJob({
     @required String ownerReview,
-    @required double ownerRating,
+    @required double ownerRate,
   }) async {
     addCompleteAndReviewFeed(uid: jobOwnerId);
     addCompleteAndReviewFeed(uid: jobFreelancerId);
@@ -494,19 +501,19 @@ class Job {
         "jobOwnerName": jobOwnerName,
         "jobOwnerId": jobOwnerId,
         "ownerReview": ownerReview,
-        "ownerRating": ownerRating,
+        "ownerRate": ownerRate,
         "createdAt": FieldValue.serverTimestamp(),
       }
     });
 
     jobsRef.doc(jobId).update({
       "ownerReview": ownerReview,
-      "ownerAttitudeRating": ownerRating,
+      "ownerAttitudeRate": ownerRate,
       "isFreelancerCompleted": true,
       "freelancerCompletedAt": FieldValue.serverTimestamp(),
     }).then((value) {
       this.ownerReview = ownerReview;
-      this.ownerAttitudeRating = ownerRating;
+      this.ownerAttitudeRate = ownerRate;
       isFreelancerCompleted = true;
       freelancerCompletedAt = Timestamp.now();
     });
@@ -514,7 +521,7 @@ class Job {
 
   Future<void> freelancerQuitAndReviewOwner({
     @required String ownerReview,
-    @required double ownerRating,
+    @required double ownerRate,
   }) async {
     addQuitFeed(
         uid: this.jobOwnerId,
@@ -533,9 +540,9 @@ class Job {
 
   Future<void> ownerCompleteAndReviewJob({
     @required String freelancerReview,
-    @required double freelancerQualityRating,
-    @required double freelancerAttitudeRating,
-    @required double freelancerTimeManagementRating,
+    @required double freelancerQualityRate,
+    @required double freelancerAttitudeRate,
+    @required double freelancerTimeManagementRate,
   }) async {
     addCompleteAndReviewFeed(uid: jobOwnerId);
     addCompleteAndReviewFeed(uid: jobFreelancerId);
@@ -543,23 +550,23 @@ class Job {
       uid: jobFreelancerId,
       type: "jobCompleted",
       freelancerReview: freelancerReview,
-      freelancerQualityRating: freelancerQualityRating,
-      freelancerAttitudeRating: freelancerAttitudeRating,
-      freelancerTimeManagementRating: freelancerTimeManagementRating,
+      freelancerQualityRate: freelancerQualityRate,
+      freelancerAttitudeRate: freelancerAttitudeRate,
+      freelancerTimeManagementRate: freelancerTimeManagementRate,
     );
 
     jobsRef.doc(jobId).update({
       "freelancerReview": freelancerReview,
-      "freelancerQualityRating": freelancerQualityRating,
-      "freelancerAttitudeRating": freelancerAttitudeRating,
-      "freelancerTimeManagementRating": freelancerTimeManagementRating,
+      "freelancerQualityRate": freelancerQualityRate,
+      "freelancerAttitudeRate": freelancerAttitudeRate,
+      "freelancerTimeManagementRate": freelancerTimeManagementRate,
       "isOwnerCompleted": true,
       "ownerCompletedAt": FieldValue.serverTimestamp(),
     }).then((_) {
       this.freelancerReview = freelancerReview;
-      this.freelancerQualityRating = freelancerQualityRating;
-      this.freelancerAttitudeRating = freelancerAttitudeRating;
-      this.freelancerTimeManagementRating = freelancerTimeManagementRating;
+      this.freelancerQualityRate = freelancerQualityRate;
+      this.freelancerAttitudeRate = freelancerAttitudeRate;
+      this.freelancerTimeManagementRate = freelancerTimeManagementRate;
       this.isOwnerCompleted = true;
       this.ownerCompletedAt = Timestamp.now();
     });
@@ -578,9 +585,9 @@ class Job {
       "jobFreelancerId": jobFreelancerId,
       "jobFreelancerName": jobFreelancerName,
       "freelancerReview": freelancerReview,
-      "freelancerQualityRating": freelancerQualityRating,
-      "freelancerAttitudeRating": freelancerAttitudeRating,
-      "freelancerTimeManagementRating": freelancerTimeManagementRating,
+      "freelancerQualityRate": freelancerQualityRate,
+      "freelancerAttitudeRate": freelancerAttitudeRate,
+      "freelancerTimeManagementRate": freelancerTimeManagementRate,
       "read": false,
       "createdAt": FieldValue.serverTimestamp(),
     });
@@ -769,38 +776,38 @@ class Job {
 
   Future<void> createJob() async {
     jobsRef.doc(jobId).set({
-      "jobId": jobId,
-      "jobOwnerId": jobOwnerId,
-      "jobOwnerName": jobOwnerName,
-      "jobOwnerEmail": jobOwnerEmail,
-      "jobFreelancerId": jobFreelancerId,
-      "jobFreelancerName": jobFreelancerName,
-      "jobFreelancerEmail": jobFreelancerEmail,
-      "isOwnerFreelancer": isOwnerFreelancer,
-      "jobPhotoUrl": jobPhotoUrl,
-      "jobTitle": jobTitle,
-      "professionalCategory": professionalCategory,
-      "professionalTitle": professionalTitle,
-      "jobDescription": jobDescription,
-      "price": price,
-      "location": location.data,
-      "dateRange": dateRange,
-      "newJobDescription": newJobDescription,
-      "newLocation": newLocation.data,
-      "newPrice": newPrice,
-      "newDateRange": newDateRange,
-      "ownerReview": ownerReview,
-      "freelancerReview": freelancerReview,
-      "freelancerQualityRating": freelancerQualityRating,
-      "attitudeRating": freelancerAttitudeRating,
-      "timeManagement": freelancerTimeManagementRating,
-      "applications": applications,
-      "hasFreelancerUpdateRequest": hasFreelancerUpdateRequest,
-      "hasOwnerUpdateRequest": hasOwnerUpdateRequest,
-      "jobState": jobState,
-      "isOwnerCompleted": isOwnerCompleted,
-      "isFreelancerCompleted": isFreelancerCompleted,
-      "createdAt": FieldValue.serverTimestamp(),
+      ffJobJobId.name: jobId,
+      ffJobJobOwnerId.name: jobOwnerId,
+      ffJobJobOwnerName.name: jobOwnerName,
+      ffJobJobOwnerEmail.name: jobOwnerEmail,
+      ffJobJobFreelancerId.name: jobFreelancerId,
+      ffJobJobFreelancerName.name: jobFreelancerName,
+      ffJobJobFreelancerEmail.name: jobFreelancerEmail,
+      ffJobIsOwnerFreelancer.name: isOwnerFreelancer,
+      ffJobJobPhotoUrl.name: jobPhotoUrl,
+      ffJobJobTitle.name: jobTitle,
+      ffJobProfessionalCategory.name: professionalCategory,
+      ffJobProfessionalTitle.name: professionalTitle,
+      ffJobJobDescription.name: jobDescription,
+      ffJobPrice.name: price,
+      ffJobLocation.name: location.data,
+      ffJobDateRange.name: dateRange,
+      ffJobNewJobDescription.name: newJobDescription,
+      ffJobNewLocation.name: newLocation.data,
+      ffJobNewPrice.name: newPrice,
+      ffJobNewDateRange.name: newDateRange,
+      ffJobOwnerReview.name: ownerReview,
+      ffJobFreelancerReview.name: freelancerReview,
+      ffJobFreelancerQualityRate.name: freelancerQualityRate,
+      ffJobFreelancerAttitudeRate.name: freelancerAttitudeRate,
+      ffJobFreelancerTimeManagementRate.name: freelancerTimeManagementRate,
+      ffJobApplications.name: applications,
+      ffJobHasFreelancerUpdateRequest.name: hasFreelancerUpdateRequest,
+      ffJobHasOwnerUpdateRequest.name: hasOwnerUpdateRequest,
+      ffJobJobState.name: jobState,
+      ffJobIsOwnerCompleted.name: isOwnerCompleted,
+      ffJobIsFreelancerCompleted.name: isFreelancerCompleted,
+      ffJobCreatedAt.name: FieldValue.serverTimestamp(),
     }).then((value) => createUserJob(uid: jobOwnerId));
   }
 
@@ -863,9 +870,9 @@ class Job {
     @required String uid,
     @required String type,
     @required String freelancerReview,
-    @required double freelancerQualityRating,
-    @required double freelancerAttitudeRating,
-    @required double freelancerTimeManagementRating,
+    @required double freelancerQualityRate,
+    @required double freelancerAttitudeRate,
+    @required double freelancerTimeManagementRate,
   }) async {
     AppUser user;
     await usersRef.doc(uid).get().then((doc) {
@@ -878,13 +885,11 @@ class Job {
       });
       double newCompletionRate = newCompletedJobsCount / jobsCount;
       double newQualityRateAverage = computeNewAverage(
-          user.qualityRating, reviewsCount, freelancerQualityRating);
+          user.qualityRate, reviewsCount, freelancerQualityRate);
       double newAttitudeRateAverage = computeNewAverage(
-          user.attitudeRating, reviewsCount, freelancerAttitudeRating);
+          user.attitudeRate, reviewsCount, freelancerAttitudeRate);
       double newTimeManagementRateAverage = computeNewAverage(
-          user.timeManagementRating,
-          reviewsCount,
-          freelancerTimeManagementRating);
+          user.timeManagementRate, reviewsCount, freelancerTimeManagementRate);
       double newGlobalRateAverage = (newQualityRateAverage +
               newAttitudeRateAverage +
               newTimeManagementRateAverage) /
@@ -907,9 +912,9 @@ class Job {
           "jobOwnerName": jobOwnerName,
           "jobOwnerId": jobOwnerId,
           "freelancerReview": freelancerReview,
-          "freelancerQualityRating": freelancerQualityRating,
-          "freelancerAttitudeRating": freelancerAttitudeRating,
-          "freelancerTimeManagementRating": freelancerTimeManagementRating,
+          "freelancerQualityRate": freelancerQualityRate,
+          "freelancerAttitudeRate": freelancerAttitudeRate,
+          "freelancerTimeManagementRate": freelancerTimeManagementRate,
           "createdAt": FieldValue.serverTimestamp(),
         }
       });
@@ -922,37 +927,73 @@ class Job {
   }
 }
 
-class JobFirestoreFieldName {
-  static String ffnJobId = "ffnJobId";
-  static String ffnJobOwnerId = "ffnJobOwnerId";
-  static String ffnJobOwnerName = "ffnJobOwnerName";
-  static String ffnJobOwnerEmail = "ffnJobOwnerEmail";
-  static String ffnJobFreelancerId = "ffnJobFreelancerId";
-  static String ffnJobFreelancerName = "ffnJobFreelancerName";
-  static String ffnJobFreelancerEmail = "ffnJobFreelancerEmail";
-  static String ffnIsOwnerFreelancer = "ffnIsOwnerFreelancer";
-  static String ffnJobPhotoUrl = "ffnJobPhotoUrl";
-  static String ffnJobTitle = "ffnJobTitle";
-  static String ffnProfessionalCategory = "ffnProfessionalCategory";
-  static String ffnProfessionalTitle = "ffnProfessionalTitle";
-  static String ffnJobDescription = "ffnJobDescription";
-  static String ffnPrice = "ffnPrice";
-  static String ffnLocation = "ffnLocation";
-  static String ffnDateRange = "ffnDateRange";
-  static String ffnNewJobDescription = "ffnNewJobDescription";
-  static String ffnNewLocation = "ffnNewLocation";
-  static String ffnNewPrice = "ffnNewPrice";
-  static String ffnNewDateRange = "ffnNewDateRange";
-  static String ffnOwnerReview = "ffnOwnerReview";
-  static String ffnFreelancerReview = "ffnFreelancerReview";
-  static String ffnFreelancerQualityRating = "ffnFreelancerQualityRating";
-  static String ffnAttitudeRating = "ffnAttitudeRating";
-  static String ffnTimeManagement = "ffnTimeManagement";
-  static String ffnApplications = "ffnApplications";
-  static String ffnHasFreelancerUpdateRequest = "ffnHasFreelancerUpdateRequest";
-  static String ffnHasOwnerUpdateRequest = "ffnHasOwnerUpdateRequest";
-  static String jobState = "ffnJobState";
-  static String ffnIsOwnerCompleted = "ffnIsOwnerCompleted";
-  static String ffnIsFreelancerCompleted = "ffnIsFreelancerCompleted";
-  static String ffnCreatedAt = "ffnCreatedAt";
-}
+final FirestoreField ffJobJobId = FirestoreField(name: "jobId", type: String);
+final FirestoreField ffJobJobOwnerId =
+    FirestoreField(name: "jobOwnerId", type: String);
+final FirestoreField ffJobJobOwnerName =
+    FirestoreField(name: "jobOwnerName", type: String);
+final FirestoreField ffJobJobOwnerEmail =
+    FirestoreField(name: "jobOwnerEmail", type: String);
+final FirestoreField ffJobJobFreelancerId =
+    FirestoreField(name: "jobFreelancerId", type: String);
+final FirestoreField ffJobJobFreelancerName =
+    FirestoreField(name: "jobFreelancerName", type: String);
+final FirestoreField ffJobJobFreelancerEmail =
+    FirestoreField(name: "jobFreelancerEmail", type: String);
+final FirestoreField ffJobJobFreelancerEnrollmentDate =
+    FirestoreField(name: "jobFreelancerEnrollmentDate", type: String);
+final FirestoreField ffJobIsOwnerFreelancer =
+    FirestoreField(name: "isOwnerFreelancer", type: String);
+final FirestoreField ffJobJobPhotoUrl =
+    FirestoreField(name: "jobPhotoUrl", type: String);
+final FirestoreField ffJobJobTitle =
+    FirestoreField(name: "jobTitle", type: String);
+final FirestoreField ffJobProfessionalCategory =
+    FirestoreField(name: "professionalCategory", type: String);
+final FirestoreField ffJobProfessionalTitle =
+    FirestoreField(name: "professionalTitle", type: String);
+final FirestoreField ffJobJobDescription =
+    FirestoreField(name: "jobDescription", type: String);
+final FirestoreField ffJobLocation =
+    FirestoreField(name: "location", type: String);
+final FirestoreField ffJobDateRange =
+    FirestoreField(name: "dateRange", type: String);
+final FirestoreField ffJobPrice = FirestoreField(name: "price", type: String);
+final FirestoreField ffJobNewJobDescription =
+    FirestoreField(name: "newJobDescription", type: String);
+final FirestoreField ffJobNewLocation =
+    FirestoreField(name: "newLocation", type: String);
+final FirestoreField ffJobNewDateRange =
+    FirestoreField(name: "newDateRange", type: String);
+final FirestoreField ffJobNewPrice =
+    FirestoreField(name: "newPrice", type: String);
+final FirestoreField ffJobOwnerReview =
+    FirestoreField(name: "ownerReview", type: String);
+final FirestoreField ffJobOwnerAttitudeRate =
+    FirestoreField(name: "ownerAttitudeRate", type: String);
+final FirestoreField ffJobFreelancerReview =
+    FirestoreField(name: "freelancerReview", type: String);
+final FirestoreField ffJobFreelancerQualityRate =
+    FirestoreField(name: "freelancerQualityRate", type: String);
+final FirestoreField ffJobFreelancerAttitudeRate =
+    FirestoreField(name: "freelancerAttitudeRate", type: String);
+final FirestoreField ffJobFreelancerTimeManagementRate =
+    FirestoreField(name: "freelancerTimeManagementRate", type: String);
+final FirestoreField ffJobApplications =
+    FirestoreField(name: "applications", type: String);
+final FirestoreField ffJobJobState =
+    FirestoreField(name: "jobState", type: String);
+final FirestoreField ffJobIsOwnerCompleted =
+    FirestoreField(name: "isOwnerCompleted", type: String);
+final FirestoreField ffJobIsFreelancerCompleted =
+    FirestoreField(name: "isFreelancerCompleted", type: String);
+final FirestoreField ffJobHasFreelancerUpdateRequest =
+    FirestoreField(name: "hasFreelancerUpdateRequest", type: String);
+final FirestoreField ffJobHasOwnerUpdateRequest =
+    FirestoreField(name: "hasOwnerUpdateRequest", type: String);
+final FirestoreField ffJobCreatedAt =
+    FirestoreField(name: "createdAt", type: String);
+final FirestoreField ffJobOwnerCompletedAt =
+    FirestoreField(name: "ownerCompletedAt", type: String);
+final FirestoreField ffJobFreelancerCompletedAt =
+    FirestoreField(name: "freelancerCompletedAt", type: String);

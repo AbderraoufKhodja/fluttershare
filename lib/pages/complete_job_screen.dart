@@ -25,7 +25,7 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
   double freelancerWorkQuality;
   double freelancerAttitude;
   double freelancerTimeManagement;
-  double ownerRating;
+  double ownerRate;
 
   bool get isJobFreelancer => currentUser.uid == job.jobFreelancerId;
   bool get isJobOwner => currentUser.uid == job.jobOwnerId;
@@ -47,7 +47,7 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
               child: ListView(
                 physics: BouncingScrollPhysics(),
                 children: [
-                  buildRatingColumn(),
+                  buildRateColumn(),
                   CustomTextField(label: kReview, controller: reviewController),
                 ],
               ),
@@ -66,37 +66,37 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
     );
   }
 
-  Column buildRatingColumn() {
+  Column buildRateColumn() {
     return Column(
       children: [
         isJobOwner
             ? Column(
                 children: [
-                  buildRatingBar(
+                  buildRateBar(
                     title: kFreelancerWorkQuality,
-                    onRatingUpdate: (rating) => freelancerWorkQuality = rating,
+                    onRateUpdate: (rating) => freelancerWorkQuality = rating,
                   ),
-                  buildRatingBar(
+                  buildRateBar(
                     title: kFreelancerAttitude,
-                    onRatingUpdate: (rating) => freelancerAttitude = rating,
+                    onRateUpdate: (rating) => freelancerAttitude = rating,
                   ),
-                  buildRatingBar(
+                  buildRateBar(
                     title: kFreelancerTimeManagement,
-                    onRatingUpdate: (rating) =>
+                    onRateUpdate: (rating) =>
                         freelancerTimeManagement = rating,
                   ),
                 ],
               )
-            : buildRatingBar(
-                title: kOwnerRating,
-                onRatingUpdate: (rating) => ownerRating = rating,
+            : buildRateBar(
+                title: kOwnerRate,
+                onRateUpdate: (rating) => ownerRate = rating,
               ),
       ],
     );
   }
 
-  Column buildRatingBar(
-      {String title, Function(double rating) onRatingUpdate}) {
+  Column buildRateBar(
+      {String title, Function(double Rate) onRateUpdate}) {
     return Column(
       children: [
         Container(
@@ -142,7 +142,7 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
                     Icons.star,
                     color: Colors.amber,
                   ),
-                  onRatingUpdate: onRatingUpdate,
+                  onRatingUpdate: onRateUpdate,
                 ),
               ),
             ],
@@ -156,12 +156,12 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
     isJobOwner
         ? await job.ownerCompleteAndReviewJob(
             freelancerReview: reviewController.text,
-            freelancerQualityRating: freelancerWorkQuality,
-            freelancerAttitudeRating: freelancerAttitude,
-            freelancerTimeManagementRating: freelancerTimeManagement)
+            freelancerQualityRate: freelancerWorkQuality,
+            freelancerAttitudeRate: freelancerAttitude,
+            freelancerTimeManagementRate: freelancerTimeManagement)
         : await job.freelancerCompleteAndReviewJob(
             ownerReview: reviewController.text,
-            ownerRating: ownerRating,
+            ownerRate: ownerRate,
           );
     Navigator.pop(context);
   }

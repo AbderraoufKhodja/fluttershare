@@ -5,7 +5,6 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:khadamat/constants.dart';
-import 'package:khadamat/pages/activity_feed.dart';
 
 class GoogleMapPage extends StatefulWidget {
   GoogleMapPage({Key key}) : super(key: key);

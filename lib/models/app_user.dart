@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:khadamat/models/firestore_field.dart';
 import 'package:khadamat/pages/ultils.dart';
 
 class AppUser {
@@ -24,9 +25,9 @@ class AppUser {
   double jobsCount;
   double completionRate;
   double popularityRate;
-  double qualityRating;
-  double attitudeRating;
-  double timeManagementRating;
+  double qualityRate;
+  double attitudeRate;
+  double timeManagementRate;
   String diploma;
   String licence;
   String certification;
@@ -61,8 +62,8 @@ class AppUser {
     this.jobsCount,
     this.completionRate,
     this.popularityRate,
-    this.qualityRating,
-    this.attitudeRating,
+    this.qualityRate,
+    this.attitudeRate,
     this.diploma,
     this.licence,
     this.certification,
@@ -77,76 +78,140 @@ class AppUser {
 
   factory AppUser.clientFromDocument(DocumentSnapshot doc) {
     return AppUser(
-      uid: fieldGetter(document: doc, field: 'uid'),
-      displayName: fieldGetter(document: doc, field: 'displayName'),
-      email: fieldGetter(document: doc, field: 'email'),
-      username: fieldGetter(document: doc, field: 'username'),
-      photoURL: fieldGetter(document: doc, field: 'photoURL'),
-      isFreelancer: fieldGetter(document: doc, field: 'isFreelancer'),
-      preferences: fieldGetter(document: doc, field: 'preferences'),
-      reviews: fieldGetter(document: doc, field: 'reviews'),
-      jobs: fieldGetter(document: doc, field: 'jobs'),
-      createdAt: fieldGetter(document: doc, field: 'createdAt'),
+      uid: fieldGetter(document: doc, field: ffAppUserUid),
+      displayName: fieldGetter(document: doc, field: ffAppUserDisplayName),
+      email: fieldGetter(document: doc, field: ffAppUserEmail),
+      username: fieldGetter(document: doc, field: ffAppUserUsername),
+      photoURL: fieldGetter(document: doc, field: ffAppUserPhotoURL),
+      isFreelancer: fieldGetter(document: doc, field: ffAppUserIsFreelancer),
+      preferences: fieldGetter(document: doc, field: ffAppUserPreferences),
+      reviews: fieldGetter(document: doc, field: ffAppUserReviews),
+      jobs: fieldGetter(document: doc, field: ffAppUserJobs),
+      createdAt: fieldGetter(document: doc, field: ffAppUserCreatedAt),
     );
   }
   factory AppUser.freelancerFromDocument(DocumentSnapshot doc) {
     return AppUser(
-      uid: fieldGetter(document: doc, field: 'uid', type: String),
-      username: fieldGetter(document: doc, field: 'username', type: String),
+      uid: fieldGetter(document: doc, field: ffAppUserUid),
+      username: fieldGetter(document: doc, field: ffAppUserUsername),
       displayName:
-          fieldGetter(document: doc, field: 'displayName', type: String),
-      photoURL: fieldGetter(document: doc, field: 'photoURL', type: String),
-      email: fieldGetter(document: doc, field: 'email', type: String),
+          fieldGetter(document: doc, field: ffAppUserDisplayName),
+      photoURL: fieldGetter(document: doc, field: ffAppUserPhotoURL),
+      email: fieldGetter(document: doc, field: ffAppUserEmail),
       isFreelancer:
-          fieldGetter(document: doc, field: 'isFreelancer', type: bool),
-      teamChoice: fieldGetter(document: doc, field: 'teamChoice', type: bool),
+          fieldGetter(document: doc, field: ffAppUserIsFreelancer),
+      teamChoice: fieldGetter(document: doc, field: ffAppUserTeamChoice),
       professionalPhotoUrl: fieldGetter(
-          document: doc, field: 'professionalPhotoUrl', type: String),
+          document: doc, field: ffAppUserProfessionalPhotoUrl),
       personalBio:
-          fieldGetter(document: doc, field: 'personalBio', type: String),
-      gender: fieldGetter(document: doc, field: 'gender', type: String),
-      location: fieldGetter(document: doc, field: 'location', type: Map),
+          fieldGetter(document: doc, field: ffAppUserPersonalBio),
+      gender: fieldGetter(document: doc, field: ffAppUserGender),
+      location: fieldGetter(document: doc, field: ffAppUserLocation),
       birthDate:
-          fieldGetter(document: doc, field: 'birthDate', type: Timestamp),
+          fieldGetter(document: doc, field: ffAppUserBirthDate),
       professionalCategory: fieldGetter(
-          document: doc, field: 'professionalCategory', type: String),
+          document: doc, field: ffAppUserProfessionalCategory),
       professionalTitle:
-          fieldGetter(document: doc, field: 'professionalTitle', type: String),
+          fieldGetter(document: doc, field: ffAppUserProfessionalTitle),
       professionalDescription: fieldGetter(
-          document: doc, field: 'professionalDescription', type: String),
-      jobsCount: fieldGetter(document: doc, field: 'jobsCount', type: double),
-      globalRate: fieldGetter(document: doc, field: 'globalRate', type: double),
+          document: doc, field: ffAppUserProfessionalDescription),
+      jobsCount: fieldGetter(document: doc, field: ffAppUserJobsCount),
+      globalRate: fieldGetter(document: doc, field: ffAppUserGlobalRate),
       completionRate:
-          fieldGetter(document: doc, field: 'completionRate', type: double),
+          fieldGetter(document: doc, field: ffAppUserCompletionRate),
       popularityRate:
-          fieldGetter(document: doc, field: 'popularityRate', type: double),
-      qualityRating:
-          fieldGetter(document: doc, field: 'qualityRate', type: double),
-      attitudeRating:
-          fieldGetter(document: doc, field: 'attitudeRate', type: double),
-      preferences: fieldGetter(document: doc, field: 'preferences', type: List),
-      reviews: fieldGetter(document: doc, field: 'reviews', type: Map),
-      jobs: fieldGetter(document: doc, field: 'jobs', type: Map),
-      diploma: fieldGetter(document: doc, field: 'diploma', type: String),
-      licence: fieldGetter(document: doc, field: 'licence', type: String),
+          fieldGetter(document: doc, field: ffAppUserPopularityRate),
+      qualityRate:
+          fieldGetter(document: doc, field: ffAppUserQualityRate),
+      attitudeRate:
+          fieldGetter(document: doc, field: ffAppUserAttitudeRate),
+      preferences: fieldGetter(document: doc, field: ffAppUserPreferences),
+      reviews: fieldGetter(document: doc, field: ffAppUserReviews),
+      jobs: fieldGetter(document: doc, field: ffAppUserJobs),
+      diploma: fieldGetter(document: doc, field: ffAppUserDiploma),
+      licence: fieldGetter(document: doc, field: ffAppUserLicence),
       certification:
-          fieldGetter(document: doc, field: 'certification', type: String),
-      language: fieldGetter(document: doc, field: 'language', type: String),
-      experience: fieldGetter(document: doc, field: 'experience', type: String),
-      internship: fieldGetter(document: doc, field: 'internship', type: String),
-      competence: fieldGetter(document: doc, field: 'competence', type: String),
+          fieldGetter(document: doc, field: ffAppUserCertification),
+      language: fieldGetter(document: doc, field: ffAppUserLanguage),
+      experience: fieldGetter(document: doc, field: ffAppUserExperience),
+      internship: fieldGetter(document: doc, field: ffAppUserInternship),
+      competence: fieldGetter(document: doc, field: ffAppUserCompetence),
       achievement:
-          fieldGetter(document: doc, field: 'achievement', type: String),
+          fieldGetter(document: doc, field: ffAppUserAchievement),
       recommendation:
-          fieldGetter(document: doc, field: 'recommendation', type: String),
+          fieldGetter(document: doc, field: ffAppUserRecommendation),
       createdAt:
-          fieldGetter(document: doc, field: 'createdAt', type: Timestamp),
+          fieldGetter(document: doc, field: ffAppUserCreatedAt),
     );
   }
   factory AppUser.fromDocument(DocumentSnapshot doc) {
-    if (doc['isFreelancer'] == true)
+    if (fieldGetter(document: doc, field: ffAppUserIsFreelancer) == true)
       return AppUser.freelancerFromDocument(doc);
     else
       return AppUser.clientFromDocument(doc);
   }
 }
+
+final FirestoreField ffAppUserUid = FirestoreField(name: "uid");
+final FirestoreField ffAppUserUsername =
+    FirestoreField(name: "username");
+final FirestoreField ffAppUserDisplayName =
+    FirestoreField(name: "displayName");
+final FirestoreField ffAppUserPhotoURL =
+    FirestoreField(name: "photoURL");
+final FirestoreField ffAppUserEmail = FirestoreField(name: "email");
+final FirestoreField ffAppUserIsFreelancer =
+    FirestoreField(name: "isFreelancer");
+final FirestoreField ffAppUserTeamChoice =
+    FirestoreField(name: "teamChoice");
+final FirestoreField ffAppUserProfessionalPhotoUrl =
+    FirestoreField(name: "professionalPhotoUrl");
+final FirestoreField ffAppUserPersonalBio =
+    FirestoreField(name: "personalBio");
+final FirestoreField ffAppUserGender = FirestoreField(name: "gender");
+final FirestoreField ffAppUserLocation =
+    FirestoreField(name: "location");
+final FirestoreField ffAppUserBirthDate =
+    FirestoreField(name: "birthDate");
+final FirestoreField ffAppUserProfessionalCategory =
+    FirestoreField(name: "professionalCategory");
+final FirestoreField ffAppUserProfessionalTitle =
+    FirestoreField(name: "professionalTitle");
+final FirestoreField ffAppUserProfessionalDescription =
+    FirestoreField(name: "professionalDescription");
+final FirestoreField ffAppUserPreferences =
+    FirestoreField(name: "preferences");
+final FirestoreField ffAppUserReviews = FirestoreField(name: "reviews");
+final FirestoreField ffAppUserJobs = FirestoreField(name: "jobs");
+final FirestoreField ffAppUserGlobalRate =
+    FirestoreField(name: "globalRate");
+final FirestoreField ffAppUserJobsCount =
+    FirestoreField(name: "jobsCount");
+final FirestoreField ffAppUserCompletionRate =
+    FirestoreField(name: "completionRate");
+final FirestoreField ffAppUserPopularityRate =
+    FirestoreField(name: "popularityRate");
+final FirestoreField ffAppUserQualityRate =
+    FirestoreField(name: "qualityRate");
+final FirestoreField ffAppUserAttitudeRate =
+    FirestoreField(name: "attitudeRate");
+final FirestoreField ffAppUserTimeManagementRate =
+    FirestoreField(name: "timeManagementRate");
+final FirestoreField ffAppUserDiploma = FirestoreField(name: "diploma");
+final FirestoreField ffAppUserLicence = FirestoreField(name: "licence");
+final FirestoreField ffAppUserCertification =
+    FirestoreField(name: "certification");
+final FirestoreField ffAppUserLanguage =
+    FirestoreField(name: "language");
+final FirestoreField ffAppUserExperience =
+    FirestoreField(name: "experience");
+final FirestoreField ffAppUserInternship =
+    FirestoreField(name: "internship");
+final FirestoreField ffAppUserCompetence =
+    FirestoreField(name: "competence");
+final FirestoreField ffAppUserAchievement =
+    FirestoreField(name: "achievement");
+final FirestoreField ffAppUserRecommendation =
+    FirestoreField(name: "recommendation");
+final FirestoreField ffAppUserCreatedAt =
+    FirestoreField(name: "createdAt");

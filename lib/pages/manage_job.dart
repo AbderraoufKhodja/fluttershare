@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import "package:flutter/material.dart";
 import 'package:khadamat/constants.dart';
+import 'package:khadamat/models/activity_feed.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/messages.dart';
 import 'package:khadamat/pages/signal_abuse_screen.dart';
@@ -11,9 +12,9 @@ import 'package:khadamat/pages/delete_job_screen.dart';
 import 'package:khadamat/pages/dismiss_freelancer_screen.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/update_job_terms_dialogue_screen.dart';
+import 'package:khadamat/widgets/activity_feed_item.dart';
 import 'package:khadamat/widgets/custom_field.dart';
 import 'package:khadamat/widgets/progress.dart';
-import 'activity_feed.dart';
 
 class ManageJob extends StatefulWidget {
   final String jobId;
@@ -169,7 +170,7 @@ class _ManageJobState extends State<ManageJob> {
         }
         List<ActivityFeedItem> feedItems = [];
         snapshot.data.docs.forEach((doc) {
-          feedItems.add(ActivityFeedItem.fromDocument(doc));
+          feedItems.add(ActivityFeedItem(feed: ActivityFeed.fromDocument(doc)));
         });
         return ListView(
           physics: BouncingScrollPhysics(),
