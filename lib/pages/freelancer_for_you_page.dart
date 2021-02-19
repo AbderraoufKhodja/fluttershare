@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/ultils.dart';
 import 'package:khadamat/widgets/items_horizontal_view.dart';
 
 class FreelancerForYouPage extends StatefulWidget {
@@ -17,13 +16,13 @@ class FreelancerForYouPage extends StatefulWidget {
 class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   Future<QuerySnapshot> searchResultsFuture;
   final geo = Geoflutterfire();
-  List<dynamic> preferences;
+  List<dynamic> get preferences =>
+      widget.preferences != null ? widget.preferences : currentUser.preferences;
 
   final int limit = 15;
   @override
   void initState() {
     super.initState();
-    getPreferences();
     // usersRef.get().then(
     //   (documents) {
     //     print(documents.docs.length);
@@ -53,13 +52,6 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
     //     );
     //   },
     // );
-  }
-
-  void getPreferences() {
-    if (widget.preferences != null)
-      preferences = widget.preferences;
-    else
-      preferences = currentUser.preferences;
   }
 
   @override

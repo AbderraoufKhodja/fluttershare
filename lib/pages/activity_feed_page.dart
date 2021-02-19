@@ -29,7 +29,9 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
               }
               List<ActivityFeedItem> feedItems = [];
               snapshot.data.docs.forEach((doc) {
-                feedItems.add(ActivityFeedItem(feed: ActivityFeed.fromDocument(doc),));
+                feedItems.add(ActivityFeedItem(
+                  feed: ActivityFeed.fromDocument(doc),
+                ));
               });
               return ListView(
                 physics: BouncingScrollPhysics(),

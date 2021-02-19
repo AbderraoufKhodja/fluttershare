@@ -5,22 +5,22 @@ import 'package:khadamat/models/activity_feed.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/manage_job.dart';
-import 'package:khadamat/pages/manage_jobs_screen.dart';
+import 'package:khadamat/pages/manage_jobs_page.dart';
 import 'package:khadamat/pages/messages.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-class ActivityFeedItem extends StatelessWidget {
-final ActivityFeed feed;
 Widget mediaPreview;
 String activityItemText;
 Function onTap;
 
+class ActivityFeedItem extends StatelessWidget {
+  final ActivityFeed feed;
 
-ActivityFeedItem({@required this.feed})
+  ActivityFeedItem({@required this.feed});
 
-  bool get isJobOwner =>  feed.jobOwnerId == currentUser.uid;
+  bool get isJobOwner => feed.jobOwnerId == currentUser.uid;
   bool get isRequestOwner => feed.requestOwnerId == currentUser.uid;
 
   @override
@@ -81,11 +81,12 @@ ActivityFeedItem({@required this.feed})
       ),
     );
   }
-    showJob(context) {
+
+  showJob(context) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ManageJobsScreen(),
+        builder: (context) => ManageJobsPage(),
       ),
     );
   }

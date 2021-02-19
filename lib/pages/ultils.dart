@@ -10,10 +10,10 @@ dynamic fieldGetter(
     if (data[field.name].runtimeType == field.type)
       return data[field.name];
     else
-      print("Type error: $field");
+      print("Type error: ${field.type}");
     return null;
   } else {
-    print("missing field: $field");
+    print("missing field: ${field.name}");
     return null;
   }
 }

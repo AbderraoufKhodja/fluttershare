@@ -11,7 +11,7 @@ import 'package:khadamat/models/review.dart';
 import 'package:khadamat/pages/create_freelance_account.dart';
 import 'package:khadamat/pages/edit_profile.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/messages_screen.dart';
+import 'package:khadamat/pages/messages_page.dart';
 import 'package:khadamat/widgets/post.dart';
 import 'package:khadamat/widgets/post_tile.dart';
 import 'package:khadamat/widgets/progress.dart';

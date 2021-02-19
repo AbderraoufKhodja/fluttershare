@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
-import 'package:khadamat/models/activity_feed.dart';
-import 'package:khadamat/pages/manage_jobs_screen.dart';
-import 'package:khadamat/pages/messages_screen.dart';
+import 'package:khadamat/pages/activity_feed_page.dart';
+import 'package:khadamat/pages/manage_jobs_page.dart';
+import 'package:khadamat/pages/messages_page.dart';
 import 'package:khadamat/widgets/screen_layout.dart';
 
 class ScreenThree extends StatefulWidget {
@@ -12,9 +12,9 @@ class ScreenThree extends StatefulWidget {
 
 class _ScreenThree extends State<ScreenThree> {
   Map<Tab, StatefulWidget> tabsList = {
-    Tab(text: kTimeLine): ActivityFeed(),
-    Tab(text: kJobs): ManageJobsScreen(),
-    Tab(text: kChats): MessagesScreen(),
+    Tab(text: kTimeLine): ActivityFeedPage(),
+    Tab(text: kJobs): ManageJobsPage(),
+    Tab(text: kChats): MessagesPage(),
   };
   @override
   Widget build(BuildContext context) {

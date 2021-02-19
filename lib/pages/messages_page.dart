@@ -3,82 +3,90 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/manage_job.dart';
+import 'package:khadamat/pages/messages.dart';
 import 'package:khadamat/widgets/progress.dart';
 
-class ManageJobsScreen extends StatefulWidget {
+class MessagesPage extends StatefulWidget {
   @override
-  _JobsScreen createState() => _JobsScreen();
+  MessagesPageState createState() => MessagesPageState();
 }
 
-class _JobsScreen extends State<ManageJobsScreen> {
+class MessagesPageState extends State<MessagesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: buildListJobs(),
+      body: Column(
+        children: <Widget>[
+          Expanded(child: buildListMessages()),
+        ],
+      ),
     );
   }
 }
 
-buildListJobs() {
-  return FutureBuilder<QuerySnapshot>(
+buildListMessages() {
+  return FutureBuilder(
       future: usersRef
           .doc(currentUser.uid)
-          .collection('userJobs')
+          .collection('userChats')
           .orderBy("createdAt", descending: false)
           .get(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return circularProgress();
         }
-        List<JobContainer> job = [];
+        List<MessageContainer> messages = [];
         snapshot.data.docs.forEach((doc) {
-          job.add(JobContainer.fromDocument(doc));
+          messages.add(MessageContainer.fromDocument(doc));
         });
         return ListView(
           physics: BouncingScrollPhysics(),
-          children: job,
+          children: messages,
         );
       });
 }
 
-class JobContainer extends StatelessWidget {
+class MessageContainer extends StatelessWidget {
+  final String jobChatId;
   final String jobId;
+  final String professionalTitle;
+  final String jobTitle;
   final String jobOwnerId;
   final String jobOwnerName;
-  final String jobFreelancerId;
-  final String jobFreelancerName;
-  final String professionalTitle;
-  final Map applications;
 
-  JobContainer({
+  MessageContainer({
+    this.jobChatId,
     this.jobId,
+    this.professionalTitle,
+    this.jobTitle,
     this.jobOwnerId,
     this.jobOwnerName,
-    this.jobFreelancerId,
-    this.jobFreelancerName,
-    this.professionalTitle,
-    this.applications,
   });
 
-  factory JobContainer.fromDocument(DocumentSnapshot doc) {
-    return JobContainer(
+  factory MessageContainer.fromDocument(DocumentSnapshot doc) {
+    return MessageContainer(
+      jobChatId: doc['jobChatId'],
       jobId: doc['jobId'],
+      professionalTitle: doc['professionalTitle'],
+      jobTitle: doc['jobTitle'],
       jobOwnerId: doc['jobOwnerId'],
       jobOwnerName: doc['jobOwnerName'],
-      jobFreelancerId: doc['jobFreelancerId'],
-      jobFreelancerName: doc['jobFreelancerName'],
-      professionalTitle: doc['professionalTitle'],
-      applications: doc['applications'],
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    print(jobOwnerName);
     return Column(
       children: <Widget>[
         GestureDetector(
-          onTap: () => showManageJob(context, jobId: jobId),
+          onTap: () => showMessages(context,
+              jobChatId: jobChatId,
+              jobId: jobId,
+              jobOwnerId: jobOwnerId,
+              jobOwnerName: jobOwnerName,
+              professionalTitle: professionalTitle,
+              jobTitle: jobTitle),
           child: ListTile(
             title: Text(professionalTitle),
             leading: CircleAvatar(
@@ -93,8 +101,8 @@ class JobContainer extends StatelessWidget {
   }
 }
 
-showManageJobsScreen(BuildContext context) {
+showMessagesScreen(BuildContext context) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
-    return ManageJobsScreen();
+    return MessagesPage();
   }));
 }
