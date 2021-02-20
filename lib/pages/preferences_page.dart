@@ -13,7 +13,7 @@ class PreferencesPage extends StatefulWidget {
 }
 
 class _PreferencesPageState extends State<PreferencesPage> {
-  List<String> value = currentUser.preferences
+  List<String> value = currentUser.preferences.value
       .map((preference) => preference.toString())
       .toList();
 
@@ -64,7 +64,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
   }
 
   updatePreferances() {
-    usersRef.doc(currentUser.uid).update({"preferences": value}).then(
-        (val) => currentUser.preferences = value);
+    usersRef.doc(currentUser.uid.value).update({"preferences": value}).then(
+        (val) => currentUser.preferences.value = value);
   }
 }
