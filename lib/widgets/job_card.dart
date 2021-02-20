@@ -27,7 +27,7 @@ class _JobCardState extends State<JobCard> {
 
   _JobCardState({this.job});
 
-  final String currentUserId = currentUser?.uid;
+  final String currentUserId = currentUser?.uid.value;
   bool isJobOwner;
   bool isLoading;
   bool isApplied;
@@ -37,9 +37,9 @@ class _JobCardState extends State<JobCard> {
   void initState() {
     super.initState();
     applicationsCount = job.getApplicationsCount();
-    isJobOwner = currentUser.uid == job.jobOwnerId;
-    isApplied = (job.applications[currentUserId] == null &&
-        job.applications.containsKey(currentUserId));
+    isJobOwner = currentUser.uid.value == job.jobOwnerId.value;
+    isApplied = (job.applications.value[currentUserId] == null &&
+        job.applications.value.containsKey(currentUserId));
   }
 
   @override
@@ -76,14 +76,14 @@ class _JobCardState extends State<JobCard> {
             backgroundColor: Theme.of(context).primaryColor,
           ),
           title: Text(
-            job.jobOwnerName ?? "",
+            job.jobOwnerName.value ?? "",
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
             ),
           ),
           subtitle: Text(
-              "${job.createdAt != null ? timeago.format(job.createdAt.toDate()) : "a moment ago"}"
+              "${job.createdAt.value != null ? timeago.format(job.createdAt.value.toDate()) : "a moment ago"}"
               " | ${applicationsCount.toString()} applied"),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
@@ -117,10 +117,10 @@ class _JobCardState extends State<JobCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 isShowDetail
-                    ? cachedNetworkImage(job.jobPhotoUrl)
+                    ? cachedNetworkImage(job.jobPhotoUrl.value)
                     : Container(),
                 CustomListTile(
-                  description: job.jobTitle,
+                  description: job.jobTitle.value,
                   icon: Icon(
                     Icons.work,
                     color: Colors.blueGrey,
@@ -128,7 +128,7 @@ class _JobCardState extends State<JobCard> {
                   maxLines: isShowDetail ? 10 : 2,
                 ),
                 CustomListTile(
-                  description: job.professionalTitle,
+                  description: job.professionalTitle.value,
                   icon: Icon(
                     Icons.work,
                     color: Colors.blueGrey,
@@ -136,7 +136,7 @@ class _JobCardState extends State<JobCard> {
                   maxLines: isShowDetail ? 10 : 2,
                 ),
                 CustomListTile(
-                  description: job.jobDescription,
+                  description: job.jobDescription.value,
                   icon: Icon(
                     Icons.description,
                     color: Colors.blueGrey,
@@ -144,7 +144,7 @@ class _JobCardState extends State<JobCard> {
                   maxLines: isShowDetail ? 10 : 2,
                 ),
                 CustomListTile(
-                  description: job.location.toString(),
+                  description: job.location.value.toString(),
                   icon: Icon(
                     Icons.my_location,
                     color: Colors.blueGrey,
@@ -152,7 +152,7 @@ class _JobCardState extends State<JobCard> {
                   maxLines: isShowDetail ? 10 : 2,
                 ),
                 CustomListTile(
-                  description: job.dateRange,
+                  description: job.dateRange.value,
                   icon: Icon(
                     Icons.schedule,
                     color: Colors.blueGrey,
@@ -164,7 +164,7 @@ class _JobCardState extends State<JobCard> {
           ),
           isShowDetail
               ? Container()
-              : job.jobPhotoUrl.isEmpty
+              : job.jobPhotoUrl.value.isEmpty
                   ? Container()
                   : Row(
                       children: [
@@ -177,7 +177,7 @@ class _JobCardState extends State<JobCard> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(5.0),
                           ),
-                          child: cachedNetworkImage(job.jobPhotoUrl),
+                          child: cachedNetworkImage(job.jobPhotoUrl.value),
                         ),
                       ],
                     ),
@@ -194,18 +194,19 @@ class _JobCardState extends State<JobCard> {
             ? Expanded(
                 child: CustomButton(
                   text: kManage,
-                  function: () => showManageJob(context, jobId: job.jobId),
+                  function: () =>
+                      showManageJob(context, jobId: job.jobId.value),
                 ),
               )
             : Expanded(
                 child: CustomButton(
                   text: isApplied ? kUnapply : kApply,
                   function: () async {
-                    if (!currentUser.isFreelancer)
+                    if (!currentUser.isFreelancer.value)
                       showCreateFreelanceProfile(context);
-                    if (currentUser.isFreelancer) {
+                    if (currentUser.isFreelancer.value) {
                       job.handleApplyJob(
-                          applicantName: currentUser.username,
+                          applicantName: currentUser.username.value,
                           applicantId: currentUserId);
                       setState(() {
                         applicationsCount += isApplied ? -1 : 1;
@@ -220,7 +221,7 @@ class _JobCardState extends State<JobCard> {
             alignment: Alignment.centerRight,
             margin: EdgeInsets.only(right: 10.0),
             child: Text(
-              "${job.price ?? ""} $kCurrency",
+              "${job.price.value ?? ""} $kCurrency",
               style: TextStyle(
                 color: Colors.green,
                 fontWeight: FontWeight.bold,
@@ -243,7 +244,7 @@ class _JobCardState extends State<JobCard> {
   //             SimpleDialogOption(
   //                 onPressed: () {
   //                   Navigator.pop(context);
-  //                   if (job.)
+  //                   if (job.).value
   //                   showDeleteJobScreen(context, job: job);
   //                 },
   //                 child: Text(
@@ -277,8 +278,8 @@ class _JobCardState extends State<JobCard> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => CreateFreelanceAccount(
-                                appUser: currentUser)));
+                            builder: (context) =>
+                                CreateFreelanceAccount(appUser: currentUser)));
                   },
                   child: Text(
                     kCreateCard,

@@ -8,6 +8,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/app_user.dart';
+import 'package:khadamat/models/firestore_field.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/custom_text_form_field.dart';
@@ -294,25 +295,42 @@ class _UploadJobState extends State<UploadJob>
       String jobPhotoUrl =
           file == null ? kBlankProfileUrl : await uploadImage(file);
       Job(
-        jobId: jobId,
-        jobOwnerId: currentUser.uid,
-        jobOwnerName: currentUser.username,
-        jobOwnerEmail: currentUser.email,
-        isOwnerFreelancer: currentUser.isFreelancer,
-        jobTitle: jobTitleController.text,
-        professionalCategory: professionalCategoryController.text,
-        professionalTitle: professionalTitleController.text,
-        jobDescription: jobDescriptionController.text,
-        location: jobGeoFirePoint,
-        dateRange: dateRangeController.text,
-        jobPhotoUrl: jobPhotoUrl,
-        price: priceController.text,
-        applications: {},
-        hasFreelancerUpdateRequest: false,
-        hasOwnerUpdateRequest: false,
-        jobState: "open",
-        isOwnerCompleted: false,
-        isFreelancerCompleted: false,
+        jobId: FirestoreField<String>(name: "jobId", value: jobId),
+        jobOwnerId: FirestoreField<String>(
+            name: "jobOwnerId", value: currentUser.uid.value),
+        jobOwnerName: FirestoreField<String>(
+            name: "jobOwnerName", value: currentUser.username.value),
+        jobOwnerEmail: FirestoreField<String>(
+            name: "jobOwnerEmail", value: currentUser.email.value),
+        isOwnerFreelancer: FirestoreField<bool>(
+            name: "isOwnerFreelancer", value: currentUser.isFreelancer.value),
+        jobTitle: FirestoreField<String>(
+            name: "jobTitle", value: jobTitleController.text),
+        professionalCategory: FirestoreField<String>(
+            name: "professionalCategory",
+            value: professionalCategoryController.text),
+        professionalTitle: FirestoreField<String>(
+            name: "professionalTitle", value: professionalTitleController.text),
+        jobDescription: FirestoreField<String>(
+            name: "jobDescription", value: jobDescriptionController.text),
+        location: FirestoreField<GeoFirePoint>(
+            name: "location", value: jobGeoFirePoint),
+        dateRange: FirestoreField<String>(
+            name: "dateRange", value: dateRangeController.text),
+        jobPhotoUrl:
+            FirestoreField<String>(name: "jobPhotoUrl", value: jobPhotoUrl),
+        price:
+            FirestoreField<String>(name: "price", value: priceController.text),
+        applications: FirestoreField<Map>(name: "applications", value: null),
+        hasFreelancerUpdateRequest: FirestoreField<bool>(
+            name: "hasFreelancerUpdateRequest", value: false),
+        hasOwnerUpdateRequest:
+            FirestoreField<bool>(name: "hasOwnerUpdateRequest", value: false),
+        jobState: FirestoreField<String>(name: "jobState", value: "open"),
+        isOwnerCompleted:
+            FirestoreField<bool>(name: "isOwnerCompleted", value: false),
+        isFreelancerCompleted:
+            FirestoreField<bool>(name: "isFreelancerCompleted", value: false),
       ).createJob();
       clearControllers();
       setState(() {

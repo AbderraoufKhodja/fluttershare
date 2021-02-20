@@ -16,8 +16,9 @@ class FreelancerForYouPage extends StatefulWidget {
 class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   Future<QuerySnapshot> searchResultsFuture;
   final geo = Geoflutterfire();
-  List<dynamic> get preferences =>
-      widget.preferences != null ? widget.preferences : currentUser.preferences;
+  List<dynamic> get preferences => widget.preferences != null
+      ? widget.preferences
+      : currentUser.preferences.value;
 
   final int limit = 15;
   @override
@@ -159,9 +160,9 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   Future<List<DocumentSnapshot>> getAroundMeSection() {
     // Create a geoFirePoint
     GeoPoint usersLocation;
-    if (currentUser.location != null) {
-      if (currentUser.location.containsKey("geopoint"))
-        usersLocation = currentUser.location["geopoint"];
+    if (currentUser.location.value != null) {
+      if (currentUser.location.value.containsKey("geopoint"))
+        usersLocation = currentUser.location.value["geopoint"];
       else
         usersLocation = GeoPoint(0, 0);
     } else

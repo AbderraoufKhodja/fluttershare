@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:khadamat/constants.dart';
@@ -166,10 +165,10 @@ class _UpdateJobTermsScreenRequestState
 
   void updateController() {
     setState(() {
-      jobDescriptionController.text = job.jobDescription;
-      locationGeoPoint = job.location;
-      dateRangeController.text = job.dateRange;
-      priceController.text = job.price;
+      jobDescriptionController.text = job.jobDescription.value;
+      locationGeoPoint = job.location.value;
+      dateRangeController.text = job.dateRange.value;
+      priceController.text = job.price.value;
     });
   }
 
@@ -183,12 +182,12 @@ class _UpdateJobTermsScreenRequestState
 
     if (_priceValid &&
         _locationValid &&
-        !job.hasOwnerUpdateRequest &&
-        !job.hasFreelancerUpdateRequest) {
+        !job.hasOwnerUpdateRequest.value &&
+        !job.hasFreelancerUpdateRequest.value) {
       await job
           .requestUpdateJobTermsFeed(
-        requestOwnerName: currentUser.username,
-        requestOwnerId: currentUser.uid,
+        requestOwnerName: currentUser.username.value,
+        requestOwnerId: currentUser.uid.value,
         newJobDescription: jobDescriptionController.text,
         newPrice: priceController.text,
         newLocation: locationGeoPoint,

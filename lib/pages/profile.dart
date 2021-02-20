@@ -39,11 +39,11 @@ class _ProfileState extends State<Profile>
 
   bool get isApplicationResponse {
     return job != null &&
-        job.applications[widget.profileId] == null &&
-        job.jobOwnerId != widget.profileId &&
-        job.jobOwnerId == currentUser.uid &&
-        job.jobState == "open" &&
-        job.isOwnerCompleted == false;
+        job.applications.value[widget.profileId] == null &&
+        job.jobOwnerId.value != widget.profileId &&
+        job.jobOwnerId.value == currentUser.uid.value &&
+        job.jobState.value == "open" &&
+        job.isOwnerCompleted.value == false;
   }
 
   Job get job => widget.job;
@@ -66,7 +66,7 @@ class _ProfileState extends State<Profile>
         builder: (context, snapshot) {
           if (!snapshot.hasData) return linearProgress();
           user = AppUser.fromDocument(snapshot.data);
-          return user.isFreelancer
+          return user.isFreelancer.value
               ? buildFreelancerScreen(context)
               : buildClientScreen(context);
         });
@@ -177,7 +177,7 @@ class _ProfileState extends State<Profile>
                       radius: 40.0,
                       backgroundColor: Theme.of(context).primaryColor,
                       backgroundImage: CachedNetworkImageProvider(
-                          user.professionalPhotoUrl ?? kBlankProfileUrl),
+                          user.professionalPhotoUrl.value ?? kBlankProfileUrl),
                     ),
                     Expanded(
                       flex: 1,
@@ -187,7 +187,7 @@ class _ProfileState extends State<Profile>
                             mainAxisSize: MainAxisSize.max,
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
-                              buildCountColumn(kRating, user.globalRate),
+                              buildCountColumn(kRating, user.globalRate.value),
                               buildCountColumn(
                                   kJobsCount, getCompletedJobsCount()),
                               buildCountColumn(kEvaluation, getEvaluation()),
@@ -203,7 +203,7 @@ class _ProfileState extends State<Profile>
                   alignment: Alignment.centerLeft,
                   padding: EdgeInsets.only(top: 12.0),
                   child: Text(
-                    user.username ?? "",
+                    user.username.value ?? "",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16.0,
@@ -214,7 +214,7 @@ class _ProfileState extends State<Profile>
                   alignment: Alignment.centerLeft,
                   padding: EdgeInsets.only(top: 4.0),
                   child: Text(
-                    user.displayName ?? "",
+                    user.displayName.value ?? "",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
@@ -224,7 +224,7 @@ class _ProfileState extends State<Profile>
                   alignment: Alignment.centerLeft,
                   padding: EdgeInsets.only(top: 2.0),
                   child: Text(
-                    user.personalBio ?? "",
+                    user.personalBio.value ?? "",
                   ),
                 ),
               ],
@@ -238,39 +238,45 @@ class _ProfileState extends State<Profile>
       child: ListView(
         physics: BouncingScrollPhysics(),
         children: [
-          buildProfileInfoField(label: kUsername, text: user.username),
-          buildProfileInfoField(label: kEmail, text: user.email),
-          buildProfileInfoField(label: kPersonalBio, text: user.personalBio),
-          buildProfileInfoField(label: kGender, text: user.gender),
+          buildProfileInfoField(label: kUsername, text: user.username.value),
+          buildProfileInfoField(label: kEmail, text: user.email.value),
+          buildProfileInfoField(
+              label: kPersonalBio, text: user.personalBio.value),
+          buildProfileInfoField(label: kGender, text: user.gender.value),
           buildProfileInfoField(label: kLocation, text: formattedAddress),
           buildProfileInfoField(
               label: kBirthDate,
               text: timeago.format(
-                  user.birthDate?.toDate() ?? Timestamp.now().toDate())),
+                  user.birthDate.value?.toDate() ?? Timestamp.now().toDate())),
           buildProfileInfoField(
-              label: kProfessionalCategory, text: user.professionalCategory),
+              label: kProfessionalCategory,
+              text: user.professionalCategory.value),
           buildProfileInfoField(
-              label: kProfessionalTitle, text: user.professionalTitle),
+              label: kProfessionalTitle, text: user.professionalTitle.value),
           buildProfileInfoField(
               label: kProfessionalDescription,
-              text: user.professionalDescription),
+              text: user.professionalDescription.value),
           buildProfileInfoField(
-              label: kPreferences, text: user.preferences.toString()),
-          buildProfileInfoField(label: kDiploma, text: user.diploma),
-          buildProfileInfoField(label: kLicence, text: user.licence),
+              label: kPreferences, text: user.preferences.value.toString()),
+          buildProfileInfoField(label: kDiploma, text: user.diploma.value),
+          buildProfileInfoField(label: kLicence, text: user.licence.value),
           buildProfileInfoField(
-              label: kCertification, text: user.certification),
-          buildProfileInfoField(label: kLanguage, text: user.language),
-          buildProfileInfoField(label: kExperience, text: user.experience),
-          buildProfileInfoField(label: kInternship, text: user.internship),
-          buildProfileInfoField(label: kCompetence, text: user.competence),
-          buildProfileInfoField(label: kAchievement, text: user.achievement),
+              label: kCertification, text: user.certification.value),
+          buildProfileInfoField(label: kLanguage, text: user.language.value),
           buildProfileInfoField(
-              label: kRecommendation, text: user.recommendation),
+              label: kExperience, text: user.experience.value),
+          buildProfileInfoField(
+              label: kInternship, text: user.internship.value),
+          buildProfileInfoField(
+              label: kCompetence, text: user.competence.value),
+          buildProfileInfoField(
+              label: kAchievement, text: user.achievement.value),
+          buildProfileInfoField(
+              label: kRecommendation, text: user.recommendation.value),
           buildProfileInfoField(
               label: kCreatedAt,
               text: timeago.format(
-                  user.createdAt?.toDate() ?? Timestamp.now().toDate())),
+                  user.createdAt.value?.toDate() ?? Timestamp.now().toDate())),
         ],
       ),
     );
@@ -308,7 +314,7 @@ class _ProfileState extends State<Profile>
 
   buildProfileReviews() {
     List<Review> reviews = [];
-    user.reviews.values.forEach((review) {
+    user.reviews.value.values.forEach((review) {
       if (review is Map<String, dynamic>)
         reviews.add(Review.fromDocument(review));
     });
@@ -460,7 +466,7 @@ class _ProfileState extends State<Profile>
 
   buildProfileButton() {
     // viewing your own profile - should show edit profile button
-    bool isProfileOwner = currentUser.uid == widget.profileId;
+    bool isProfileOwner = currentUser.uid.value == widget.profileId;
     if (isProfileOwner) {
       return buildButton(
         text: kEditProfile,
@@ -489,7 +495,7 @@ class _ProfileState extends State<Profile>
     hiresRef
         .doc(widget.profileId)
         .collection('userHires')
-        .doc(currentUser.uid)
+        .doc(currentUser.uid.value)
         .get()
         .then((doc) {
       if (doc.exists) {
@@ -498,7 +504,7 @@ class _ProfileState extends State<Profile>
     });
     // remove following
     hiresRef
-        .doc(currentUser.uid)
+        .doc(currentUser.uid.value)
         .collection('userHires')
         .doc(widget.profileId)
         .get()
@@ -511,7 +517,7 @@ class _ProfileState extends State<Profile>
     activityFeedRef
         .doc(widget.profileId)
         .collection('feedItems')
-        .doc(currentUser.uid)
+        .doc(currentUser.uid.value)
         .get()
         .then((doc) {
       if (doc.exists) {
@@ -530,13 +536,13 @@ class _ProfileState extends State<Profile>
     hiresRef
         .doc(widget.profileId)
         .collection('userHires')
-        .doc(currentUser.uid)
+        .doc(currentUser.uid.value)
         .set({});
 
     jobsRef
-        .doc(currentUser.uid)
+        .doc(currentUser.uid.value)
         .collection("userJobs")
-        .doc(job.jobId)
+        .doc(job.jobId.value)
         .collection("application")
         .doc(widget.profileId)
         .set({
@@ -544,7 +550,7 @@ class _ProfileState extends State<Profile>
     });
     // Put THAT user on YOUR following collection (update your following collection)
 //    followingRef
-//        .doc(currentUser.uid)
+//        .doc(currentUser.uid.value)
 //        .collection('userFollowing')
 //        .doc(widget.profileId)
 //        .set({});
@@ -552,49 +558,49 @@ class _ProfileState extends State<Profile>
     activityFeedRef
         .doc(widget.profileId)
         .collection('feedItems')
-        .doc(currentUser.uid)
+        .doc(currentUser.uid.value)
         .set({
       "type": "accepted",
       "jobOwnerId": widget.profileId,
-      "username": currentUser.username,
-      "userId": currentUser.uid,
-      "userProfileImg": currentUser.photoURL,
+      "username": currentUser.username.value,
+      "userId": currentUser.uid.value,
+      "userProfileImg": currentUser.photoURL.value,
       "createdAt": FieldValue.serverTimestamp(),
     });
 
     activityFeedRef
-        .doc(currentUser.uid)
+        .doc(currentUser.uid.value)
         .collection('feedItems')
         .doc(widget.profileId)
         .set({
       "type": "accept",
       "jobOwnerId": widget.profileId,
-      "username": currentUser.username,
-      "userId": currentUser.uid,
-      "userProfileImg": currentUser.photoURL,
+      "username": currentUser.username.value,
+      "userId": currentUser.uid.value,
+      "userProfileImg": currentUser.photoURL.value,
       "createdAt": FieldValue.serverTimestamp(),
     });
   }
 
   Future<void> handleRejectApplication() async {
     return job.handleRejectApplication(
-        applicantId: user.uid,
-        applicantName: user.username,
-        applicantEmail: user.email);
+        applicantId: user.uid.value,
+        applicantName: user.username.value,
+        applicantEmail: user.email.value);
   }
 
   Future<void> handleAcceptApplication() async {
     return job
         .handleAcceptApplication(
-      applicantId: user.uid,
-      applicantName: user.username,
-      applicantEmail: user.email,
+      applicantId: user.uid.value,
+      applicantName: user.username.value,
+      applicantEmail: user.email.value,
     )
         .then((value) {
-      job.jobFreelancerId = user.uid;
-      job.jobFreelancerName = user.username;
-      job.jobFreelancerEmail = user.email;
-      job.jobState = "onGoing";
+      job.jobFreelancerId.value = user.uid.value;
+      job.jobFreelancerName.value = user.username.value;
+      job.jobFreelancerEmail.value = user.email.value;
+      job.jobState.value = "onGoing";
     });
   }
 
@@ -611,15 +617,15 @@ class _ProfileState extends State<Profile>
 
   double getEvaluation() {
     double count = 0;
-    if ((user.reviews?.values?.length ?? 0) > 2)
+    if ((user.reviews.value?.values?.length ?? 0) > 2)
       // ignore: null_aware_before_operator
-      count = user.reviews?.values?.length - 2.0;
+      count = user.reviews.value?.values?.length - 2.0;
     return count;
   }
 
   double getCompletedJobsCount() {
     double count = 0;
-    user.jobs?.values?.forEach((element) {
+    user.jobs.value?.values?.forEach((element) {
       if (element['isCompleted'] == true) count += 1;
     });
     return count;
@@ -682,8 +688,8 @@ class _ProfileState extends State<Profile>
 
   Future<void> formatLocation() async {
     List<Placemark> placemarks = await placemarkFromCoordinates(
-        currentUser.location["geopoint"].latitude,
-        currentUser.location["geopoint"].longitude);
+        currentUser.location.value["geopoint"].latitude,
+        currentUser.location.value["geopoint"].longitude);
     Placemark placemark = placemarks[0];
     String formattedAddress =
         " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"

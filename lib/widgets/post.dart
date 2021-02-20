@@ -70,7 +70,7 @@ class Post extends StatefulWidget {
 }
 
 class _PostState extends State<Post> {
-  final String currentUserId = currentUser?.uid;
+  final String currentUserId = currentUser?.uid.value;
   final String postId;
   final String jobOwnerId;
   final String username;
@@ -104,14 +104,15 @@ class _PostState extends State<Post> {
         bool isPostOwner = currentUserId == jobOwnerId;
         return ListTile(
           leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(appUser.photoURL),
+            backgroundImage: CachedNetworkImageProvider(appUser.photoURL.value),
             backgroundColor: Theme.of(context).primaryColor,
           ),
           title: GestureDetector(
             onTap: () => showProfile(context,
-                profileId: appUser.uid, profileName: appUser.username),
+                profileId: appUser.uid.value,
+                profileName: appUser.username.value),
             child: Text(
-              appUser.username,
+              appUser.username.value,
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,

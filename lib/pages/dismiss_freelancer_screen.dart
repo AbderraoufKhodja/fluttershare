@@ -32,9 +32,10 @@ class _DismissFreelancerScreenState extends State<DismissFreelancerScreen> {
 
   double ownerRating;
 
-  bool get isJobFreelancer => currentUser.uid == job.jobFreelancerId;
+  bool get isJobFreelancer =>
+      currentUser.uid.value == job.jobFreelancerId.value;
 
-  bool get isJobOwner => currentUser.uid == job.jobOwnerId;
+  bool get isJobOwner => currentUser.uid.value == job.jobOwnerId.value;
 
   Job get job => widget.job;
 
@@ -169,10 +170,10 @@ class _DismissFreelancerScreenState extends State<DismissFreelancerScreen> {
             freelancerTimeManagementRate: freelancerTimeManagement,
           )
             .then((value) {
-            job.jobFreelancerId = null;
-            job.jobFreelancerName = null;
-            job.jobFreelancerEmail = null;
-            job.jobState = "open";
+            job.jobFreelancerId.value = null;
+            job.jobFreelancerName.value = null;
+            job.jobFreelancerEmail.value = null;
+            job.jobState.value = "open";
           })
         : await job
             .freelancerQuitAndReviewOwner(
@@ -180,10 +181,10 @@ class _DismissFreelancerScreenState extends State<DismissFreelancerScreen> {
             ownerRate: ownerRating,
           )
             .then((value) {
-            job.jobFreelancerId = null;
-            job.jobFreelancerName = null;
-            job.jobFreelancerEmail = null;
-            job.jobState = "open";
+            job.jobFreelancerId.value = null;
+            job.jobFreelancerName.value = null;
+            job.jobFreelancerEmail.value = null;
+            job.jobState.value = "open";
           });
     Navigator.pop(context);
   }

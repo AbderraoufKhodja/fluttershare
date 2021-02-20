@@ -110,7 +110,7 @@ class MessagesState extends State<Messages> {
 
   checkIfJobOwner() {
     setState(() {
-      isJobOwner = currentUser.uid == jobOwnerId;
+      isJobOwner = currentUser.uid.value == jobOwnerId;
     });
   }
 
@@ -141,21 +141,21 @@ class MessagesState extends State<Messages> {
     if (messageController.text.trim().isNotEmpty) {
       messagesRef.doc(jobId).collection(jobChatId).add({
         "type": type,
-        "userId": currentUser.uid,
-        "username": currentUser.username,
+        "userId": currentUser.uid.value,
+        "username": currentUser.username.value,
         "message": messageController.text,
-        "avatarUrl": currentUser.photoURL,
+        "avatarUrl": currentUser.photoURL.value,
         "createdAt": FieldValue.serverTimestamp(),
       });
       String feedId = jobOwnerId;
-      if (currentUser.uid == jobOwnerId)
+      if (currentUser.uid.value == jobOwnerId)
         feedId = jobFreelancerId;
-      else if (currentUser.uid == jobFreelancerId) feedId = jobOwnerId;
+      else if (currentUser.uid.value == jobFreelancerId) feedId = jobOwnerId;
       print(feedId);
       activityFeedRef
           .doc(feedId)
           .collection('feedItems')
-          .doc(currentUser.uid + jobId)
+          .doc(currentUser.uid.value + jobId)
           .set({
         "type": "message",
         "messageText": messageController.text,
@@ -165,9 +165,9 @@ class MessagesState extends State<Messages> {
         "jobTitle": jobTitle,
         "jobOwnerName": jobOwnerName,
         "jobOwnerId": jobOwnerId,
-        "jobFreelancerId": currentUser.uid,
-        "jobFreelancerName": currentUser.username,
-        "userProfileImg": currentUser.photoURL ?? kBlankProfileUrl,
+        "jobFreelancerId": currentUser.uid.value,
+        "jobFreelancerName": currentUser.username.value,
+        "userProfileImg": currentUser.photoURL.value ?? kBlankProfileUrl,
         "read": false,
         "createdAt": FieldValue.serverTimestamp(),
       });
@@ -252,7 +252,7 @@ class Message extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isCurrentUser = currentUser.uid == userId;
+    final isCurrentUser = currentUser.uid.value == userId;
     return type == "open"
         ? MessageBubble(
             isCurrentUser: null, message: kOpenChat, createdAt: createdAt)

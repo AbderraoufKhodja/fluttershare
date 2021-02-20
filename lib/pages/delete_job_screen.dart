@@ -13,7 +13,7 @@ class DeleteJobScreen extends StatelessWidget {
     @required this.job,
   });
 
-  bool get isJobOwner => currentUser.uid == job.jobOwnerId;
+  bool get isJobOwner => currentUser.uid.value == job.jobOwnerId.value;
   final TextEditingController reasonOfClosingController =
       TextEditingController();
 
@@ -50,7 +50,7 @@ class DeleteJobScreen extends StatelessWidget {
   Future<void> handleCloseJob(BuildContext context) async {
     await job
         .closeJob(closingReason: reasonOfClosingController.text)
-        .then((value) => job.jobState = "closed");
+        .then((value) => job.jobState.value = "closed");
     Navigator.pop(context);
   }
 }

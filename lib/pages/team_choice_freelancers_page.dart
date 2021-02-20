@@ -56,21 +56,21 @@ class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage> {
   Future<QuerySnapshot> getRecommendedForYouSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
-        .where("professionalCategory", whereIn: currentUser.preferences)
+        .where("professionalCategory", whereIn: currentUser.preferences.value)
         .get();
   }
 
   Future<QuerySnapshot> getSuggestedForYouSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
-        .where("professionalCategory", whereIn: currentUser.preferences)
+        .where("professionalCategory", whereIn: currentUser.preferences.value)
         .get();
   }
 
   Future<QuerySnapshot> getRecentlyReviewdSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
-        .where("professionalCategory", whereIn: currentUser.preferences)
+        .where("professionalCategory", whereIn: currentUser.preferences.value)
         .orderBy("reviews.lastReviewTimestamp", descending: true)
         .get();
   }
@@ -78,7 +78,7 @@ class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage> {
   Future<QuerySnapshot> getNewTalentsSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
-        .where("professionalCategory", whereIn: currentUser.preferences)
+        .where("professionalCategory", whereIn: currentUser.preferences.value)
         .orderBy("createdAt", descending: true)
         .limit(10)
         .get();
@@ -87,7 +87,7 @@ class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage> {
   Future<QuerySnapshot> getTopFreelancerSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
-        .where("professionalCategory", whereIn: currentUser.preferences)
+        .where("professionalCategory", whereIn: currentUser.preferences.value)
         .orderBy("reviews.rating", descending: true)
         .get();
   }
@@ -95,7 +95,7 @@ class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage> {
   Future<QuerySnapshot> getTeamChoiceFreelancerSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
-        .where("professionalCategory", whereIn: currentUser.preferences)
+        .where("professionalCategory", whereIn: currentUser.preferences.value)
         .where("teamChoice", isEqualTo: true)
         .get();
   }
@@ -103,7 +103,7 @@ class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage> {
   Future<QuerySnapshot> getBeTheFirstToHireSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
-        .where("professionalCategory", whereIn: currentUser.preferences)
+        .where("professionalCategory", whereIn: currentUser.preferences.value)
         .where("jobs", isNull: true)
         .get();
   }
@@ -111,7 +111,7 @@ class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage> {
   Future<QuerySnapshot> getAroundMeSection() {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
-        .where("professionalCategory", whereIn: currentUser.preferences)
+        .where("professionalCategory", whereIn: currentUser.preferences.value)
         .get();
   }
 }

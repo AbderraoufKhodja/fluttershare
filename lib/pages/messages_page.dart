@@ -27,7 +27,7 @@ class MessagesPageState extends State<MessagesPage> {
 buildListMessages() {
   return FutureBuilder(
       future: usersRef
-          .doc(currentUser.uid)
+          .doc(currentUser.uid.value)
           .collection('userChats')
           .orderBy("createdAt", descending: false)
           .get(),

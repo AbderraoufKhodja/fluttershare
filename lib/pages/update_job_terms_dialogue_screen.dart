@@ -11,7 +11,7 @@ class UpdateJobTermsDialogueScreen extends StatelessWidget {
   final Job job;
   final String newJobDescription;
   final String newPrice;
-  final GeoPoint newLocation;
+  final Map newLocation;
   final String newDateRange;
 
   UpdateJobTermsDialogueScreen({
@@ -86,15 +86,15 @@ class UpdateJobTermsDialogueScreen extends StatelessWidget {
 
   Future<void> handleAcceptUpdateJobTerms() {
     return job.acceptUpdateJobTerms(
-      decisionOwnerId: currentUser.uid,
-      decisionOwnerName: currentUser.username,
+      decisionOwnerId: currentUser.uid.value,
+      decisionOwnerName: currentUser.username.value,
     );
   }
 
   Future<void> handleRejectUpdateJobTerms() async {
     return job.rejectUpdateJobTerms(
-      decisionOwnerName: currentUser.username,
-      decisionOwnerId: currentUser.uid,
+      decisionOwnerName: currentUser.username.value,
+      decisionOwnerId: currentUser.uid.value,
     );
   }
 }
@@ -104,7 +104,7 @@ Future<void> showUpdateJobTermsDialogueScreen(
   @required Job job,
   @required String newJobDescription,
   @required String newPrice,
-  @required GeoPoint newLocation,
+  @required Map newLocation,
   @required String newDateRange,
 }) {
   return Navigator.push(

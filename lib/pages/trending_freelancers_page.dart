@@ -100,7 +100,7 @@ class _TrendingFreelancersPage extends State<TrendingFreelancersPage> {
 
   Future<List<DocumentSnapshot>> getTrendingTopFreelancersAroundMeSection() {
     // TODO  sorting dcuments according to newest.
-    GeoPoint usersLocation = currentUser.location["geopoint"];
+    GeoPoint usersLocation = currentUser.location.value["geopoint"];
     GeoFirePoint center = geo.point(
         latitude: usersLocation.latitude, longitude: usersLocation.longitude);
 

@@ -14,8 +14,8 @@ class FreelancerCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => showProfile(
         context,
-        profileId: user.uid,
-        profileName: user.username,
+        profileId: user.uid.value,
+        profileName: user.username.value,
       ),
       child: Padding(
         padding: const EdgeInsets.only(right: 10.0, bottom: 10),
@@ -32,7 +32,7 @@ class FreelancerCard extends StatelessWidget {
                     fit: BoxFit.cover,
                     alignment: Alignment.centerRight,
                     image: CachedNetworkImageProvider(
-                        user.photoURL ?? kBlankProfileUrl),
+                        user.photoURL.value ?? kBlankProfileUrl),
                   ),
                 ),
               ),
@@ -57,7 +57,8 @@ class FreelancerCard extends StatelessWidget {
                       children: <Widget>[
                         Row(
                           children: [
-                            Text(user.globalRate?.toString() ?? kMissingData),
+                            Text(user.globalRate.value?.toString() ??
+                                kMissingData),
                             Icon(
                               Icons.star,
                               color: Colors.amber[600],
@@ -68,7 +69,7 @@ class FreelancerCard extends StatelessWidget {
                         Column(
                           children: [
                             Text(
-                              user.username ?? kMissingData,
+                              user.username.value ?? kMissingData,
                               style: TextStyle(
                                 fontFamily: "ReemKufi-Regular",
                                 color: Colors.black,
@@ -83,7 +84,7 @@ class FreelancerCard extends StatelessWidget {
                               height: 1,
                             ),
                             Text(
-                              user.professionalTitle?.toUpperCase() ??
+                              user.professionalTitle.value?.toUpperCase() ??
                                   kMissingData,
                               style: TextStyle(
                                 color: Colors.black,
