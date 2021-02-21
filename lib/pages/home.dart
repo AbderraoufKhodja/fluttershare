@@ -33,6 +33,7 @@ final activityFeedRef = FirebaseFirestore.instance.collection('feeds');
 final hiresRef = FirebaseFirestore.instance.collection('hires');
 final timelineRef = FirebaseFirestore.instance.collection('timeline');
 final complaintRef = FirebaseFirestore.instance.collection('complaint');
+final forumRef = FirebaseFirestore.instance.collection('forum');
 AppUser currentUser;
 
 class Home extends StatefulWidget {

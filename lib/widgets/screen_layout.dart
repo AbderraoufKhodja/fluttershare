@@ -4,12 +4,16 @@ import 'package:flutter/material.dart';
 
 class ScreenLayout extends StatelessWidget {
   final bool isScrollable;
+  final bool hasFAB;
+  final Function functionFAB;
 
-  ScreenLayout({
-    Key key,
-    @required this.tabsList,
-    this.isScrollable = true,
-  }) : super(key: key);
+  ScreenLayout(
+      {Key key,
+      @required this.tabsList,
+      this.isScrollable = true,
+      this.hasFAB = false,
+      this.functionFAB})
+      : super(key: key);
 
   final Map<Tab, StatefulWidget> tabsList;
 
@@ -46,7 +50,11 @@ class ScreenLayout extends StatelessWidget {
           titleSpacing: 0,
         ),
         body: TabBarView(children: tabsList.values.toList()),
-        floatingActionButton: FAB,
+        floatingActionButton: hasFAB
+            ? FloatingActionButton(
+                onPressed: functionFAB,
+              )
+            : null,
       ),
     );
   }

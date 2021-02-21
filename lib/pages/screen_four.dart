@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
+import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/manage_jobs_page.dart';
 import 'package:khadamat/pages/messages_page.dart';
 import 'package:khadamat/pages/my_forum_subscribtions_page.dart';
@@ -20,6 +22,18 @@ class _ScreenFour extends State<ScreenFour> {
   };
   @override
   Widget build(BuildContext context) {
-    return ScreenLayout(tabsList: tabsList);
+    return ScreenLayout(
+      tabsList: tabsList,
+      hasFAB: true,
+      functionFAB: addPost,
+    );
+  }
+
+  addPost() {
+    categoriesRef
+        .where("field", isLessThan: "AbdErraouf")
+        .get(GetOptions(source: Source.serverAndCache))
+        .then((value) => print(value.docs.first.id),
+            onError: (value) => print(value));
   }
 }
