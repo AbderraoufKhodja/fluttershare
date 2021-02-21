@@ -46,7 +46,7 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
 
   getActivityFeed() {
     return activityFeedRef
-        .doc(currentUser.uid)
+        .doc(currentUser.uid.value)
         .collection('feedItems')
         .orderBy('createdAt', descending: true)
         .limit(30)

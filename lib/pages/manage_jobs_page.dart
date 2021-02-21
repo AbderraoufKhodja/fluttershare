@@ -23,7 +23,7 @@ class _JobsScreen extends State<ManageJobsPage> {
 buildListJobs() {
   return FutureBuilder<QuerySnapshot>(
       future: usersRef
-          .doc(currentUser.uid)
+          .doc(currentUser.uid.value)
           .collection('userJobs')
           .orderBy("createdAt", descending: false)
           .get(),

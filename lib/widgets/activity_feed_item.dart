@@ -20,8 +20,8 @@ class ActivityFeedItem extends StatelessWidget {
 
   ActivityFeedItem({@required this.feed});
 
-  bool get isJobOwner => feed.jobOwnerId == currentUser.uid;
-  bool get isRequestOwner => feed.requestOwnerId == currentUser.uid;
+  bool get isJobOwner => feed.jobOwnerId.value == currentUser.uid.value;
+  bool get isRequestOwner => feed.requestOwnerId.value == currentUser.uid.value;
 
   @override
   Widget build(BuildContext context) {
@@ -47,8 +47,8 @@ class ActivityFeedItem extends StatelessWidget {
             ),
           ),
           startChild: Text(
-            feed.createdAt != null
-                ? timeago.format(feed.createdAt.toDate())
+            feed.createdAt.value != null
+                ? timeago.format(feed.createdAt.value.toDate())
                 : kAMomentAGo,
             overflow: TextOverflow.ellipsis,
             maxLines: 2,
@@ -56,7 +56,7 @@ class ActivityFeedItem extends StatelessWidget {
           ),
           endChild: ListTile(
             title: Text(
-              feed.type,
+              feed.type.value,
               style: TextStyle(
                 fontSize: 16.0,
                 fontWeight: FontWeight.bold,
@@ -94,41 +94,41 @@ class ActivityFeedItem extends StatelessWidget {
   configureMediaPreview(context) {
     // TODO correct the feed logic
     SnackBar snackbar = SnackBar(content: Text(kUnavailable));
-    if (feed.type == "apply") {
+    if (feed.type.value == "apply") {
       mediaPreview = Icon(
         Icons.person_add,
         color: Colors.blue,
       );
       onTap = () async {
-        DocumentSnapshot doc = await jobsRef.doc(feed.jobId).get();
+        DocumentSnapshot doc = await jobsRef.doc(feed.jobId.value).get();
         if (doc.exists) {
           Job job = Job.fromDocument(doc);
           if (job.jobState == "open")
             showProfile(
               context,
-              profileId: feed.applicantId,
-              profileName: feed.applicantName,
+              profileId: feed.applicantId.value,
+              profileName: feed.applicantName.value,
               job: job,
             );
         } else
           Scaffold.of(context).showSnackBar(snackbar);
       };
       activityItemText = isJobOwner
-          ? "${feed.applicantName} applied to your job"
-          : "You have applied to ${feed.jobOwnerName}'s job";
-    } else if (feed.type == "acceptApplication") {
+          ? "${feed.applicantName.value} applied to your job"
+          : "You have applied to ${feed.jobOwnerName.value}'s job";
+    } else if (feed.type.value == "acceptApplication") {
       mediaPreview = Icon(
         Icons.check,
         color: Colors.green,
       );
       onTap = () {
-        showManageJob(context, jobId: feed.jobId);
+        showManageJob(context, jobId: feed.jobId.value);
         markAsRead();
       };
       activityItemText = isJobOwner
-          ? "You have accepted ${feed.jobFreelancerName} application."
-          : "${feed.jobOwnerName} accepted your application.";
-    } else if (feed.type == "rejectApplication") {
+          ? "You have accepted ${feed.jobFreelancerName.value} application."
+          : "${feed.jobOwnerName.value} accepted your application.";
+    } else if (feed.type.value == "rejectApplication") {
       mediaPreview = Icon(
         Icons.clear,
         color: Colors.red,
@@ -137,9 +137,9 @@ class ActivityFeedItem extends StatelessWidget {
         markAsRead();
       };
       activityItemText = isJobOwner
-          ? "You have rejected ${feed.jobFreelancerName} application."
-          : "${feed.jobOwnerName} rejected your application.";
-    } else if (feed.type == "message") {
+          ? "You have rejected ${feed.jobFreelancerName.value} application."
+          : "${feed.jobOwnerName.value} rejected your application.";
+    } else if (feed.type.value == "message") {
       mediaPreview = Icon(
         Icons.message,
         color: Colors.blue,
@@ -147,25 +147,25 @@ class ActivityFeedItem extends StatelessWidget {
       onTap = () {
         showMessages(
           context,
-          jobChatId: feed.jobChatId,
-          jobId: feed.jobId,
-          professionalTitle: feed.professionalTitle,
-          jobTitle: feed.jobTitle,
-          jobOwnerName: feed.jobOwnerName,
-          jobOwnerId: feed.jobOwnerId,
+          jobChatId: feed.jobChatId.value,
+          jobId: feed.jobId.value,
+          professionalTitle: feed.professionalTitle.value,
+          jobTitle: feed.jobTitle.value,
+          jobOwnerName: feed.jobOwnerName.value,
+          jobOwnerId: feed.jobOwnerId.value,
         );
         markAsRead();
       };
       activityItemText = isJobOwner
-          ? "$kNewMessage ${feed.jobFreelancerName}"
-          : "$kNewMessage ${feed.jobOwnerName}";
-    } else if (feed.type == "hire") {
+          ? "$kNewMessage ${feed.jobFreelancerName.value}"
+          : "$kNewMessage ${feed.jobOwnerName.value}";
+    } else if (feed.type.value == "hire") {
       mediaPreview = Icon(Icons.add, color: Colors.teal);
       onTap = () {
         markAsRead();
       };
-      activityItemText = '${feed.jobOwnerName} $kHireNotification';
-    } else if (feed.type == "open") {
+      activityItemText = '${feed.jobOwnerName.value} $kHireNotification';
+    } else if (feed.type.value == "open") {
       mediaPreview = Icon(
         Icons.chat,
         color: Colors.teal,
@@ -173,29 +173,29 @@ class ActivityFeedItem extends StatelessWidget {
       onTap = () {
         showMessages(
           context,
-          jobChatId: feed.jobChatId,
-          jobId: feed.jobId,
-          professionalTitle: feed.professionalTitle,
-          jobTitle: feed.jobTitle,
-          jobOwnerId: feed.jobOwnerId,
-          jobOwnerName: feed.jobOwnerName,
+          jobChatId: feed.jobChatId.value,
+          jobId: feed.jobId.value,
+          professionalTitle: feed.professionalTitle.value,
+          jobTitle: feed.jobTitle.value,
+          jobOwnerId: feed.jobOwnerId.value,
+          jobOwnerName: feed.jobOwnerName.value,
         );
         markAsRead();
       };
       activityItemText = isJobOwner
-          ? '$kOpenChat ${feed.jobFreelancerName}'
-          : '$kOpenChat ${feed.jobOwnerName}';
-    } else if (feed.type == 'updateTerms') {
+          ? '$kOpenChat ${feed.jobFreelancerName.value}'
+          : '$kOpenChat ${feed.jobOwnerName.value}';
+    } else if (feed.type.value == 'updateTerms') {
       mediaPreview = Icon(Icons.update, color: Colors.red);
       onTap = () {
-        showManageJob(context, jobId: feed.jobId);
+        showManageJob(context, jobId: feed.jobId.value);
         markAsRead();
       };
 
       activityItemText = isRequestOwner
           ? "$kUpdateRequested"
-          : "$kUpdateRequestFrom ${feed.requestOwnerName}.";
-    } else if (feed.type == 'completeJob') {
+          : "$kUpdateRequestFrom ${feed.requestOwnerName.value}.";
+    } else if (feed.type.value == 'completeJob') {
       mediaPreview = Icon(
         Icons.thumb_up,
         color: Colors.green,
@@ -206,8 +206,8 @@ class ActivityFeedItem extends StatelessWidget {
       };
       activityItemText = isRequestOwner
           ? "$kUpdateRequested"
-          : "$kUpdateRequestFrom ${feed.requestOwnerName}.";
-    } else if (feed.type == 'dismissFreelancer') {
+          : "$kUpdateRequestFrom ${feed.requestOwnerName.value}.";
+    } else if (feed.type.value == 'dismissFreelancer') {
       mediaPreview = Icon(
         Icons.thumb_down,
         color: Colors.red,
@@ -218,15 +218,15 @@ class ActivityFeedItem extends StatelessWidget {
       };
       activityItemText = isRequestOwner
           ? "$kUpdateRequested"
-          : "$kUpdateRequestFrom ${feed.requestOwnerName}.";
+          : "$kUpdateRequestFrom ${feed.requestOwnerName.value}.";
     } else {
       mediaPreview = Text('');
-      activityItemText = "Error: Unknown type '${feed.type}'";
+      activityItemText = "Error: Unknown type '${feed.type.value}'";
       onTap = () {
         markAsRead();
       };
     }
   }
 
-  Future<void> markAsRead() => feed.feedReference.update({"read": true});
+  Future<void> markAsRead() => feed.feedReference.value.update({"read": true});
 }

@@ -117,7 +117,9 @@ class _HomeState extends State<Home> {
 
     _firebaseMessaging.getToken().then((token) {
       print("Firebase Messaging Token: $token\n");
-      usersRef.doc(currentUser.uid).update({"androidNotificationToken": token});
+      usersRef
+          .doc(currentUser.uid.value)
+          .update({"androidNotificationToken": token});
     });
 
     _firebaseMessaging.configure(
@@ -127,7 +129,7 @@ class _HomeState extends State<Home> {
         print("on message: $message\n");
         final String recipientId = message['data']['recipient'];
         final String body = message['notification']['body'];
-        if (recipientId == currentUser.uid) {
+        if (recipientId == currentUser.uid.value) {
           print("Notification shown!");
           SnackBar snackbar = SnackBar(
               content: Text(
@@ -210,7 +212,7 @@ class _HomeState extends State<Home> {
           ScreenThree(),
           ScreenFour(),
           Profile(
-            profileId: currentUser?.uid,
+            profileId: currentUser?.uid.value,
           ),
         ],
         controller: pageController,

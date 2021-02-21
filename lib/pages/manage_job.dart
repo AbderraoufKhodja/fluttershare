@@ -33,13 +33,13 @@ class _ManageJobState extends State<ManageJob> {
   bool isLoading = false;
 
   bool get hasRequest =>
-      job.hasOwnerUpdateRequest || job.hasFreelancerUpdateRequest;
+      job.hasOwnerUpdateRequest.value || job.hasFreelancerUpdateRequest.value;
 
-  bool get isJobOwner => currentUser.uid == job.jobOwnerId;
+  bool get isJobOwner => currentUser.uid.value == job.jobOwnerId.value;
   bool get hasJobFreelancer =>
-      job.jobState == "onGoing" &&
-      job.applications.containsValue(true) &&
-      job.jobFreelancerId != null;
+      job.jobState.value == "onGoing" &&
+      job.applications.value.containsValue(true) &&
+      job.jobFreelancerId.value != null;
 
   @override
   Widget build(BuildContext context) {
@@ -75,19 +75,19 @@ class _ManageJobState extends State<ManageJob> {
             children: [
               Text(jobStatus()),
               CustomField(
-                text: job.jobDescription,
+                text: job.jobDescription.value,
                 label: kNewJobDescription,
               ),
               CustomField(
-                text: job.location.toString(),
+                text: job.location.value.toString(),
                 label: kNewLocation,
               ),
               CustomField(
-                text: job.dateRange,
+                text: job.dateRange.value,
                 label: kNewDateRange,
               ),
               CustomField(
-                text: job.price,
+                text: job.price.value,
                 label: kNewPrice,
               ),
             ],
@@ -99,26 +99,27 @@ class _ManageJobState extends State<ManageJob> {
 
   String jobStatus() {
     // job owner completed
-    if (job.isOwnerCompleted) return kOwnerCompleted;
+    if (job.isOwnerCompleted.value) return kOwnerCompleted;
 
     // job freelancer completed
-    if (job.isFreelancerCompleted) return kFreelancerCompleted;
+    if (job.isFreelancerCompleted.value) return kFreelancerCompleted;
 
     // job freelancer dismissed
-    if (job.jobFreelancerId != currentUser.uid &&
-        job.jobOwnerId != currentUser.uid) return kFreelancerDismissed;
+    if (job.jobFreelancerId.value != currentUser.uid.value &&
+        job.jobOwnerId.value != currentUser.uid.value)
+      return kFreelancerDismissed;
 
     // job on going
-    if (job.jobState == "onGoing" && job.applications.containsValue(true))
-      return kJobOnGoing;
+    if (job.jobState.value == "onGoing" &&
+        job.applications.value.containsValue(true)) return kJobOnGoing;
 
     //job has no freelancer
-    if (job.jobState == "open" &&
-        job.applications.containsValue(true) == false &&
-        job.jobFreelancerId == null) return kHasNoJobFreelancer;
+    if (job.jobState.value == "open" &&
+        job.applications.value.containsValue(true) == false &&
+        job.jobFreelancerId.value == null) return kHasNoJobFreelancer;
 
     // job closed
-    if (job.jobState == "closed") return kJobCanceled;
+    if (job.jobState.value == "closed") return kJobCanceled;
 
     // job on unknown state
     return kUnknownStatu;
@@ -337,15 +338,16 @@ class _ManageJobState extends State<ManageJob> {
       title: Text(kShowChat),
       onTap: () {
         if (hasJobFreelancer) {
-          final String jobChatId = job.jobOwnerId + "&&" + job.jobFreelancerId;
+          final String jobChatId =
+              job.jobOwnerId.value + "&&" + job.jobFreelancerId.value;
           showMessages(
             context,
             jobChatId: jobChatId,
-            jobId: job.jobId,
-            professionalTitle: job.professionalTitle,
-            jobTitle: job.jobTitle,
-            jobOwnerId: job.jobOwnerId,
-            jobOwnerName: job.jobOwnerName,
+            jobId: job.jobId.value,
+            professionalTitle: job.professionalTitle.value,
+            jobTitle: job.jobTitle.value,
+            jobOwnerId: job.jobOwnerId.value,
+            jobOwnerName: job.jobOwnerName.value,
           );
         } else {
           buildShowDialog(context,
@@ -411,24 +413,24 @@ class _ManageJobState extends State<ManageJob> {
       color: Colors.blue,
       disabledColor: Colors.grey,
       onPressed: isJobOwner
-          ? job.hasFreelancerUpdateRequest
+          ? job.hasFreelancerUpdateRequest.value
               ? () {
                   showUpdateJobTermsDialogueScreen(context,
                       job: job,
-                      newJobDescription: job.newJobDescription,
-                      newPrice: job.newPrice,
-                      newLocation: job.newLocation.data,
-                      newDateRange: job.newDateRange);
+                      newJobDescription: job.newJobDescription.value,
+                      newPrice: job.newPrice.value,
+                      newLocation: job.newLocation.value,
+                      newDateRange: job.newDateRange.value);
                 }
               : null
-          : job.hasOwnerUpdateRequest
+          : job.hasOwnerUpdateRequest.value
               ? () {
                   showUpdateJobTermsDialogueScreen(context,
                       job: job,
-                      newJobDescription: job.newJobDescription,
-                      newPrice: job.newPrice,
-                      newLocation: job.newLocation.data,
-                      newDateRange: job.newDateRange);
+                      newJobDescription: job.newJobDescription.value,
+                      newPrice: job.newPrice.value,
+                      newLocation: job.newLocation.value,
+                      newDateRange: job.newDateRange.value);
                 }
               : null,
     );
@@ -441,7 +443,7 @@ class _ManageJobState extends State<ManageJob> {
         if (hasJobFreelancer) {
           final bool isTimeValid = Timestamp.now()
                   .toDate()
-                  .difference(job.jobFreelancerEnrollmentDate.toDate())
+                  .difference(job.jobFreelancerEnrollmentDate.value.toDate())
                   .inHours >
               -1;
           if (isTimeValid) {
@@ -480,9 +482,9 @@ class _ManageJobState extends State<ManageJob> {
 
   getActivityFeed() {
     return activityFeedRef
-        .doc(currentUser.uid)
+        .doc(currentUser.uid.value)
         .collection('feedItems')
-        .where("jobId", isEqualTo: job.jobId)
+        .where("jobId", isEqualTo: job.jobId.value)
         .orderBy('createdAt', descending: true)
         .limit(30)
         .snapshots();

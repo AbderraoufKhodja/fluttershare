@@ -50,11 +50,7 @@ class ScreenLayout extends StatelessWidget {
           titleSpacing: 0,
         ),
         body: TabBarView(children: tabsList.values.toList()),
-        floatingActionButton: hasFAB
-            ? FloatingActionButton(
-                onPressed: functionFAB,
-              )
-            : null,
+        // floatingActionButton: FAB,
       ),
     );
   }

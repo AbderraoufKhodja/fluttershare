@@ -111,10 +111,10 @@ class _EditProfileState extends State<EditProfile> {
     setState(() {
       isLoading = true;
     });
-    DocumentSnapshot doc = await usersRef.doc(currentUser.uid).get();
+    DocumentSnapshot doc = await usersRef.doc(currentUser.uid.value).get();
     user = AppUser.fromDocument(doc);
-    displayNameController.text = user.displayName;
-    bioController.text = user.personalBio;
+    displayNameController.text = user.displayName.value;
+    bioController.text = user.personalBio.value;
     setState(() {
       isLoading = false;
     });
@@ -175,7 +175,7 @@ class _EditProfileState extends State<EditProfile> {
     });
 
     if (_displayNameValid && _bioValid) {
-      usersRef.doc(currentUser.uid).update({
+      usersRef.doc(currentUser.uid.value).update({
         "displayName": displayNameController.text,
         "bio": bioController.text,
       });
