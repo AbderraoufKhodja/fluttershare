@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:khadamat/models/app_location.dart';
 import 'package:khadamat/models/firestore_field.dart';
 
 class AppUser {
@@ -12,7 +13,7 @@ class AppUser {
   FirestoreField<String> professionalPhotoUrl;
   FirestoreField<String> personalBio;
   FirestoreField<String> gender;
-  FirestoreField<Map> location;
+  FirestoreField<AppLocation> location;
   FirestoreField<Timestamp> birthDate;
   FirestoreField<String> professionalCategory;
   FirestoreField<String> professionalTitle;
@@ -26,6 +27,7 @@ class AppUser {
   FirestoreField<double> popularityRate;
   FirestoreField<double> qualityRate;
   FirestoreField<double> attitudeRate;
+  FirestoreField<Timestamp> lastReviewTimestamp;
   FirestoreField<double> timeManagementRate;
   FirestoreField<String> diploma;
   FirestoreField<String> licence;
@@ -63,6 +65,8 @@ class AppUser {
     this.popularityRate,
     this.qualityRate,
     this.attitudeRate,
+    this.lastReviewTimestamp,
+    this.timeManagementRate,
     this.diploma,
     this.licence,
     this.certification,
@@ -75,25 +79,7 @@ class AppUser {
     this.createdAt,
   });
 
-  factory AppUser.clientFromDocument(DocumentSnapshot doc) {
-    return AppUser(
-      uid: FirestoreField<String>.fromDocument(doc: doc, name: "uid"),
-      displayName:
-          FirestoreField<String>.fromDocument(doc: doc, name: "displayName"),
-      email: FirestoreField<String>.fromDocument(doc: doc, name: "email"),
-      username: FirestoreField<String>.fromDocument(name: "username", doc: doc),
-      photoURL: FirestoreField<String>.fromDocument(doc: doc, name: "photoURL"),
-      isFreelancer:
-          FirestoreField<bool>.fromDocument(doc: doc, name: "isFreelancer"),
-      preferences: FirestoreField<List<String>>.fromDocument(
-          doc: doc, name: "preferences"),
-      reviews: FirestoreField<Map>.fromDocument(doc: doc, name: "reviews"),
-      jobs: FirestoreField<Map>.fromDocument(doc: doc, name: "jobs"),
-      createdAt:
-          FirestoreField<Timestamp>.fromDocument(doc: doc, name: "createdAt"),
-    );
-  }
-  factory AppUser.freelancerFromDocument(DocumentSnapshot doc) {
+  factory AppUser.fromDocument(DocumentSnapshot doc) {
     return AppUser(
       uid: FirestoreField<String>.fromDocument(doc: doc, name: "uid"),
       username: FirestoreField<String>.fromDocument(doc: doc, name: "username"),
@@ -110,7 +96,8 @@ class AppUser {
       personalBio:
           FirestoreField<String>.fromDocument(doc: doc, name: "personalBio"),
       gender: FirestoreField<String>.fromDocument(doc: doc, name: "gender"),
-      location: FirestoreField<Map>.fromDocument(doc: doc, name: "location"),
+      location:
+          FirestoreField<AppLocation>.fromDocument(doc: doc, name: "location"),
       birthDate:
           FirestoreField<Timestamp>.fromDocument(doc: doc, name: "birthDate"),
       professionalCategory: FirestoreField<String>.fromDocument(
@@ -131,6 +118,10 @@ class AppUser {
           FirestoreField<double>.fromDocument(doc: doc, name: "qualityRate"),
       attitudeRate:
           FirestoreField<double>.fromDocument(doc: doc, name: "attitudeRate"),
+      lastReviewTimestamp: FirestoreField<Timestamp>.fromDocument(
+          doc: doc, name: "lastReviewTimestamp"),
+      timeManagementRate: FirestoreField<double>.fromDocument(
+          doc: doc, name: "timeManagementRate"),
       preferences: FirestoreField<List<String>>.fromDocument(
           doc: doc, name: "preferences"),
       reviews: FirestoreField<Map>.fromDocument(doc: doc, name: "reviews"),
@@ -153,13 +144,5 @@ class AppUser {
       createdAt:
           FirestoreField<Timestamp>.fromDocument(doc: doc, name: "createdAt"),
     );
-  }
-  factory AppUser.fromDocument(DocumentSnapshot doc) {
-    if (FirestoreField<bool>.fromDocument(doc: doc, name: "isFreelancer")
-            .value ==
-        true)
-      return AppUser.freelancerFromDocument(doc);
-    else
-      return AppUser.clientFromDocument(doc);
   }
 }

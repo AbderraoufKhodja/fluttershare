@@ -166,7 +166,8 @@ class _UpdateJobTermsScreenRequestState
   void updateController() {
     setState(() {
       jobDescriptionController.text = job.jobDescription.value;
-      locationGeoPoint = job.location.value;
+      locationGeoPoint = GeoFirePoint(job.location.value['geopoint'].latitude,
+          job.location.value['geopoint'].longitude);
       dateRangeController.text = job.dateRange.value;
       priceController.text = job.price.value;
     });
@@ -190,7 +191,7 @@ class _UpdateJobTermsScreenRequestState
         requestOwnerId: currentUser.uid.value,
         newJobDescription: jobDescriptionController.text,
         newPrice: priceController.text,
-        newLocation: locationGeoPoint,
+        newLocation: locationGeoPoint.data,
         newDateRange: dateRangeController.text,
       )
           .then((value) {

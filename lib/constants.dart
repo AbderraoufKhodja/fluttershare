@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 const String kJobDescription = "kJobDescription";
 const String kEmpty = "kEmpty";
 const String kJobLocation = "kJobLocation";
+const String kLoading = "kLoading...";
 const String kLocationField = "kLocationField";
 const String kTimeLine = "kTimeLine";
 const String kSearch = "kSearch";

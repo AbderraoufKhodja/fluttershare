@@ -1,12 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/models/firestore_field.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/manage_job.dart';
-import 'package:khadamat/pages/ultils.dart';
 
 class Job {
   final FirestoreField<String> jobId;
@@ -88,9 +86,9 @@ class Job {
   factory Job.fromDocument(DocumentSnapshot doc) {
     //TODO read GeofirePoint object from firebase
     return Job(
-      jobId: FirestoreField<String>.fromDocument(doc: doc, name: "this.jobId"),
-      jobOwnerId: FirestoreField<String>.fromDocument(
-          doc: doc, name: "this.jobOwnerId"),
+      jobId: FirestoreField<String>.fromDocument(doc: doc, name: "jobId"),
+      jobOwnerId:
+          FirestoreField<String>.fromDocument(doc: doc, name: "jobOwnerId"),
       jobOwnerName:
           FirestoreField<String>.fromDocument(doc: doc, name: "jobOwnerName"),
       jobOwnerEmail:
@@ -158,7 +156,7 @@ class Job {
   }
   int getApplicationsCount() {
     // if no likes, return 0
-    if (applications == null) {
+    if (this.applications.value == null) {
       return 0;
     }
     int count = 0;
@@ -169,24 +167,25 @@ class Job {
     return count;
   }
 
-  // Note: To delete job, this.jobOwnerId and currentUser.uid.value must be equal, so they can be used interchangeably
+  // Note: To delete job, jobOwnerId and currentUser.uid.value must be equal, so they can be used interchangeably
   Future<void> closeJob({@required String closingReason}) async {
     final bool isJobOwner = currentUser.uid.value == this.jobOwnerId.value;
     if (isJobOwner) {
-      jobsRef.doc(this.jobId.value).update({"jobState": "closed"});
+      jobsRef.doc(this.jobId.value).update({this.jobState.name: "closed"});
       usersRef.doc(this.jobOwnerId.value).update({
-        "jobs.$this.jobId.state": "closed",
+        "${currentUser.jobs.name}.${this.jobId.value}.${this.jobState.name}":
+            "closed",
       });
       addDeleteJobFeed(uid: this.jobOwnerId.value);
 
-      storageRef.child("job_$this.jobId.jpg").delete();
+      storageRef.child("job_${this.jobId.value}.jpg").delete();
 
       uploadTeamNotification(
           messageText: closingReason, type: "deletJustification");
 
       if (jobFreelancerId != null)
         usersRef.doc(jobFreelancerId.value).update({
-          "jobs.$this.jobId.state": "closed",
+          "${currentUser.jobs.name}.${this.jobId.value}.state": "closed",
         });
     }
   }
@@ -212,7 +211,7 @@ class Job {
     // Update on firestore
     clearJobFreelancerAndMakeJobVaccant();
     addUserReviewAndUpdateUserJob(
-      uid: jobFreelancerId.value,
+      uid: this.jobFreelancerId.value,
       type: "dismiss",
       freelancerReview: freelancerReview,
       freelancerQualityRate: freelancerQualityRate,
@@ -229,16 +228,15 @@ class Job {
     bool _isApplied = applications.value.containsKey(applicantId) &&
         applications.value[applicantId] == null;
     if (_isApplied) {
-      jobsRef
-          .doc(this.jobId.value)
-          .update({'applications.$applicantId': FieldValue.delete()}).then(
-              (value) => applications.value.remove(applicantId));
+      jobsRef.doc(this.jobId.value).update({
+        '${this.applications.name}.$applicantId': FieldValue.delete()
+      }).then((value) => applications.value.remove(applicantId));
       removeApplyFromActivityFeed(
           applicantId: applicantId, applicantName: applicantName);
     } else if (!_isApplied) {
       jobsRef
           .doc(this.jobId.value)
-          .update({'applications.$applicantId': null}).then(
+          .update({'${this.applications.name}.$applicantId': null}).then(
               (value) => applications.value[applicantId] = null);
       addApplyToActivityFeed(
           applicantId: applicantId, applicantName: applicantName);
@@ -270,7 +268,7 @@ class Job {
     activityFeedRef
         .doc(this.jobOwnerId.value)
         .collection("feedItems")
-        .where("this.jobId", isEqualTo: this.jobId.value)
+        .where("jobId", isEqualTo: this.jobId.value)
         .where("type", isEqualTo: "apply")
         .get()
         .then((snapshot) {
@@ -283,7 +281,7 @@ class Job {
     activityFeedRef
         .doc(applicantId)
         .collection("feedItems")
-        .where("this.jobId", isEqualTo: this.jobId)
+        .where("jobId", isEqualTo: this.jobId.value)
         .where("type", isEqualTo: "apply")
         .get()
         .then((snapshot) {
@@ -326,14 +324,14 @@ class Job {
     });
   }
 
-  handleRejectApplication(
-      {@required String applicantId,
-      @required String applicantName,
-      @required String applicantEmail}) {
+  handleRejectApplication({
+    @required String applicantId,
+    @required String applicantName,
+  }) {
     updateJobApplicationStatue(
-        applicantName: "",
-        applicantId: "",
-        applicantEmail: "",
+        applicantName: null,
+        applicantId: null,
+        applicantEmail: null,
         isAccept: false);
     addApplicationFeed(
         uid: this.jobOwnerId.value,
@@ -370,8 +368,8 @@ class Job {
       {@required String uid,
       @required String type,
       @required String jobFreelancerId,
-      @required String jobFreelancerName}) async {
-    return await activityFeedRef.doc(uid).collection("feedItems").doc().set({
+      @required String jobFreelancerName}) {
+    return activityFeedRef.doc(uid).collection("feedItems").doc().set({
       "type": type,
       this.jobId.name: this.jobId.value,
       this.jobTitle.name: this.jobTitle.value,
@@ -381,7 +379,7 @@ class Job {
       this.jobFreelancerId.name: this.jobFreelancerId.value,
       this.jobFreelancerName.name: this.jobFreelancerName.value,
       "read": false,
-      "createdAt": FieldValue.serverTimestamp(),
+      this.createdAt.name: FieldValue.serverTimestamp(),
     });
   }
 
@@ -389,57 +387,57 @@ class Job {
       {@required String uid,
       @required String type,
       @required String jobFreelancerId,
-      @required String jobFreelancerName}) async {
-    return await activityFeedRef.doc(uid).collection("feedItems").doc().set({
+      @required String jobFreelancerName}) {
+    return activityFeedRef.doc(uid).collection("feedItems").doc().set({
       "type": type,
-      "this.jobId": this.jobId.value,
-      "jobTitle": this.jobTitle.value,
-      "professionalTitle": this.professionalTitle.value,
-      "jobOwnerName": this.jobOwnerName.value,
-      "this.jobOwnerId": this.jobOwnerId.value,
-      "jobFreelancerId": this.jobFreelancerId.value,
-      "jobFreelancerName": this.jobFreelancerName.value,
+      this.jobId.name: this.jobId.value,
+      this.jobTitle.name: this.jobTitle.value,
+      this.professionalTitle.name: this.professionalTitle.value,
+      this.jobOwnerName.name: this.jobOwnerName.value,
+      this.jobOwnerId.name: this.jobOwnerId.value,
+      this.jobFreelancerId.name: jobFreelancerId,
+      this.jobFreelancerName.name: jobFreelancerName,
       "read": false,
-      "createdAt": FieldValue.serverTimestamp(),
+      this.createdAt.name: FieldValue.serverTimestamp(),
     });
   }
 
-  Future<void> addDeleteJobFeed({@required String uid}) async {
-    return await activityFeedRef.doc(uid).collection("feedItems").doc().set({
+  Future<void> addDeleteJobFeed({@required String uid}) {
+    return activityFeedRef.doc(uid).collection("feedItems").doc().set({
       "type": "deleteJob",
-      "this.jobId": this.jobId.value,
-      "jobTitle": this.jobTitle.value,
-      "professionalTitle": this.professionalTitle.value,
+      this.jobId.name: this.jobId.value,
+      this.jobTitle.name: this.jobTitle.value,
+      this.professionalTitle.name: this.professionalTitle.value,
       "read": false,
-      "createdAt": FieldValue.serverTimestamp(),
+      this.createdAt.name: FieldValue.serverTimestamp(),
     });
   }
 
   Future<void> updateJobApplicationStatue(
-      {String applicantName = "",
-      String applicantId = "",
-      String applicantEmail = "",
+      {String applicantName,
+      String applicantId,
+      String applicantEmail,
       @required bool isAccept}) async {
     if (isAccept)
       jobsRef.doc(this.jobId.value).update({
-        'jobFreelancerId': applicantId,
-        'jobFreelancerName': applicantName,
-        'jobFreelancerEmail': applicantEmail,
-        'jobFreelancerEnrollmentDate': FieldValue.serverTimestamp(),
-        'applications.$applicantId': isAccept,
-        'jobState': "onGoing",
+        this.jobFreelancerName.name: applicantName,
+        this.jobFreelancerId.name: applicantId,
+        this.jobFreelancerEmail.name: applicantEmail,
+        this.jobFreelancerEnrollmentDate.name: FieldValue.serverTimestamp(),
+        "${this.applications.name}.$applicantId": isAccept,
+        this.jobState.name: "onGoing",
       }).then((_) {
-        jobFreelancerId.value = applicantId;
-        jobFreelancerName.value = applicantName;
-        jobFreelancerEmail.value = applicantEmail;
-        jobFreelancerEnrollmentDate.value = Timestamp.now();
-        applications.value[applicantId] = isAccept;
-        jobState.value = "onGoing";
+        this.jobFreelancerName.value = applicantName;
+        this.jobFreelancerId.value = applicantId;
+        this.jobFreelancerEmail.value = applicantEmail;
+        this.jobFreelancerEnrollmentDate.value = Timestamp.now();
+        this.applications.value[applicantId] = isAccept;
+        this.jobState.value = "onGoing";
       });
     else
       jobsRef.doc(this.jobId.value).update({
-        'applications.$applicantId': isAccept,
-        'jobState': "open",
+        "${this.applications.name}.$applicantId": isAccept,
+        this.jobState.name: "open",
       }).then((_) {
         this.applications.value[applicantId] = isAccept;
         this.jobState.value = "open";
@@ -448,16 +446,16 @@ class Job {
 
   Future<void> createUserJob({@required String uid}) {
     return usersRef.doc(uid).update({
-      "jobs.$this.jobId": {
-        this.jobId.name: this.jobId,
-        "jobTitle": jobTitle,
-        "professionalTitle": professionalTitle,
-        "this.jobOwnerId": this.jobOwnerId,
-        "jobOwnerName": jobOwnerName,
-        "jobState": jobState,
-        "createdAt": FieldValue.serverTimestamp(),
-        "isOwnerCompleted": false,
-        "isFreelancerCompleted": false,
+      "${currentUser.jobs.name}.${this.jobId.value}": {
+        this.jobId.name: this.jobId.value,
+        this.jobTitle.name: this.jobTitle.value,
+        this.professionalTitle.name: this.professionalTitle.value,
+        this.jobOwnerId.name: this.jobOwnerId.value,
+        this.jobOwnerName.name: this.jobOwnerName.value,
+        this.jobState.name: this.jobState.value,
+        this.createdAt.name: FieldValue.serverTimestamp(),
+        this.isOwnerCompleted.name: false,
+        this.isFreelancerCompleted.name: false,
       }
     });
   }
@@ -468,8 +466,8 @@ class Job {
         .collection(this.jobOwnerId.value + "&&" + applicantId)
         .add({
       "type": "open",
-      "professionalTitle": professionalTitle,
-      "jobTitle": jobTitle,
+      this.professionalTitle.name: this.professionalTitle.value,
+      this.jobTitle.name: this.jobTitle.value,
     });
     usersRef
         .doc(this.jobOwnerId.value)
@@ -477,12 +475,12 @@ class Job {
         .doc(this.jobOwnerId.value + "&&" + applicantId)
         .set({
       "jobChatId": this.jobOwnerId.value + "&&" + applicantId,
-      "this.jobId": this.jobId,
-      "professionalTitle": professionalTitle,
-      "jobTitle": jobTitle,
-      "this.jobOwnerId": this.jobOwnerId,
-      "jobOwnerName": jobOwnerName,
-      "createdAt": FieldValue.serverTimestamp(),
+      this.jobId.name: this.jobId.value,
+      this.professionalTitle.name: this.professionalTitle.value,
+      this.jobTitle.name: this.jobTitle.value,
+      this.jobOwnerId.name: this.jobOwnerId.value,
+      this.jobOwnerName.name: this.jobOwnerName.value,
+      this.createdAt.name: FieldValue.serverTimestamp(),
     });
     usersRef
         .doc(applicantId)
@@ -490,12 +488,12 @@ class Job {
         .doc(this.jobOwnerId.value + "&&" + applicantId)
         .set({
       "jobChatId": this.jobOwnerId.value + "&&" + applicantId,
-      "this.jobId": this.jobId,
-      "professionalTitle": professionalTitle,
-      "jobTitle": jobTitle,
-      "this.jobOwnerId": this.jobOwnerId,
-      "jobOwnerName": jobOwnerName,
-      "createdAt": FieldValue.serverTimestamp(),
+      this.jobId.name: this.jobId.value,
+      this.professionalTitle.name: this.professionalTitle.value,
+      this.jobTitle.name: this.jobTitle.value,
+      this.jobOwnerId.name: this.jobOwnerId.value,
+      this.jobOwnerName.name: this.jobOwnerName.value,
+      this.createdAt.name: FieldValue.serverTimestamp(),
     });
   }
 
@@ -507,27 +505,27 @@ class Job {
     addCompleteAndReviewFeed(uid: this.jobFreelancerId.value);
 
     usersRef.doc(this.jobOwnerId.value).update({
-      "job.$this.jobId": {
+      "${currentUser.jobs.name}.${this.jobId.value}": {
         "isOwnerCompleted": true,
       },
-      "reviews.$this.jobId": {
+      "${currentUser.reviews.name}.${this.jobId.value}": {
         "type": "jobCompleted",
-        "this.jobId": this.jobId,
-        "jobTitle": this.jobTitle,
-        "professionalTitle": this.professionalTitle,
-        "jobOwnerName": this.jobOwnerName,
-        "this.jobOwnerId": this.jobOwnerId,
+        this.jobId.name: this.jobId.value,
+        this.jobTitle.name: this.jobTitle.value,
+        this.professionalTitle.name: this.professionalTitle.value,
+        this.jobOwnerName.name: this.jobOwnerName.value,
+        this.jobOwnerId.name: this.jobOwnerId.value,
         "ownerReview": ownerReview,
         "ownerRate": ownerRate,
-        "createdAt": FieldValue.serverTimestamp(),
+        this.createdAt.name: FieldValue.serverTimestamp(),
       }
     });
 
     jobsRef.doc(this.jobId.value).update({
       "ownerReview": ownerReview,
       "ownerAttitudeRate": ownerRate,
-      "isFreelancerCompleted": true,
-      "freelancerCompletedAt": FieldValue.serverTimestamp(),
+      this.isFreelancerCompleted.name: true,
+      this.freelancerCompletedAt.name: FieldValue.serverTimestamp(),
     }).then((value) {
       this.ownerReview.value = ownerReview;
       this.ownerAttitudeRate.value = ownerRate;
@@ -538,7 +536,7 @@ class Job {
 
   Future<void> freelancerQuitAndReviewOwner({
     @required String ownerReview,
-    @required double ownerRate,
+    double ownerRate,
   }) async {
     addQuitFeed(
         uid: this.jobOwnerId.value,
@@ -573,12 +571,12 @@ class Job {
     );
 
     jobsRef.doc(this.jobId.value).update({
-      "freelancerReview": freelancerReview,
-      "freelancerQualityRate": freelancerQualityRate,
-      "freelancerAttitudeRate": freelancerAttitudeRate,
-      "freelancerTimeManagementRate": freelancerTimeManagementRate,
-      "isOwnerCompleted": true,
-      "ownerCompletedAt": FieldValue.serverTimestamp(),
+      this.freelancerReview.name: freelancerReview,
+      this.freelancerQualityRate.name: freelancerQualityRate,
+      this.freelancerAttitudeRate.name: freelancerAttitudeRate,
+      this.freelancerTimeManagementRate.name: freelancerTimeManagementRate,
+      this.isOwnerCompleted.name: true,
+      this.ownerCompletedAt.name: FieldValue.serverTimestamp(),
     }).then((_) {
       this.freelancerReview.value = freelancerReview;
       this.freelancerQualityRate.value = freelancerQualityRate;
@@ -594,19 +592,20 @@ class Job {
   }) async {
     activityFeedRef.doc(uid).collection("feedItems").doc().set({
       "type": "jobCompleted",
-      "this.jobId": this.jobId.value,
-      "jobTitle": this.jobTitle.value,
-      "professionalTitle": this.professionalTitle.value,
-      "jobOwnerName": this.jobOwnerName.value,
-      "this.jobOwnerId": this.jobOwnerId,
-      "jobFreelancerId": this.jobFreelancerId.value,
-      "jobFreelancerName": this.jobFreelancerName.value,
-      "freelancerReview": this.freelancerReview.value,
-      "freelancerQualityRate": this.freelancerQualityRate.value,
-      "freelancerAttitudeRate": this.freelancerAttitudeRate.value,
-      "freelancerTimeManagementRate": this.freelancerTimeManagementRate.value,
+      this.jobId.name: this.jobId.value,
+      this.jobTitle.name: this.jobTitle.value,
+      this.professionalTitle.name: this.professionalTitle.value,
+      this.jobOwnerName.name: this.jobOwnerName.value,
+      this.jobOwnerId.name: this.jobOwnerId.value,
+      this.jobFreelancerId.name: this.jobFreelancerId.value,
+      this.jobFreelancerName.name: this.jobFreelancerName.value,
+      this.freelancerReview.name: this.freelancerReview.value,
+      this.freelancerQualityRate.name: this.freelancerQualityRate.value,
+      this.freelancerAttitudeRate.name: this.freelancerAttitudeRate.value,
+      this.freelancerTimeManagementRate.name:
+          this.freelancerTimeManagementRate.value,
       "read": false,
-      "createdAt": FieldValue.serverTimestamp(),
+      this.createdAt.name: FieldValue.serverTimestamp(),
     });
   }
 
@@ -621,21 +620,21 @@ class Job {
       @required String newJobDescription}) {
     return activityFeedRef.doc(uid).collection("feedItems").doc().set({
       "type": type,
-      "this.jobId": this.jobId.value,
-      "jobTitle": this.jobTitle.value,
-      "professionalTitle": this.professionalTitle.value,
-      "jobOwnerName": this.jobOwnerName.value,
-      "this.jobOwnerId": this.jobOwnerId.value,
-      "jobFreelancerName": this.jobFreelancerName.value,
-      "jobFreelancerId": this.jobFreelancerId.value,
+      this.jobId.name: this.jobId.value,
+      this.jobTitle.name: this.jobTitle.value,
+      this.professionalTitle.name: this.professionalTitle.value,
+      this.jobOwnerName.name: this.jobOwnerName.value,
+      this.jobOwnerId.name: this.jobOwnerId.value,
+      this.jobFreelancerName.name: this.jobFreelancerName.value,
+      this.jobFreelancerId.name: this.jobFreelancerId.value,
       "requestOwnerName": requestOwnerName,
       "requestOwnerId": requestOwnerId,
-      "newJobDescription": newJobDescription,
-      "newPrice": newPrice,
-      "newLocation": newLocation,
-      "newDateRange": newDateRange,
+      this.newPrice.name: newPrice,
+      this.newLocation.name: newLocation,
+      this.newDateRange.name: newDateRange,
+      this.newJobDescription.name: newJobDescription,
       "read": false,
-      "createdAt": FieldValue.serverTimestamp(),
+      this.createdAt.name: FieldValue.serverTimestamp(),
     });
   }
 
@@ -710,7 +709,7 @@ class Job {
       decisionOwnerId: decisionOwnerId,
     );
     addDecisionUpdateTermsFeed(
-      uid: jobFreelancerId.value,
+      uid: this.jobFreelancerId.value,
       type: "rejectTerms",
       decisionOwnerName: decisionOwnerName,
       decisionOwnerId: decisionOwnerId,
@@ -766,12 +765,12 @@ class Job {
         this.jobFreelancerId.value == currentUser.uid.value;
     final bool isJobOwner = this.jobOwnerId.value == currentUser.uid.value;
     jobsRef.doc(this.jobId.value).update({
-      "newJobDescription": newJobDescription,
-      "newPrice": newPrice,
-      "newLocation": newLocation,
-      "newDateRange": newDateRange,
-      "hasFreelancerUpdateRequest": isJobFreelancer,
-      "hasOwnerUpdateRequest": isJobOwner,
+      this.newJobDescription.name: newJobDescription,
+      this.newPrice.name: newPrice,
+      this.newLocation.name: newLocation,
+      this.newDateRange.name: newDateRange,
+      this.hasFreelancerUpdateRequest.name: isJobFreelancer,
+      this.hasOwnerUpdateRequest.name: isJobOwner,
     }).then((value) {
       this.newJobDescription.value = newJobDescription;
       this.newPrice.value = newPrice;
@@ -787,7 +786,7 @@ class Job {
       this.jobFreelancerId.name: null,
       this.jobFreelancerName.name: null,
       this.jobFreelancerEmail.name: null,
-      "applications.$jobFreelancerId": false,
+      "${applications.name}.${this.jobFreelancerId.value}": false,
       this.jobState.name: "open",
     });
   }
@@ -836,11 +835,11 @@ class Job {
     addDisposeFeed(uid: this.jobFreelancerId.value, type: "dispose");
 
     jobsRef.doc(this.jobId.value).update({
-      "applications.$jobFreelancerId": false,
+      "${this.applications.name}.${this.jobFreelancerId.value}": false,
       this.jobFreelancerId.name: null,
       this.jobFreelancerName.name: null,
       this.jobFreelancerEmail.name: null,
-      this.jobState.name: true,
+      this.jobState.name: "open",
       this.isOwnerCompleted.name: false,
       this.hasFreelancerUpdateRequest.name: false,
     }).then((value) {
@@ -857,15 +856,15 @@ class Job {
   Future<void> addDisposeFeed({@required String uid, @required String type}) {
     return activityFeedRef.doc(uid).collection("feedItems").doc().set({
       "type": type,
-      "this.jobId": this.jobId,
-      "jobTitle": jobTitle,
-      "professionalTitle": professionalTitle,
-      "jobOwnerName": jobOwnerName,
-      "this.jobOwnerId": this.jobOwnerId,
-      "jobFreelancerName": jobFreelancerName,
-      "jobFreelancerId": jobFreelancerId,
+      this.jobId.name: this.jobId.value,
+      this.jobTitle.name: this.jobTitle.value,
+      this.professionalTitle.name: this.professionalTitle.value,
+      this.jobOwnerName.name: this.jobOwnerName.value,
+      this.jobOwnerId.name: this.jobOwnerId.value,
+      this.jobFreelancerName.name: this.jobFreelancerName.value,
+      this.jobFreelancerId.name: this.jobFreelancerId.value,
       "read": false,
-      "createdAt": FieldValue.serverTimestamp(),
+      this.createdAt.name: FieldValue.serverTimestamp(),
     });
   }
 
@@ -874,15 +873,15 @@ class Job {
     complaintRef.doc(currentUser.uid.value).set({
       "type": type,
       "messageText": messageText,
-      "this.jobId": this.jobId,
-      "jobTitle": jobTitle,
-      "professionalTitle": professionalTitle,
-      "jobOwnerName": jobOwnerName,
-      "this.jobOwnerId": this.jobOwnerId,
-      "jobFreelancerName": jobFreelancerName,
-      "jobFreelancerId": jobFreelancerId,
+      this.jobId.name: this.jobId.value,
+      this.jobTitle.name: this.jobTitle.value,
+      this.professionalTitle.name: this.professionalTitle.value,
+      this.jobOwnerName.name: this.jobOwnerName.value,
+      this.jobOwnerId.name: this.jobOwnerId.value,
+      this.jobFreelancerName.name: this.jobFreelancerName.value,
+      this.jobFreelancerId.name: this.jobFreelancerId.value,
       "read": false,
-      "createdAt": FieldValue.serverTimestamp(),
+      this.createdAt.name: FieldValue.serverTimestamp(),
     });
   }
 
@@ -901,7 +900,8 @@ class Job {
       double jobsCount = user.jobs.value.length.toDouble();
       double newCompletedJobsCount = 0;
       user.jobs.value.values.forEach((job) {
-        if (job['jobState'] == "jobCompleted") newCompletedJobsCount += 1.0;
+        if (job[this.jobState.name] == "jobCompleted")
+          newCompletedJobsCount += 1.0;
       });
       double newCompletionRate = newCompletedJobsCount / jobsCount;
       double newQualityRateAverage = computeNewAverage(
@@ -917,27 +917,27 @@ class Job {
               newTimeManagementRateAverage) /
           3;
       usersRef.doc(uid).update({
-        "qualityRate": newQualityRateAverage,
-        "attitudeRate": newAttitudeRateAverage,
-        "timeManagementRate": newTimeManagementRateAverage,
-        "globalRate": newGlobalRateAverage,
-        "completionRate": newCompletionRate,
-        "jobsCount": newCompletedJobsCount,
-        "job.$this.jobId": {
-          "jobState": type,
+        user.qualityRate.name: newQualityRateAverage,
+        user.attitudeRate.name: newAttitudeRateAverage,
+        user.timeManagementRate.name: newTimeManagementRateAverage,
+        user.globalRate.name: newGlobalRateAverage,
+        user.completionRate.name: newCompletionRate,
+        user.jobsCount.name: newCompletedJobsCount,
+        "${user.jobs.name}.${this.jobId.value}": {
+          this.jobState.name: type,
         },
-        "reviews.$this.jobId": {
+        "${user.reviews.name}.${this.jobId.value}": {
           "type": type,
-          "this.jobId": this.jobId,
-          "jobTitle": jobTitle,
-          "professionalTitle": professionalTitle,
-          "jobOwnerName": jobOwnerName,
-          "this.jobOwnerId": this.jobOwnerId,
-          "freelancerReview": freelancerReview,
-          "freelancerQualityRate": freelancerQualityRate,
-          "freelancerAttitudeRate": freelancerAttitudeRate,
-          "freelancerTimeManagementRate": freelancerTimeManagementRate,
-          "createdAt": FieldValue.serverTimestamp(),
+          this.jobId.name: this.jobId.value,
+          this.jobTitle.name: this.jobTitle.value,
+          this.professionalTitle.name: this.professionalTitle.value,
+          this.jobOwnerName.name: this.jobOwnerName.value,
+          this.jobOwnerId.name: this.jobOwnerId.value,
+          this.freelancerReview.name: freelancerReview,
+          this.freelancerQualityRate.name: freelancerQualityRate,
+          this.freelancerAttitudeRate.name: freelancerAttitudeRate,
+          this.freelancerTimeManagementRate.name: freelancerTimeManagementRate,
+          this.createdAt.name: FieldValue.serverTimestamp(),
         }
       });
     });

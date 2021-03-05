@@ -103,7 +103,7 @@ class ActivityFeedItem extends StatelessWidget {
         DocumentSnapshot doc = await jobsRef.doc(feed.jobId.value).get();
         if (doc.exists) {
           Job job = Job.fromDocument(doc);
-          if (job.jobState == "open")
+          if (job.jobState.value == "open")
             showProfile(
               context,
               profileId: feed.applicantId.value,

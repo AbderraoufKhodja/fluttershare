@@ -23,7 +23,7 @@ dependencies:
   bubble: ^1.1.9+1
   cached_network_image: null
   chips_choice: ^2.0.1
-  cloud_firestore: ^0.14.0+2
+  cloud_firestore: null
   cupertino_icons: null
   eva_icons_flutter: null
   firebase_auth: null

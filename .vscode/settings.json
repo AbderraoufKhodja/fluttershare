@@ -4,7 +4,9 @@
         "Reem",
         "Signatra",
         "cupertino",
+        "easyloading",
         "firestore",
+        "geoflutterfire",
         "geolocator",
         "signin"
     ]

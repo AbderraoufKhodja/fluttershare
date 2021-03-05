@@ -31,29 +31,29 @@ class _TrendingFreelancersPage extends State<TrendingFreelancersPage> {
           title: kTrendingTopRatedSection,
           futureItems: getTrendingTopRatedSection(),
         ),
-        ItemsHorizontalView(
-            title: kTrendingExperiencedSection,
-            futureItems: getTrendingMostExperiencedSection()),
-        ItemsHorizontalView(
-          title: kTrendingHighestCompletionRateSection,
-          futureItems: getTrendingHighestCompletionRateSection(),
-        ),
-        ItemsHorizontalView(
-          title: kTrendingPopularAdvisorsSection,
-          futureItems: getTrendingPopularAdvisorsSection(),
-        ),
-        ItemsHorizontalView(
-          title: kTrendingHighQualityFreelancersSection,
-          futureItems: getTrendingHighQualityFreelancersSection(),
-        ),
-        ItemsHorizontalView(
-          title: kTrendingTopTeamChoiceFreelancersSection,
-          futureItems: getTrendingTopTeamChoiceFreelancersSection(),
-        ),
-        ItemsHorizontalView(
-          title: kTrendingTopFreelancersAroundMeSection,
-          futureItems: getTrendingTopFreelancersAroundMeSection(),
-        ),
+        // ItemsHorizontalView(
+        //     title: kTrendingExperiencedSection,
+        //     futureItems: getTrendingMostExperiencedSection()),
+        // ItemsHorizontalView(
+        //   title: kTrendingHighestCompletionRateSection,
+        //   futureItems: getTrendingHighestCompletionRateSection(),
+        // ),
+        // ItemsHorizontalView(
+        //   title: kTrendingPopularAdvisorsSection,
+        //   futureItems: getTrendingPopularAdvisorsSection(),
+        // ),
+        // ItemsHorizontalView(
+        //   title: kTrendingHighQualityFreelancersSection,
+        //   futureItems: getTrendingHighQualityFreelancersSection(),
+        // ),
+        // ItemsHorizontalView(
+        //   title: kTrendingTopTeamChoiceFreelancersSection,
+        //   futureItems: getTrendingTopTeamChoiceFreelancersSection(),
+        // ),
+        // ItemsHorizontalView(
+        //   title: kTrendingTopFreelancersAroundMeSection,
+        //   futureItems: getTrendingTopFreelancersAroundMeSection(),
+        // ),
       ],
     );
   }
@@ -62,7 +62,7 @@ class _TrendingFreelancersPage extends State<TrendingFreelancersPage> {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: popularCategories)
-        .where("globalRate", isGreaterThanOrEqualTo: 4.0)
+        .where("globalRate", whereNotIn: [4.0, 5])
         .orderBy("createdAt", descending: true)
         .limit(30)
         .get();
@@ -100,7 +100,7 @@ class _TrendingFreelancersPage extends State<TrendingFreelancersPage> {
 
   Future<List<DocumentSnapshot>> getTrendingTopFreelancersAroundMeSection() {
     // TODO  sorting dcuments according to newest.
-    GeoPoint usersLocation = currentUser.location.value["geopoint"];
+    GeoPoint usersLocation = currentUser.location.value.geoFiredata["geopoint"];
     GeoFirePoint center = geo.point(
         latitude: usersLocation.latitude, longitude: usersLocation.longitude);
 

@@ -582,11 +582,11 @@ class _ProfileState extends State<Profile>
     });
   }
 
-  Future<void> handleRejectApplication() async {
+  Future<void> handleRejectApplication() {
     return job.handleRejectApplication(
-        applicantId: user.uid.value,
-        applicantName: user.username.value,
-        applicantEmail: user.email.value);
+      applicantId: user.uid.value,
+      applicantName: user.username.value,
+    );
   }
 
   Future<void> handleAcceptApplication() async {
@@ -688,8 +688,8 @@ class _ProfileState extends State<Profile>
 
   Future<void> formatLocation() async {
     List<Placemark> placemarks = await placemarkFromCoordinates(
-        currentUser.location.value["geopoint"].latitude,
-        currentUser.location.value["geopoint"].longitude);
+        currentUser.location.value.geoFiredata["geopoint"].latitude,
+        currentUser.location.value.geoFiredata["geopoint"].longitude);
     Placemark placemark = placemarks[0];
     String formattedAddress =
         " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"

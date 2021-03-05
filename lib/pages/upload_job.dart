@@ -313,8 +313,8 @@ class _UploadJobState extends State<UploadJob>
             name: "professionalTitle", value: professionalTitleController.text),
         jobDescription: FirestoreField<String>(
             name: "jobDescription", value: jobDescriptionController.text),
-        location: FirestoreField<GeoFirePoint>(
-            name: "location", value: jobGeoFirePoint),
+        location:
+            FirestoreField<Map>(name: "location", value: jobGeoFirePoint.data),
         dateRange: FirestoreField<String>(
             name: "dateRange", value: dateRangeController.text),
         jobPhotoUrl:

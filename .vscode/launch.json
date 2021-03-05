@@ -6,7 +6,7 @@
     "configurations": [
         
         {
-            "name": "fluttershare",
+            "name": "imihani",
             "request": "launch",
             "type": "dart"
         },

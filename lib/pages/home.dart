@@ -206,8 +206,8 @@ class _HomeState extends State<Home> {
       key: _scaffoldKey,
       body: PageView(
         children: <Widget>[
-          // ScreenOne(),
-          CreateFreelanceAccount(),
+          ScreenOne(),
+          // CreateFreelanceAccount(),
           ScreenTwo(),
           ScreenThree(),
           ScreenFour(),

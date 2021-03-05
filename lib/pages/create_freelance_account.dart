@@ -12,7 +12,6 @@ import 'package:khadamat/pages/google_map_page.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/custom_text_form_field.dart';
 import 'package:khadamat/widgets/progress.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
@@ -77,6 +76,8 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   int valIndex = 0;
   String instruction = kTellUsAboutYou;
   DateTime birthDate;
+
+  Placemark placeMark;
 
   bool get wantKeepAlive => true;
   get user =>
@@ -388,48 +389,54 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   }
 
   Future<void> uploadUsersProfessionalInfo(String professionalPhotoUrl) async {
-    return usersRef.doc(user.uid).set({
-      "uid": user.uid,
-      "displayName": user.displayName,
-      "photoURL": user.photoURL,
-      "email": user.email,
-      "isFreelancer": true,
-      "professionalPhotoUrl": professionalPhotoUrl,
-      "username": usernameController.text,
-      "personalBio": personalBioController.text,
-      "location": locationGeoFirePoint.data,
-      "birthDate": birthDateTimestamp,
-      "gender": genderController.text,
-      "professionalCategory": professionalCategoryController.text,
-      "professionalTitle": professionalTitleController.text,
-      "professionalDescription": professionalDescriptionController.text,
-      "preferences": [
+    return usersRef.doc(user.uid.value).set({
+      widget.appUser.uid.name: user.uid.value,
+      widget.appUser.displayName.name: user.displayName.value,
+      widget.appUser.photoURL.name: user.photoURL.value,
+      widget.appUser.email.name: user.email.value,
+      widget.appUser.isFreelancer.name: true,
+      widget.appUser.professionalPhotoUrl.name: professionalPhotoUrl,
+      widget.appUser.username.name: usernameController.text,
+      widget.appUser.personalBio.name: personalBioController.text,
+      widget.appUser.location.name: {
+        "placeMark": placeMark,
+        "address": locationController.text,
+        "geoFirePoint": locationGeoFirePoint.data
+      },
+      widget.appUser.birthDate.name: birthDateTimestamp,
+      widget.appUser.gender.name: genderController.text,
+      widget.appUser.professionalCategory.name:
+          professionalCategoryController.text,
+      widget.appUser.professionalTitle.name: professionalTitleController.text,
+      widget.appUser.professionalDescription.name:
+          professionalDescriptionController.text,
+      widget.appUser.preferences.name: [
         keyWord1Controller.text,
         keyWord2Controller.text,
         keyWord3Controller.text,
         keyWord4Controller.text
       ],
-      "jobs": null,
-      "reviews": null,
-      "globalRate": null,
-      "jobsCount": null,
-      "completionRate": null,
-      "popularityRate": null,
-      "qualityRate": null,
-      "timeManagementRating": null,
-      "attitudeRate": null,
-      "teamChoice": false,
-      "lastReviewTimestamp": null,
-      "diploma": diplomaController.text,
-      "licence": licenceController.text,
-      "certification": certificationController.text,
-      "language": languageController.text,
-      "experience": experienceController.text,
-      "internship": internshipController.text,
-      "competence": competenceController.text,
-      "achievement": achievementController.text,
-      "recommendation": recommendationController.text,
-      "createdAt": FieldValue.serverTimestamp(),
+      widget.appUser.jobs.name: null,
+      widget.appUser.reviews.name: null,
+      widget.appUser.globalRate.name: null,
+      widget.appUser.jobsCount.name: null,
+      widget.appUser.completionRate.name: null,
+      widget.appUser.popularityRate.name: null,
+      widget.appUser.qualityRate.name: null,
+      widget.appUser.timeManagementRate.name: null,
+      widget.appUser.attitudeRate.name: null,
+      widget.appUser.teamChoice.name: false,
+      widget.appUser.lastReviewTimestamp.name: null,
+      widget.appUser.diploma.name: diplomaController.text,
+      widget.appUser.licence.name: licenceController.text,
+      widget.appUser.certification.name: certificationController.text,
+      widget.appUser.language.name: languageController.text,
+      widget.appUser.experience.name: experienceController.text,
+      widget.appUser.internship.name: internshipController.text,
+      widget.appUser.competence.name: competenceController.text,
+      widget.appUser.achievement.name: achievementController.text,
+      widget.appUser.recommendation.name: recommendationController.text,
+      widget.appUser.createdAt.name: FieldValue.serverTimestamp(),
     });
   }
 
@@ -590,7 +597,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     final tempDir = await getTemporaryDirectory();
     final path = tempDir.path;
     Im.Image imageFile = Im.decodeImage(file.readAsBytesSync());
-    final compressedImageFile = File('$path/img_${user.uid}.jpg')
+    final compressedImageFile = File('$path/img_${user.uid.value}.jpg')
       ..writeAsBytesSync(Im.encodeJpg(imageFile, quality: 85));
     setState(() {
       file = compressedImageFile;
@@ -599,7 +606,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
 
   Future<String> uploadImage(imageFile) async {
     UploadTask uploadCardTask =
-        storageRef.child("freelancer_${user.uid}.jpg").putFile(imageFile);
+        storageRef.child("freelancer_${user.uid.value}.jpg").putFile(imageFile);
     TaskSnapshot storageSnap = await uploadCardTask.whenComplete(() {});
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     return downloadUrl;
@@ -870,54 +877,55 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       onTap: () async {
         Map result = await showGoogleMaps(context);
         if (result != null) {
-          locationController.text = result['address'];
-          locationGeoFirePoint = result['geopoint'];
+          placeMark = result['placemark'];
+          locationController.text = result['formattedAddress'];
+          locationGeoFirePoint = result['geoFirePoint'];
         }
       },
     );
   }
 
-  getUserLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-    Position position;
+  // getUserLocation() async {
+  //   bool serviceEnabled;
+  //   LocationPermission permission;
+  //   Position position;
 
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permantly denied, we cannot request permissions.');
-    }
+  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!serviceEnabled) {
+  //     return Future.error('Location services are disabled.');
+  //   }
+  //   permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.deniedForever) {
+  //     return Future.error(
+  //         'Location permissions are permantly denied, we cannot request permissions.');
+  //   }
 
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        return Future.error(
-            'Location permissions are denied (actual value: $permission).');
-      }
-    }
-    position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    List<Placemark> placemarks =
-        await placemarkFromCoordinates(position.latitude, position.longitude);
-    Placemark placemark = placemarks[0];
-    String formattedAddress =
-        " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"
-        " ${placemark.country}";
-    locationController.text = formattedAddress;
-    locationGeoFirePoint =
-        geo.point(latitude: position.latitude, longitude: position.longitude);
-    // addLocation(
-    //     latitude: position.latitude,
-    //     longitude: position.longitude,
-    //     country: country,
-    //     administrativeArea: administrativeArea,
-    //     subAdministrativeArea: subAdministrativeArea);
-  }
+  //   if (permission == LocationPermission.denied) {
+  //     permission = await Geolocator.requestPermission();
+  //     if (permission != LocationPermission.whileInUse &&
+  //         permission != LocationPermission.always) {
+  //       return Future.error(
+  //           'Location permissions are denied (actual value: $permission).');
+  //     }
+  //   }
+  //   position = await Geolocator.getCurrentPosition(
+  //       desiredAccuracy: LocationAccuracy.high);
+  //   List<Placemark> placemarks =
+  //       await placemarkFromCoordinates(position.latitude, position.longitude);
+  //   Placemark placemark = placemarks[0];
+  //   String formattedAddress =
+  //       " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"
+  //       " ${placemark.country}";
+  //   locationController.text = formattedAddress;
+  //   locationGeoFirePoint =
+  //       geo.point(latitude: position.latitude, longitude: position.longitude);
+  //   // addLocation(
+  //   //     latitude: position.latitude,
+  //   //     longitude: position.longitude,
+  //   //     country: country,
+  //   //     administrativeArea: administrativeArea,
+  //   //     subAdministrativeArea: subAdministrativeArea);
+  // }
 
   updateInstruction(String instruction) {
     setState(() {

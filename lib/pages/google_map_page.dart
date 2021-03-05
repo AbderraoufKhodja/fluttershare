@@ -1,10 +1,9 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:khadamat/constants.dart';
 
 class GoogleMapPage extends StatefulWidget {
   GoogleMapPage({Key key}) : super(key: key);
@@ -14,8 +13,9 @@ class GoogleMapPage extends StatefulWidget {
 }
 
 class _GoogleMapPageState extends State<GoogleMapPage> {
+  Map<MarkerId, Marker> _markers = <MarkerId, Marker>{};
   Completer<GoogleMapController> _controller = Completer();
-  String title;
+  String formattedAddress;
 
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(36.7538, 3.0588),
@@ -23,77 +23,109 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   );
 
   GeoFirePoint geoFirePoint;
+  Placemark placeMark;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title ?? ""),
-        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
         automaticallyImplyLeading: true,
+        leading: CircleAvatar(child: Icon(Icons.arrow_back)),
+        actions: [
+          IconButton(
+            onPressed: formattedAddress != null
+                ? () => Navigator.pop(context, {
+                      "formattedAddress": formattedAddress,
+                      "placeMark": placeMark,
+                      "geoFirePoint": geoFirePoint,
+                    })
+                : null,
+            color: Colors.green,
+            disabledColor: Colors.grey,
+            icon: Icon(
+              Icons.check,
+              size: 50,
+            ),
+          ),
+        ],
       ),
+      extendBodyBehindAppBar: true,
       body: Stack(
         children: [
           GoogleMap(
-              cameraTargetBounds: CameraTargetBounds.unbounded,
-              mapType: MapType.hybrid,
-              initialCameraPosition: _kGooglePlex,
-              mapToolbarEnabled: true,
-              myLocationEnabled: true,
-              compassEnabled: true,
-              myLocationButtonEnabled: true,
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
-              onCameraIdle: updateAddressTitle,
-              onTap: (LatLng position) => updateGeoFirePoint(position)),
-          Center(
-              child: Icon(
-            Icons.place,
-            color: Colors.red[700],
-            size: 50,
-          )),
+            cameraTargetBounds: CameraTargetBounds.unbounded,
+            mapType: MapType.terrain,
+            initialCameraPosition: _kGooglePlex,
+            mapToolbarEnabled: true,
+            compassEnabled: true,
+            myLocationButtonEnabled: true,
+            markers: Set<Marker>.of(_markers.values),
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
+            onTap: (LatLng position) => updateLocation(position),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              formattedAddress != null
+                  ? Container(
+                      margin: EdgeInsets.only(left: 2),
+                      width: MediaQuery.of(context).size.width * 3.4 / 4,
+                      child: Card(
+                          child: ListTile(
+                        title: Text(formattedAddress),
+                      )))
+                  : Container(),
+              SizedBox(
+                height: 30,
+              ),
+            ],
+          )
         ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          await updateAddressTitle();
-          if (geoFirePoint != null || title != null)
-            Navigator.pop(
-                context, {"geoFirePoint": geoFirePoint, "address": title});
-          else
-            Navigator.pop(context);
-        },
-        label: Text(kSelectLocation),
-        icon: Icon(Icons.place),
       ),
     );
   }
 
-  void updateGeoFirePoint(LatLng position) {
-    setState(() {
-      title = null;
+  void updateLocation(LatLng position) {
+    setState(() async {
+      formattedAddress = null;
+      _markers[MarkerId("my_location")] = Marker(
+        markerId: MarkerId("my_location"),
+        position: position,
+      );
       geoFirePoint = GeoFirePoint(position.latitude, position.longitude);
+      await EasyLoading.show(status: "Loading...");
+      await updateAddress();
+      await EasyLoading.dismiss(animation: true);
     });
   }
 
-  Future<dynamic> updateAddressTitle() {
+  Future<dynamic> updateAddress() {
     return placemarkFromCoordinates(
-            geoFirePoint.latitude, geoFirePoint.longitude)
+            geoFirePoint.latitude, geoFirePoint.longitude,
+            localeIdentifier: "fr_")
         .then((value) {
       setState(() {
-        title = value[0].country +
-            ", " +
-            value[0].administrativeArea +
-            ", " +
-            value[0].subAdministrativeArea +
-            ", " +
-            value[0].locality;
+        formattedAddress = checkAddressField(str: value[0].street) +
+            checkAddressField(str: value[0].subLocality) +
+            checkAddressField(str: value[0].locality) +
+            checkAddressField(str: value[0].subAdministrativeArea) +
+            checkAddressField(str: value[0].administrativeArea) +
+            checkAddressField(str: value[0].country, isLast: true);
+        placeMark = value[0];
       });
     });
   }
 }
+
+String checkAddressField({String str, bool isLast = false}) => str.isNotEmpty
+    ? isLast
+        ? str
+        : str + ", "
+    : "";
 
 Future<Map> showGoogleMaps(context) async {
   return await Navigator.push(

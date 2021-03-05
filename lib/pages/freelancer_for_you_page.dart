@@ -26,29 +26,9 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
     super.initState();
     // usersRef.get().then(
     //   (documents) {
-    //     print(documents.docs.length);
-    //     Random random = new Random();
     //     documents.docs.forEach(
     //       (doc) {
-    //         final int a_year = random.nextInt(24) + 1980;
-    //         final int a_month = random.nextInt(5);
-    //         final int a_day = random.nextInt(20);
-    //         final int b_year = a_year + random.nextInt(20);
-    //         final int b_month = a_month + random.nextInt(2);
-    //         final int b_day = a_day + random.nextInt(4);
-    //         final int c_year = b_year;
-    //         final int c_month = b_month + random.nextInt(5);
-    //         final int c_day = b_day + random.nextInt(5);
-    //         usersRef.doc(doc.id).update(
-    //           {
-    //             'birthDate':
-    //                 Timestamp.fromDate(DateTime(a_year, a_month, a_day)),
-    //             'createdAt':
-    //                 Timestamp.fromDate(DateTime(b_year, b_month, b_day)),
-    //             "reviews.lastReviewTimestamp":
-    //                 Timestamp.fromDate(DateTime(c_year, c_month, c_day)),
-    //           },
-    //         );
+    //         usersRef.doc(doc.id).update({"uid": doc.id});
     //       },
     //     );
     //   },
@@ -160,9 +140,9 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   Future<List<DocumentSnapshot>> getAroundMeSection() {
     // Create a geoFirePoint
     GeoPoint usersLocation;
-    if (currentUser.location.value != null) {
-      if (currentUser.location.value.containsKey("geopoint"))
-        usersLocation = currentUser.location.value["geopoint"];
+    if (currentUser.location?.value != null) {
+      if (currentUser.location.value?.geoFiredata["geopoint"] != null)
+        usersLocation = currentUser.location.value.geoFiredata["geopoint"];
       else
         usersLocation = GeoPoint(0, 0);
     } else
