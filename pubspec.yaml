@@ -20,33 +20,34 @@ dependencies:
   flutter:
     sdk: flutter
   animator: null
-  bubble: ^1.1.9+1
+  bubble: null
   cached_network_image: null
-  chips_choice: ^2.0.1
-  cloud_firestore: null
+  chips_choice: null
+  cloud_firestore: ^1.0.0
   cupertino_icons: null
   eva_icons_flutter: null
-  firebase_auth: null
-  firebase_core: null
-  firebase_messaging: null
-  firebase_storage: null
-  flappy_search_bar: ^1.7.2
-  flutter_easyloading: ^2.2.2
-  flutter_mailer: ^1.0.0
-  flutter_rating_bar: ^3.2.0+1
-  flutter_svg: ^0.18.0
-  geocoding: ^1.0.3
-  geoflutterfire: ^2.2.1
-  geolocator: ^6.2.0
-  google_maps_flutter: ^1.2.0
-  google_sign_in: null
+  firebase_auth: ^1.0.0
+  firebase_core: ^1.0.0
+  firebase_messaging: ^9.0.0
+  firebase_storage: ^8.0.0
+  flappy_search_bar: null
+  flutter_easyloading: null
+  flutter_mailer: null
+  flutter_rating_bar: null
+  flutter_svg: null
+  # geocoding: null
+  geoflutterfire2: null
+  geolocator: null
+  google_maps_flutter: null
+  google_sign_in: ^5.0.0
   image: null
   image_picker: null
   outline_material_icons: null
   path_provider: null
-  shimmer: ^1.1.2
+  shimmer: null
   timeago: null
-  timeline_tile: ^1.0.0
+  timeline_tile: null
+  url_launcher: null
   uuid: null
 
 dev_dependencies:

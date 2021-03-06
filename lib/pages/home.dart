@@ -43,7 +43,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   bool isAuth = false;
   PageController pageController;
   int pageIndex = 0;
@@ -154,7 +154,7 @@ class _HomeState extends State<Home> {
   Future<bool> createUserInFirestore() async {
     bool isSuccessful = true;
     // 1) check if user exists in users collection in database (according to their uid)
-    final User firebaseUser = auth.currentUser;
+    final FirebaseUser firebaseUser = auth.currentUser;
     print("firebaseUser.uid: ${firebaseUser.uid}");
 
     DocumentSnapshot doc = await usersRef.doc(firebaseUser.uid).get();

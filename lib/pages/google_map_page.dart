@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geoflutterfire/geoflutterfire.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class GoogleMapPage extends StatefulWidget {
@@ -23,7 +23,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   );
 
   GeoFirePoint geoFirePoint;
-  Placemark placeMark;
+  GeoPoint geoPoint;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,6 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
             onPressed: formattedAddress != null
                 ? () => Navigator.pop(context, {
                       "formattedAddress": formattedAddress,
-                      "placeMark": placeMark,
                       "geoFirePoint": geoFirePoint,
                     })
                 : null,
@@ -104,20 +103,24 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   }
 
   Future<dynamic> updateAddress() {
-    return placemarkFromCoordinates(
-            geoFirePoint.latitude, geoFirePoint.longitude,
-            localeIdentifier: "fr_")
-        .then((value) {
-      setState(() {
-        formattedAddress = checkAddressField(str: value[0].street) +
-            checkAddressField(str: value[0].subLocality) +
-            checkAddressField(str: value[0].locality) +
-            checkAddressField(str: value[0].subAdministrativeArea) +
-            checkAddressField(str: value[0].administrativeArea) +
-            checkAddressField(str: value[0].country, isLast: true);
-        placeMark = value[0];
-      });
+    // return placemarkFromCoordinates(
+    //         geoFirePoint.latitude, geoFirePoint.longitude,
+    //         localeIdentifier: "fr_")
+    //     .then((value) {
+    //   setState(() {
+    //     formattedAddress = checkAddressField(str: value[0].street) +
+    //         checkAddressField(str: value[0].subLocality) +
+    //         checkAddressField(str: value[0].locality) +
+    //         checkAddressField(str: value[0].subAdministrativeArea) +
+    //         checkAddressField(str: value[0].administrativeArea) +
+    //         checkAddressField(str: value[0].country, isLast: true);
+    //     geoPoint = value[0];
+    //   });
+    // });
+    setState(() {
+      formattedAddress = "update geocoding";
     });
+    return null;
   }
 }
 

@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/models/job.dart';
@@ -687,15 +686,18 @@ class _ProfileState extends State<Profile>
   }
 
   Future<void> formatLocation() async {
-    List<Placemark> placemarks = await placemarkFromCoordinates(
-        currentUser.location.value.geoFiredata["geopoint"].latitude,
-        currentUser.location.value.geoFiredata["geopoint"].longitude);
-    Placemark placemark = placemarks[0];
-    String formattedAddress =
-        " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"
-        " ${placemark.country}";
+    // List<Placemark> placemarks = await placemarkFromCoordinates(
+    //     currentUser.location.value.geoFiredata["geopoint"].latitude,
+    //     currentUser.location.value.geoFiredata["geopoint"].longitude);
+    // Placemark placemark = placemarks[0];
+    // String formattedAddress =
+    //     " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"
+    //     " ${placemark.country}";
+    // setState(() {
+    //   this.formattedAddress = formattedAddress;
+    // });
     setState(() {
-      this.formattedAddress = formattedAddress;
+      this.formattedAddress = "update geocoding";
     });
   }
 }

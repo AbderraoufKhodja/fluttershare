@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:geoflutterfire/geoflutterfire.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/home.dart';
