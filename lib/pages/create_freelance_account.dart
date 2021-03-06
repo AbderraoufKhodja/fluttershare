@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/google_map_page.dart';
@@ -14,7 +13,7 @@ import 'package:khadamat/widgets/custom_text_form_field.dart';
 import 'package:khadamat/widgets/progress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:geoflutterfire/geoflutterfire.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:image/image.dart' as Im;
 
 class CreateFreelanceAccount extends StatefulWidget {
@@ -66,7 +65,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   TextEditingController achievementController = TextEditingController();
   TextEditingController recommendationController = TextEditingController();
   TextEditingController languageController = TextEditingController();
-  final geo = Geoflutterfire();
+  final geo = GeoFlutterFire();
   final _formKey = GlobalKey<FormState>();
   final _categoryScaffoldKey = GlobalKey<ScaffoldState>();
   final picker = ImagePicker();
@@ -77,7 +76,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   String instruction = kTellUsAboutYou;
   DateTime birthDate;
 
-  Placemark placeMark;
+  GeoPoint placeMark;
 
   bool get wantKeepAlive => true;
   get user =>
@@ -399,7 +398,6 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       widget.appUser.username.name: usernameController.text,
       widget.appUser.personalBio.name: personalBioController.text,
       widget.appUser.location.name: {
-        "placeMark": placeMark,
         "address": locationController.text,
         "geoFirePoint": locationGeoFirePoint.data
       },
@@ -877,7 +875,6 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       onTap: () async {
         Map result = await showGoogleMaps(context);
         if (result != null) {
-          placeMark = result['placemark'];
           locationController.text = result['formattedAddress'];
           locationGeoFirePoint = result['geoFirePoint'];
         }
