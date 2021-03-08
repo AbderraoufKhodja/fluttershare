@@ -39,7 +39,7 @@ class ScreenLayout extends StatelessWidget {
                       ),
                       image: DecorationImage(
                         fit: BoxFit.fill,
-                        image: AssetImage('assets/images/freelancer.jpg'),
+                        image: AssetImage('assets/images/imihaniBanner.png'),
                       ),
                     ),
                   ),
