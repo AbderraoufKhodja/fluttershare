@@ -10,7 +10,11 @@ class ActivityFeedPage extends StatefulWidget {
   _ActivityFeedPageState createState() => _ActivityFeedPageState();
 }
 
-class _ActivityFeedPageState extends State<ActivityFeedPage> {
+class _ActivityFeedPageState extends State<ActivityFeedPage>
+    with AutomaticKeepAliveClientMixin<ActivityFeedPage> {
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
   bool isLoading = false;
   @override
   Widget build(BuildContext context) {

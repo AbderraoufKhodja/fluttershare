@@ -16,7 +16,7 @@ class _ScreenOne extends State<ScreenOne> {
   Map<Tab, StatefulWidget> tabsList = {
     Tab(text: kForYou): FreelancerForYouPage(),
     Tab(text: kTopFreelancer): TopFreelancerPage(),
-    Tab(text: kNewTalents): TrendingFreelancersPage(),
+    Tab(text: kTrendingFreelancers): TrendingFreelancersPage(),
     Tab(text: kFreelancersCategories): FreelancerCategoriesPage(),
     Tab(text: kTeamChoice): TeamChoiceFreelancerPage(),
   };

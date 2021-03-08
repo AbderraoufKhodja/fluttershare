@@ -9,11 +9,16 @@ class TopFreelancerPage extends StatefulWidget {
   _TopFreelancerPage createState() => _TopFreelancerPage();
 }
 
-class _TopFreelancerPage extends State<TopFreelancerPage> {
+class _TopFreelancerPage extends State<TopFreelancerPage>
+    with AutomaticKeepAliveClientMixin<TopFreelancerPage> {
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
+
   Future<QuerySnapshot> searchResultsFuture;
   List<String> popularCategories = ["Sales"];
 
-  final int limit = 15;
+  final int limit = 10;
 
   @override
   void initState() {

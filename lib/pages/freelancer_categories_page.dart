@@ -11,7 +11,11 @@ class FreelancerCategoriesPage extends StatefulWidget {
   _FreelancerCategoriesPage createState() => _FreelancerCategoriesPage();
 }
 
-class _FreelancerCategoriesPage extends State<FreelancerCategoriesPage> {
+class _FreelancerCategoriesPage extends State<FreelancerCategoriesPage>
+    with AutomaticKeepAliveClientMixin<FreelancerCategoriesPage> {
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
   Future<QuerySnapshot> searchResultsFuture;
 
   @override

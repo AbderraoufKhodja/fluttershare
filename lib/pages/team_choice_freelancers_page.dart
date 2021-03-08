@@ -9,8 +9,13 @@ class TeamChoiceFreelancerPage extends StatefulWidget {
   _TeamChoiceFreelancerPage createState() => _TeamChoiceFreelancerPage();
 }
 
-class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage> {
+class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage>
+    with AutomaticKeepAliveClientMixin<TeamChoiceFreelancerPage> {
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
   Future<QuerySnapshot> searchResultsFuture;
+  final int limit = 10;
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +62,7 @@ class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage> {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: currentUser.preferences.value)
+        .limit(limit)
         .get();
   }
 
@@ -64,6 +70,7 @@ class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage> {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: currentUser.preferences.value)
+        .limit(limit)
         .get();
   }
 
@@ -72,6 +79,7 @@ class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: currentUser.preferences.value)
         .orderBy("reviews.lastReviewTimestamp", descending: true)
+        .limit(limit)
         .get();
   }
 
@@ -80,7 +88,7 @@ class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: currentUser.preferences.value)
         .orderBy("createdAt", descending: true)
-        .limit(10)
+        .limit(limit)
         .get();
   }
 
@@ -89,6 +97,7 @@ class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: currentUser.preferences.value)
         .orderBy("reviews.rating", descending: true)
+        .limit(limit)
         .get();
   }
 
@@ -97,6 +106,7 @@ class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: currentUser.preferences.value)
         .where("teamChoice", isEqualTo: true)
+        .limit(limit)
         .get();
   }
 
@@ -105,6 +115,7 @@ class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage> {
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: currentUser.preferences.value)
         .where("jobs", isNull: true)
+        .limit(limit)
         .get();
   }
 
@@ -112,6 +123,7 @@ class _TeamChoiceFreelancerPage extends State<TeamChoiceFreelancerPage> {
     return usersRef
         .where("isFreelancer", isEqualTo: true)
         .where("professionalCategory", whereIn: currentUser.preferences.value)
+        .limit(limit)
         .get();
   }
 }

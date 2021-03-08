@@ -14,7 +14,7 @@ class _ScreenTwo extends State<ScreenTwo> {
     Tab(text: kFreelancersCategories): ProfessionalCategoriesPage(),
     Tab(text: kForYou): Search(),
     Tab(text: kTopFreelancer): Search(),
-    Tab(text: kNewTalents): Search(),
+    Tab(text: kTrendingFreelancers): Search(),
     Tab(text: kTeamChoice): Search(),
   };
   @override

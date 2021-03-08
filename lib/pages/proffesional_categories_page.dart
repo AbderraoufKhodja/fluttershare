@@ -27,10 +27,10 @@ class _ProfessionalCategoriesPageState extends State<ProfessionalCategoriesPage>
   @override
   void initState() {
     super.initState();
-    getProfessionalCategoriesList();
+    updateProfessionalCategoriesList();
   }
 
-  getProfessionalCategoriesList() async {
+  updateProfessionalCategoriesList() async {
     QuerySnapshot snapshot = await categoriesRef.get();
     List<String> jobs = snapshot.docs.map((doc) => doc.id).toList();
     setState(() {
@@ -199,7 +199,7 @@ class _ProfessionalCategoriesPageState extends State<ProfessionalCategoriesPage>
         body: TabBarView(
             children: professionalCategoriesList
                 .map((category) => RefreshIndicator(
-                      onRefresh: () => getProfessionalCategoriesList(),
+                      onRefresh: () => updateProfessionalCategoriesList(),
                       child: ProfessionalTitlesScreen(
                         professionalTitle: category,
                       ),

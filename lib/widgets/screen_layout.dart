@@ -53,6 +53,7 @@ class ScreenLayout extends StatelessWidget {
                 bottom: TabBar(
                   indicatorColor: Colors.green,
                   indicatorSize: TabBarIndicatorSize.label,
+                  labelColor: Colors.white,
                   indicatorWeight: 5,
                   isScrollable: isScrollable,
                   tabs: tabsList.keys.toList(),

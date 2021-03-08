@@ -10,7 +10,11 @@ class TrendingFreelancersPage extends StatefulWidget {
   _TrendingFreelancersPage createState() => _TrendingFreelancersPage();
 }
 
-class _TrendingFreelancersPage extends State<TrendingFreelancersPage> {
+class _TrendingFreelancersPage extends State<TrendingFreelancersPage>
+    with AutomaticKeepAliveClientMixin<TrendingFreelancersPage> {
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
   Future<QuerySnapshot> searchResultsFuture;
   List<String> popularCategories = ["Developper"];
   final geo = GeoFlutterFire();
@@ -27,10 +31,11 @@ class _TrendingFreelancersPage extends State<TrendingFreelancersPage> {
       physics: BouncingScrollPhysics(),
       padding: EdgeInsets.only(left: 20, top: 20),
       children: [
-        ItemsHorizontalView(
-          title: kTrendingTopRatedSection,
-          futureItems: getTrendingTopRatedSection(),
-        ),
+        Container(),
+        // ItemsHorizontalView(
+        //   title: kTrendingTopRatedSection,
+        //   futureItems: getTrendingTopRatedSection(),
+        // ),
         // ItemsHorizontalView(
         //     title: kTrendingExperiencedSection,
         //     futureItems: getTrendingMostExperiencedSection()),

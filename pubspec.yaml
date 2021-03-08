@@ -67,6 +67,7 @@ flutter:
         - asset: assets/fonts/ReemKufi-Regular.ttf
   assets:
     - assets/images/freelancer.jpg
+    - assets/images/imihaniBanner.png
     - assets/images/google_signin_button.png
     - assets/images/upload.svg
     - assets/images/search.svg

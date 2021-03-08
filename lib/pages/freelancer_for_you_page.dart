@@ -13,14 +13,18 @@ class FreelancerForYouPage extends StatefulWidget {
   _FreelancerForYouPage createState() => _FreelancerForYouPage();
 }
 
-class _FreelancerForYouPage extends State<FreelancerForYouPage> {
+class _FreelancerForYouPage extends State<FreelancerForYouPage>
+    with AutomaticKeepAliveClientMixin<FreelancerForYouPage> {
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
   Future<QuerySnapshot> searchResultsFuture;
   final geo = GeoFlutterFire();
   List<dynamic> get preferences => widget.preferences != null
       ? widget.preferences
       : currentUser.preferences.value;
 
-  final int limit = 15;
+  final int limit = 10;
   @override
   void initState() {
     super.initState();
@@ -38,6 +42,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage> {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      scrollDirection: Axis.vertical,
       physics: BouncingScrollPhysics(),
       padding: EdgeInsets.only(left: 20, top: 20),
       children: [

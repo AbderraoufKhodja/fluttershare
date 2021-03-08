@@ -313,10 +313,11 @@ class _ProfileState extends State<Profile>
 
   buildProfileReviews() {
     List<Review> reviews = [];
-    user.reviews.value.values.forEach((review) {
-      if (review is Map<String, dynamic>)
-        reviews.add(Review.fromDocument(review));
-    });
+    if (user.reviews.value != null)
+      user.reviews.value.values.forEach((review) {
+        if (review is Map<String, dynamic>)
+          reviews.add(Review.fromDocument(review));
+      });
     return reviews.isNotEmpty
         ? Center(
             child: Column(

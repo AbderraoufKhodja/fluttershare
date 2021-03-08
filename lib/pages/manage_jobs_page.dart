@@ -11,7 +11,11 @@ class ManageJobsPage extends StatefulWidget {
   _JobsScreen createState() => _JobsScreen();
 }
 
-class _JobsScreen extends State<ManageJobsPage> {
+class _JobsScreen extends State<ManageJobsPage>
+    with AutomaticKeepAliveClientMixin<ManageJobsPage> {
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
