@@ -459,6 +459,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     }
   }
 
+  // TODO handle pick image for web here and elsewhere
   handleTakePhoto() async {
     Navigator.pop(context);
     PickedFile imageFile = await picker.getImage(
@@ -471,6 +472,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     });
   }
 
+// TODO handle pick image for web here and elsewhere
   handleChooseFromGallery() async {
     Navigator.pop(context);
     PickedFile imageFile = await picker.getImage(

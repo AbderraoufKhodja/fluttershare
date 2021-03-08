@@ -18,7 +18,6 @@ class MyApp extends StatelessWidget {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));
-
     return FutureBuilder(
       // Initialize FlutterFire:
       future: _initialization,

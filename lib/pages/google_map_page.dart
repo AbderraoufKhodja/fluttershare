@@ -23,7 +23,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   );
 
   GeoFirePoint geoFirePoint;
-  GeoPoint geoPoint;
+  // GeoPoint geoPoint;
 
   @override
   Widget build(BuildContext context) {

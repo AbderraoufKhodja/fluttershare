@@ -9,6 +9,7 @@ import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/models/firestore_field.dart';
 import 'package:khadamat/models/job.dart';
+import 'package:khadamat/pages/google_map_page.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/custom_text_form_field.dart';
 import 'package:khadamat/widgets/progress.dart';
@@ -312,8 +313,10 @@ class _UploadJobState extends State<UploadJob>
             name: "professionalTitle", value: professionalTitleController.text),
         jobDescription: FirestoreField<String>(
             name: "jobDescription", value: jobDescriptionController.text),
-        location:
-            FirestoreField<Map>(name: "location", value: jobGeoFirePoint.data),
+        location: FirestoreField<Map>(name: "location", value: {
+          'formattedAddress': jobLocationController.text,
+          'geoFirePoint': jobGeoFirePoint.data,
+        }),
         dateRange: FirestoreField<String>(
             name: "dateRange", value: dateRangeController.text),
         jobPhotoUrl:
@@ -341,6 +344,7 @@ class _UploadJobState extends State<UploadJob>
     }
   }
 
+// TODO handle pick image for web here and elsewhere
   handleTakePhoto() async {
     Navigator.pop(context);
     PickedFile imageFile = await picker.getImage(
@@ -353,6 +357,7 @@ class _UploadJobState extends State<UploadJob>
     });
   }
 
+  // TODO handle pick image for web here and elsewhere
   handleChooseFromGallery() async {
     Navigator.pop(context);
     PickedFile imageFile = await picker.getImage(
@@ -681,51 +686,57 @@ class _UploadJobState extends State<UploadJob>
           color: Colors.white,
         ),
       ),
-      onTap: getJobLocation,
+      onTap: () async {
+        Map result = await showGoogleMaps(context);
+        if (result != null) {
+          jobLocationController.text = result['formattedAddress'];
+          jobGeoFirePoint = result['geoFirePoint'];
+        }
+      },
     );
   }
 
-  getJobLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-    Position position;
+  // getJobLocation() async {
+  //   bool serviceEnabled;
+  //   LocationPermission permission;
+  //   Position position;
 
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permantly denied, we cannot request permissions.');
-    }
+  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!serviceEnabled) {
+  //     return Future.error('Location services are disabled.');
+  //   }
+  //   permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.deniedForever) {
+  //     return Future.error(
+  //         'Location permissions are permantly denied, we cannot request permissions.');
+  //   }
 
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.whileInUse &&
-          permission != LocationPermission.always) {
-        return Future.error(
-            'Location permissions are denied (actual value: $permission).');
-      }
-    }
-    position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    List<Placemark> placemarks =
-        await placemarkFromCoordinates(position.latitude, position.longitude);
-    Placemark placemark = placemarks[0];
-    String formattedAddress =
-        " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"
-        " ${placemark.country}";
-    jobLocationController.text = formattedAddress;
-    jobGeoFirePoint =
-        geo.point(latitude: position.latitude, longitude: position.longitude);
-    // addLocation(
-    //     latitude: position.latitude,
-    //     longitude: position.longitude,
-    //     country: country,
-    //     administrativeArea: administrativeArea,
-    //     subAdministrativeArea: subAdministrativeArea);
-  }
+  //   if (permission == LocationPermission.denied) {
+  //     permission = await Geolocator.requestPermission();
+  //     if (permission != LocationPermission.whileInUse &&
+  //         permission != LocationPermission.always) {
+  //       return Future.error(
+  //           'Location permissions are denied (actual value: $permission).');
+  //     }
+  //   }
+  //   position = await Geolocator.getCurrentPosition(
+  //       desiredAccuracy: LocationAccuracy.high);
+  //   List<Placemark> placemarks =
+  //       await placemarkFromCoordinates(position.latitude, position.longitude);
+  //   Placemark placemark = placemarks[0];
+  //   String formattedAddress =
+  //       " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"
+  //       " ${placemark.country}";
+  //   jobLocationController.text = formattedAddress;
+  //   jobGeoFirePoint =
+  //       geo.point(latitude: position.latitude, longitude: position.longitude);
+  //   // addLocation(
+  //   //     latitude: position.latitude,
+  //   //     longitude: position.longitude,
+  //   //     country: country,
+  //   //     administrativeArea: administrativeArea,
+  //   //     subAdministrativeArea: subAdministrativeArea);
+  // }
 
   updateInstruction(String instruction) {
     setState(() {

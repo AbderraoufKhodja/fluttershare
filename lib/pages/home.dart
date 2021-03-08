@@ -43,7 +43,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   bool isAuth = false;
   PageController pageController;
   int pageIndex = 0;
@@ -101,7 +101,8 @@ class _HomeState extends State<Home> {
         setState(() {
           isAuth = true;
         });
-        configurePushNotifications();
+        // TODO fix firebase_messaging
+        // configurePushNotifications();
       }
     } else {
       print('User is currently signed out!');
@@ -110,51 +111,51 @@ class _HomeState extends State<Home> {
       });
     }
   }
+  // TODO fix firebase_messaging
+  // configurePushNotifications() {
+  //   // final GoogleSignInAccount user = googleSignIn.currentUser;
+  //   if (Platform.isIOS) getiOSPermission();
 
-  configurePushNotifications() {
-    // final GoogleSignInAccount user = googleSignIn.currentUser;
-    if (Platform.isIOS) getiOSPermission();
+  //   _firebaseMessaging.getToken().then((token) {
+  //     print("Firebase Messaging Token: $token\n");
+  //     usersRef
+  //         .doc(currentUser.uid.value)
+  //         .update({"androidNotificationToken": token});
+  //   });
 
-    _firebaseMessaging.getToken().then((token) {
-      print("Firebase Messaging Token: $token\n");
-      usersRef
-          .doc(currentUser.uid.value)
-          .update({"androidNotificationToken": token});
-    });
+  //   _firebaseMessaging.configure(
+  //     // onLaunch: (Map<String, dynamic> message) async {},
+  //     // onResume: (Map<String, dynamic> message) async {},
+  //     onMessage: (Map<String, dynamic> message) async {
+  //       print("on message: $message\n");
+  //       final String recipientId = message['data']['recipient'];
+  //       final String body = message['notification']['body'];
+  //       if (recipientId == currentUser.uid.value) {
+  //         print("Notification shown!");
+  //         SnackBar snackbar = SnackBar(
+  //             content: Text(
+  //           body,
+  //           overflow: TextOverflow.ellipsis,
+  //         ));
+  //         _scaffoldKey.currentState.showSnackBar(snackbar);
+  //       }
+  //       print("Notification NOT shown");
+  //     },
+  //   );
+  // }
 
-    _firebaseMessaging.configure(
-      // onLaunch: (Map<String, dynamic> message) async {},
-      // onResume: (Map<String, dynamic> message) async {},
-      onMessage: (Map<String, dynamic> message) async {
-        print("on message: $message\n");
-        final String recipientId = message['data']['recipient'];
-        final String body = message['notification']['body'];
-        if (recipientId == currentUser.uid.value) {
-          print("Notification shown!");
-          SnackBar snackbar = SnackBar(
-              content: Text(
-            body,
-            overflow: TextOverflow.ellipsis,
-          ));
-          _scaffoldKey.currentState.showSnackBar(snackbar);
-        }
-        print("Notification NOT shown");
-      },
-    );
-  }
-
-  getiOSPermission() {
-    _firebaseMessaging.requestNotificationPermissions(
-        IosNotificationSettings(alert: true, badge: true, sound: true));
-    _firebaseMessaging.onIosSettingsRegistered.listen((settings) {
-      print("Settings registered: $settings");
-    });
-  }
+  // getiOSPermission() {
+  //   _firebaseMessaging.requestNotificationPermissions(
+  //       IosNotificationSettings(alert: true, badge: true, sound: true));
+  //   _firebaseMessaging.onIosSettingsRegistered.listen((settings) {
+  //     print("Settings registered: $settings");
+  //   });
+  // }
 
   Future<bool> createUserInFirestore() async {
     bool isSuccessful = true;
     // 1) check if user exists in users collection in database (according to their uid)
-    final FirebaseUser firebaseUser = auth.currentUser;
+    final User firebaseUser = auth.currentUser;
     print("firebaseUser.uid: ${firebaseUser.uid}");
 
     DocumentSnapshot doc = await usersRef.doc(firebaseUser.uid).get();
@@ -257,7 +258,7 @@ class _HomeState extends State<Home> {
         decoration: BoxDecoration(
           image: DecorationImage(
               image: AssetImage("assets/images/freelancer.jpg"),
-              fit: BoxFit.cover),
+              fit: BoxFit.fill),
           gradient: LinearGradient(
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,

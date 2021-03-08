@@ -32,16 +32,15 @@ dependencies:
   firebase_storage: ^8.0.0
   flappy_search_bar: null
   flutter_easyloading: null
-  flutter_mailer: null
   flutter_rating_bar: null
   flutter_svg: null
-  # geocoding: null
   geoflutterfire2: null
   geolocator: null
   google_maps_flutter: null
   google_sign_in: ^5.0.0
   image: null
   image_picker: null
+  image_picker_for_web: null
   outline_material_icons: null
   path_provider: null
   shimmer: null

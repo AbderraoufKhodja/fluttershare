@@ -6,7 +6,7 @@
     "configurations": [
         
         {
-            "name": "imihani",
+            "name": "default_device",
             "request": "launch",
             "type": "dart"
         },
@@ -22,11 +22,18 @@
             "type": "dart",
             "deviceId": "emulator-5556"
         },
+        {
+            "name": "browser",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "Chrome",
+            "args": ["--web-port", "5000","--web-renderer", "html"],
+        },
     ],
     "compounds": [
         {
             "name": "All Devices",
-            "configurations": ["device_1", "device_2"],
+            "configurations": ["device_1", "device_2", "browser"],
         }
     ]
 }
