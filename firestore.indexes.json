@@ -1,0 +1,403 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "feedItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "jobId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isVacant",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalTitle",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "jobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "jobState",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalTitle",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "globalRate",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalCategory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "completionRate",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalCategory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalCategory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "experienceRate",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalCategory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "globalRate",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalCategory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "location",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "experienceRate",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalCategory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "location",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "globalRate",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalCategory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "popularityRate",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalCategory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "qualityRating",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalCategory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reviews.createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalCategory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reviews.lastReviewTimestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalCategory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reviews.rating",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalCategory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reviews.rating",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalCategory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "teamChoice",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "globalRate",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "professionalCategory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timeManagementRating",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reviews.createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reviews.lastReviewTimestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFreelancer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reviews.rating",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "professionalCategory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "location.geohash",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
