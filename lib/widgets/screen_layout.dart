@@ -23,11 +23,11 @@ class ScreenLayout extends StatelessWidget {
     return DefaultTabController(
       length: tabsList.length,
       child: Scaffold(
-        // appBar: ,
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[
               SliverAppBar(
+                automaticallyImplyLeading: false,
                 flexibleSpace: GestureDetector(
                   onTap: openAppLink,
                   child: Container(

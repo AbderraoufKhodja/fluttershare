@@ -65,7 +65,7 @@ class _EditProfileState extends State<EditProfile> {
                         child: CircleAvatar(
                           radius: 50.0,
                           backgroundImage: CachedNetworkImageProvider(
-                              user.photoURL ?? kBlankProfileUrl),
+                              user.photoURL.value ?? kBlankProfileUrl),
                         ),
                       ),
                       Padding(
@@ -77,7 +77,7 @@ class _EditProfileState extends State<EditProfile> {
                           ],
                         ),
                       ),
-                      RaisedButton(
+                      ElevatedButton(
                         onPressed: updateProfileData,
                         child: Text(
                           "Update Profile",
@@ -90,7 +90,7 @@ class _EditProfileState extends State<EditProfile> {
                       ),
                       Padding(
                         padding: EdgeInsets.all(16.0),
-                        child: FlatButton.icon(
+                        child: TextButton.icon(
                           onPressed: logout,
                           icon: Icon(Icons.cancel, color: Colors.red),
                           label: Text(
