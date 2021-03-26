@@ -38,6 +38,7 @@ dependencies:
   geocoding: null
   geoflutterfire2: null
   geolocator: null
+  google_fonts: ^2.0.0
   google_maps_flutter: null
   google_maps_flutter_web: null
   google_sign_in: ^5.0.0

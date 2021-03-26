@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 const String kJobDescription = "kJobDescription";
@@ -7,6 +6,7 @@ const String kJobLocation = "kJobLocation";
 const String kLoading = "kLoading...";
 const String kLocationField = "kLocationField";
 const String kTimeLine = "kTimeLine";
+const String kInfo = "kInfo";
 const String kSearch = "kSearch";
 const String kChats = "kChats";
 const String kForYou = "kForYou";

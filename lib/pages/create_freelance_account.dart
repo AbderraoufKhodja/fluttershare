@@ -142,7 +142,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                   children: <Widget>[
                     CustomTextFormField(
                       validator: (text) =>
-                          checkLength(text, label: kPersonalBio),
+                          checkLength(text, label: kUsername, max: 40),
                       controller: usernameController,
                       hint: kUsername,
                       onTap: () => updateInstruction(kUsernameInstruction),

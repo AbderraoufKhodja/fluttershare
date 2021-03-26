@@ -112,7 +112,7 @@ class _CreateClientAccountState extends State<CreateClientAccount> {
         validator: (val) {
           if (val.trim().length < 3 || val.isEmpty) {
             return "Username too short";
-          } else if (val.trim().length > 12) {
+          } else if (val.trim().length > 40) {
             return "Username too long";
           } else {
             return null;

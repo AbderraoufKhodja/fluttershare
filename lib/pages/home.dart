@@ -162,11 +162,13 @@ class _HomeState extends State<Home> {
     if (!doc.exists) {
       // 2) if the user doesn't exist, then we want to take them to the create account page
       isSuccessful = await Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => CreateAccount(
-                    firebaseUser: firebaseUser,
-                  )));
+        context,
+        MaterialPageRoute(
+          builder: (context) => CreateAccount(
+            firebaseUser: firebaseUser,
+          ),
+        ),
+      );
       if (isSuccessful == true) {
         // 3) get username from create account, use it to make new user document in users collection
         doc = await usersRef.doc(firebaseUser.uid).get();
