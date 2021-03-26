@@ -1,6 +1,8 @@
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flappy_search_bar/search_bar_style.dart';
 import 'package:flutter/material.dart';
+import 'package:khadamat/constants.dart';
+import 'package:khadamat/pages/place_picker_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ScreenLayout extends StatelessWidget {
@@ -23,11 +25,27 @@ class ScreenLayout extends StatelessWidget {
     return DefaultTabController(
       length: tabsList.length,
       child: Scaffold(
-        // appBar: ,
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return <Widget>[
               SliverAppBar(
+                actions: [
+                  Column(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.location_city,
+                          color: Colors.white,
+                        ),
+                        onPressed: () => showPlacePickerPage(context),
+                      ),
+                      Text(
+                        kLocation,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  )
+                ],
                 flexibleSpace: GestureDetector(
                   onTap: openAppLink,
                   child: Container(

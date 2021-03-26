@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -208,10 +207,10 @@ class _HomeState extends State<Home> {
       body: PageView(
         children: <Widget>[
           ScreenOne(),
-          // CreateFreelanceAccount(),
+          CreateFreelanceAccount(),
           ScreenTwo(),
           ScreenThree(),
-          ScreenFour(),
+          // ScreenFour(),
           Profile(
             profileId: currentUser?.uid.value,
           ),
@@ -239,10 +238,10 @@ class _HomeState extends State<Home> {
             icon: Icon(OMIcons.cardTravel),
             activeIcon: Icon(Icons.card_travel, size: 40.0),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(OMIcons.forum),
-            activeIcon: Icon(Icons.forum, size: 40.0),
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(OMIcons.forum),
+          //   activeIcon: Icon(Icons.forum, size: 40.0),
+          // ),
           BottomNavigationBarItem(
             icon: Icon(OMIcons.accountCircle),
             activeIcon: Icon(Icons.account_circle, size: 40.0),
