@@ -4,8 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/models/firestore_field.dart';
@@ -14,7 +13,6 @@ import 'package:khadamat/pages/google_map_page.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/custom_text_form_field.dart';
 import 'package:khadamat/widgets/progress.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as Im;
@@ -27,15 +25,13 @@ class UploadJob extends StatefulWidget {
   _UploadJobState createState() => _UploadJobState();
 }
 
-class _UploadJobState extends State<UploadJob>
-    with AutomaticKeepAliveClientMixin<UploadJob> {
+class _UploadJobState extends State<UploadJob> with AutomaticKeepAliveClientMixin<UploadJob> {
   TextEditingController jobTitleController = TextEditingController();
   GeoFirePoint jobGeoFirePoint;
   TextEditingController jobLocationController = TextEditingController();
   TextEditingController dateRangeController = TextEditingController();
   TextEditingController jobDescriptionController = TextEditingController();
-  TextEditingController professionalCategoryController =
-      TextEditingController();
+  TextEditingController professionalCategoryController = TextEditingController();
   TextEditingController professionalTitleController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   String professionalCategory;
@@ -51,7 +47,7 @@ class _UploadJobState extends State<UploadJob>
   final _formKey = GlobalKey<FormState>();
   final _categoryScaffoldKey = GlobalKey<ScaffoldState>();
   final picker = ImagePicker();
-  final geo = GeoFlutterFire();
+  final geo = Geoflutterfire();
 
   String jobId = Uuid().v4();
   File file;
@@ -89,8 +85,7 @@ class _UploadJobState extends State<UploadJob>
                   ),
                 ),
                 Container(
-                  margin:
-                      EdgeInsets.symmetric(vertical: 30.0, horizontal: 25.0),
+                  margin: EdgeInsets.symmetric(vertical: 30.0, horizontal: 25.0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
@@ -140,24 +135,21 @@ class _UploadJobState extends State<UploadJob>
                 padding: EdgeInsets.only(right: 5.0, left: 5.0),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30.0),
-                        topRight: Radius.circular(30.0)),
+                        topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
                     color: Colors.white),
                 child: ListView(
                   physics: BouncingScrollPhysics(),
                   children: <Widget>[
                     CustomTextFormField(
-                        validator: (text) =>
-                            checkLength(text, label: kLocation),
+                        validator: (text) => checkLength(text, label: kLocation),
                         controller: jobTitleController,
                         hint: kJobTitleHint,
                         onTap: () {
                           updateInstruction(kJobTitleInstruction);
                         }),
                     CustomTextFormField(
-                        validator: (text) =>
-                            checkLocationAddress(text, label: kLocation),
-                        controller: null,
+                        validator: (text) => checkLocationAddress(text, label: kLocation),
+                        controller: jobLocationController,
                         hint: kLocation,
                         readOnly: true,
                         trailing: buildLocationButton(),
@@ -166,8 +158,7 @@ class _UploadJobState extends State<UploadJob>
                           await showLocationList(context);
                         }),
                     CustomTextFormField(
-                        validator: (text) =>
-                            checkLength(text, label: kBirthDateController),
+                        validator: (text) => checkLength(text, label: kBirthDateController),
                         controller: dateRangeController,
                         hint: kDateRangeHint,
                         trailing: buildBirthDateGestureDetector(),
@@ -181,13 +172,12 @@ class _UploadJobState extends State<UploadJob>
                         Expanded(
                           child: CustomTextFormField(
                               readOnly: true,
-                              validator: (text) => checkLength(text,
-                                  label: kProfessionalCategoryController),
+                              validator: (text) =>
+                                  checkLength(text, label: kProfessionalCategoryController),
                               controller: professionalCategoryController,
                               hint: kProfessionalCategoryController,
                               onTap: () async {
-                                updateInstruction(
-                                    kProfessionalCategoryInstruction);
+                                updateInstruction(kProfessionalCategoryInstruction);
                                 await showCategoryList(context);
                               }),
                         ),
@@ -201,29 +191,24 @@ class _UploadJobState extends State<UploadJob>
                         Expanded(
                           child: CustomTextFormField(
                               readOnly: true,
-                              validator: (text) =>
-                                  checkLength(text, label: kProfessionalTitle),
+                              validator: (text) => checkLength(text, label: kProfessionalTitle),
                               controller: professionalTitleController,
                               hint: kProfessionalTitleHint,
                               onTap: () async {
-                                updateInstruction(
-                                    kProfessionalTitleInstruction);
+                                updateInstruction(kProfessionalTitleInstruction);
                                 await showCategoryList(context);
                               }),
                         ),
                       ],
                     ),
                     CustomTextFormField(
-                        validator: (text) =>
-                            checkLength(text, label: kProfessionalDescription),
+                        validator: (text) => checkLength(text, label: kProfessionalDescription),
                         controller: jobDescriptionController,
                         maxLines: null,
                         hint: kProfessionalDescription,
-                        onTap: () => updateInstruction(
-                            kProfessionalDescriptionInstruction)),
+                        onTap: () => updateInstruction(kProfessionalDescriptionInstruction)),
                     CustomTextFormField(
-                        validator: (text) =>
-                            checkLength(text, label: kProfessionalDescription),
+                        validator: (text) => checkLength(text, label: kProfessionalDescription),
                         enableInteractiveSelection: false,
                         controller: priceController,
                         keyboardType: TextInputType.number,
@@ -232,8 +217,7 @@ class _UploadJobState extends State<UploadJob>
                     GestureDetector(
                       onTap: isUploading ? null : () => handleSubmit(),
                       child: Container(
-                        margin: EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 20.0),
+                        margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
                         height: 50.0,
                         width: 350.0,
                         decoration: BoxDecoration(
@@ -244,9 +228,7 @@ class _UploadJobState extends State<UploadJob>
                           child: Text(
                             "Submit",
                             style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15.0,
-                                fontWeight: FontWeight.bold),
+                                color: Colors.white, fontSize: 15.0, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -261,8 +243,7 @@ class _UploadJobState extends State<UploadJob>
     );
   }
 
-  String checkLength(value,
-      {@required String label, int min = 2, int max = 1000}) {
+  String checkLength(value, {@required String label, int min = 2, int max = 1000}) {
     if (value.trim().length < min || value.isEmpty) {
       return "$label $kTooShort";
     } else if (value.trim().length > max) {
@@ -272,8 +253,7 @@ class _UploadJobState extends State<UploadJob>
     }
   }
 
-  String checkLocationAddress(String value,
-      {@required String label, int min = 2, int max = 1000}) {
+  String checkLocationAddress(String value, {@required String label, int min = 2, int max = 1000}) {
     if (value.trim().length < min || value.isEmpty) {
       return "$label $kTooShort";
     } else if (value.trim().length > max) {
@@ -293,47 +273,57 @@ class _UploadJobState extends State<UploadJob>
         isUploading = true;
       });
       if (file != null) await compressImage();
-      String jobPhotoUrl =
-          file == null ? kBlankProfileUrl : await uploadImage(file);
+      String jobPhotoUrl = file == null ? kBlankProfileUrl : await uploadImage(file);
       Job(
         jobId: FirestoreField<String>(name: "jobId", value: jobId),
-        jobOwnerId: FirestoreField<String>(
-            name: "jobOwnerId", value: currentUser.uid.value),
-        jobOwnerName: FirestoreField<String>(
-            name: "jobOwnerName", value: currentUser.username.value),
-        jobOwnerEmail: FirestoreField<String>(
-            name: "jobOwnerEmail", value: currentUser.email.value),
-        isOwnerFreelancer: FirestoreField<bool>(
-            name: "isOwnerFreelancer", value: currentUser.isFreelancer.value),
-        jobTitle: FirestoreField<String>(
-            name: "jobTitle", value: jobTitleController.text),
+        jobOwnerId: FirestoreField<String>(name: "jobOwnerId", value: currentUser.uid.value),
+        jobOwnerName:
+            FirestoreField<String>(name: "jobOwnerName", value: currentUser.username.value),
+        jobOwnerEmail:
+            FirestoreField<String>(name: "jobOwnerEmail", value: currentUser.email.value),
+        isOwnerFreelancer:
+            FirestoreField<bool>(name: "isOwnerFreelancer", value: currentUser.isFreelancer.value),
+        jobTitle: FirestoreField<String>(name: "jobTitle", value: jobTitleController.text),
         professionalCategory: FirestoreField<String>(
-            name: "professionalCategory",
-            value: professionalCategoryController.text),
+            name: "professionalCategory", value: professionalCategoryController.text),
         professionalTitle: FirestoreField<String>(
             name: "professionalTitle", value: professionalTitleController.text),
-        jobDescription: FirestoreField<String>(
-            name: "jobDescription", value: jobDescriptionController.text),
+        jobDescription:
+            FirestoreField<String>(name: "jobDescription", value: jobDescriptionController.text),
         location: FirestoreField<Map>(name: "location", value: {
           'formattedAddress': jobLocationController.text,
           'geoFirePoint': jobGeoFirePoint.data,
         }),
-        dateRange: FirestoreField<String>(
-            name: "dateRange", value: dateRangeController.text),
-        jobPhotoUrl:
-            FirestoreField<String>(name: "jobPhotoUrl", value: jobPhotoUrl),
-        price:
-            FirestoreField<String>(name: "price", value: priceController.text),
+        dateRange: FirestoreField<String>(name: "dateRange", value: dateRangeController.text),
+        jobPhotoUrl: FirestoreField<String>(name: "jobPhotoUrl", value: jobPhotoUrl),
+        price: FirestoreField<String>(name: "price", value: priceController.text),
         applications: FirestoreField<Map>(name: "applications", value: null),
-        hasFreelancerUpdateRequest: FirestoreField<bool>(
-            name: "hasFreelancerUpdateRequest", value: false),
-        hasOwnerUpdateRequest:
-            FirestoreField<bool>(name: "hasOwnerUpdateRequest", value: false),
+        hasFreelancerUpdateRequest:
+            FirestoreField<bool>(name: "hasFreelancerUpdateRequest", value: false),
+        hasOwnerUpdateRequest: FirestoreField<bool>(name: "hasOwnerUpdateRequest", value: false),
         jobState: FirestoreField<String>(name: "jobState", value: "open"),
-        isOwnerCompleted:
-            FirestoreField<bool>(name: "isOwnerCompleted", value: false),
-        isFreelancerCompleted:
-            FirestoreField<bool>(name: "isFreelancerCompleted", value: false),
+        isOwnerCompleted: FirestoreField<bool>(name: "isOwnerCompleted", value: false),
+        isFreelancerCompleted: FirestoreField<bool>(name: "isFreelancerCompleted", value: false),
+        freelancerAttitudeRate: FirestoreField<double>(name: "freelancerAttitudeRate", value: null),
+        freelancerCompletedAt:
+            FirestoreField<Timestamp>(name: "freelancerCompletedAt", value: null),
+        freelancerQualityRate: FirestoreField<double>(name: "freelancerQualityRate", value: null),
+        ownerAttitudeRate: FirestoreField<double>(name: "ownerAttitudeRate", value: null),
+        freelancerReview: FirestoreField<String>(name: "freelancerReview", value: null),
+        freelancerTimeManagementRate:
+            FirestoreField<double>(name: "freelancerTimeManagementRate", value: null),
+        jobFreelancerEmail: FirestoreField<String>(name: "jobFreelancerEmail", value: null),
+        jobFreelancerEnrollmentDate:
+            FirestoreField<Timestamp>(name: "jobFreelancerEnrollmentDate", value: null),
+        jobFreelancerId: FirestoreField<String>(name: "jobFreelancerId", value: null),
+        jobFreelancerName: FirestoreField<String>(name: "jobFreelancerName", value: null),
+        newDateRange: FirestoreField<String>(name: "newDateRange", value: null),
+        newJobDescription: FirestoreField<String>(name: "newJobDescription", value: null),
+        newLocation: FirestoreField<Map>(name: "newLocation", value: null),
+        newPrice: FirestoreField<String>(name: "newPrice", value: null),
+        ownerCompletedAt: FirestoreField<Timestamp>(name: "ownerCompletedAt", value: null),
+        ownerReview: FirestoreField<String>(name: "ownerReview", value: null),
+        createdAt: FirestoreField<Timestamp>(name: "createdAt", value: Timestamp.now()),
       ).createJob();
       clearControllers();
       setState(() {
@@ -378,10 +368,8 @@ class _UploadJobState extends State<UploadJob>
         return SimpleDialog(
           title: Text(kUploadImage),
           children: <Widget>[
-            SimpleDialogOption(
-                child: Text(kFromCamera), onPressed: handleTakePhoto),
-            SimpleDialogOption(
-                child: Text(kFromGallery), onPressed: handleChooseFromGallery),
+            SimpleDialogOption(child: Text(kFromCamera), onPressed: handleTakePhoto),
+            SimpleDialogOption(child: Text(kFromGallery), onPressed: handleChooseFromGallery),
             SimpleDialogOption(
               child: Text(kCancel),
               onPressed: () => Navigator.pop(context),
@@ -461,8 +449,7 @@ class _UploadJobState extends State<UploadJob>
   }
 
   Future<String> uploadImage(imageFile) async {
-    UploadTask uploadCardTask =
-        storageRef.child("job_$jobId.jpg").putFile(imageFile);
+    UploadTask uploadCardTask = storageRef.child("job_$jobId.jpg").putFile(imageFile);
     TaskSnapshot storageSnap = await uploadCardTask.whenComplete(() {});
     String downloadUrl = await storageSnap.ref.getDownloadURL();
     return downloadUrl;
@@ -488,14 +475,11 @@ class _UploadJobState extends State<UploadJob>
 
   showCalender() async {
     final datePick = await showDateRangePicker(
-        context: context,
-        firstDate: new DateTime.now(),
-        lastDate: new DateTime(2100));
+        context: context, firstDate: new DateTime.now(), lastDate: new DateTime(2100));
     if (datePick != null && datePick != dateRange) {
       setState(() {
         dateRange = datePick;
-        dateRangeController.text =
-            "${dateRange.start.day}/${dateRange.start.month}/"
+        dateRangeController.text = "${dateRange.start.day}/${dateRange.start.month}/"
             "${dateRange.start.year} to ${dateRange.end.day}/"
             "${dateRange.end.month}/${dateRange.end.year}"; // 08/14/2019
       });
@@ -548,15 +532,13 @@ class _UploadJobState extends State<UploadJob>
           ? Builder(
               builder: (context) => IconButton(
                 icon: Icon(Icons.add_circle),
-                onPressed: () => parentController?.text?.trim()?.isNotEmpty ??
-                        true
+                onPressed: () => parentController?.text?.trim()?.isNotEmpty ?? true
                     ? Scaffold.of(context).showBottomSheet(
                         (BuildContext context) => Container(
                           height: 60.0,
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(20.0)),
+                            borderRadius: BorderRadius.all(Radius.circular(20.0)),
                           ),
                           child: CustomTextFormField(
                             hint: addFieldHint,
@@ -566,8 +548,7 @@ class _UploadJobState extends State<UploadJob>
                                 Icons.check,
                                 color: Colors.green,
                               ),
-                              onPressed: () =>
-                                  onAddFieldIconPressed(controller),
+                              onPressed: () => onAddFieldIconPressed(controller),
                             ),
                           ),
                         ),
@@ -583,8 +564,7 @@ class _UploadJobState extends State<UploadJob>
     );
   }
 
-  buildProfessionalCategoryDropdownMenu(
-      BuildContext context, StateSetter setState) {
+  buildProfessionalCategoryDropdownMenu(BuildContext context, StateSetter setState) {
     return Column(
       children: [
         buildListTile(
@@ -605,8 +585,7 @@ class _UploadJobState extends State<UploadJob>
           addFieldHint: kAddProfessionalCategory,
           parentController: null,
           onAddFieldIconPressed: (controller) {
-            if (checkLength(controller.text, label: kCheckProfessionalTitle) ==
-                null) {
+            if (checkLength(controller.text, label: kCheckProfessionalTitle) == null) {
               handleAddProfessionalCategoriesList(
                       setState: setState, professionalCategory: controller.text)
                   .then((_) {
@@ -633,9 +612,7 @@ class _UploadJobState extends State<UploadJob>
           addFieldHint: kAddProfessionalTitle,
           parentController: professionalCategoryController,
           onAddFieldIconPressed: (controller) {
-            if (checkLength(controller.text,
-                    label: kCheckProfessionalCategory) ==
-                null) {
+            if (checkLength(controller.text, label: kCheckProfessionalCategory) == null) {
               handleAddProfessionalTitlesList(
                       setState: setState, professionalTitle: controller.text)
                   .then((_) {
@@ -690,8 +667,10 @@ class _UploadJobState extends State<UploadJob>
       onTap: () async {
         Map result = await showGoogleMaps(context);
         if (result != null) {
-          jobLocationController.text = result['formattedAddress'];
-          jobGeoFirePoint = result['geoFirePoint'];
+          setState(() {
+            jobLocationController.text = result['formattedAddress'];
+            jobGeoFirePoint = result['geoFirePoint'];
+          });
         }
       },
     );
@@ -701,7 +680,6 @@ class _UploadJobState extends State<UploadJob>
   //   bool serviceEnabled;
   //   LocationPermission permission;
   //   Position position;
-
   //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
   //   if (!serviceEnabled) {
   //     return Future.error('Location services are disabled.');
@@ -711,7 +689,6 @@ class _UploadJobState extends State<UploadJob>
   //     return Future.error(
   //         'Location permissions are permantly denied, we cannot request permissions.');
   //   }
-
   //   if (permission == LocationPermission.denied) {
   //     permission = await Geolocator.requestPermission();
   //     if (permission != LocationPermission.whileInUse &&
@@ -754,10 +731,8 @@ class _UploadJobState extends State<UploadJob>
   }
 
   Future<void> getProfessionalTitlesList(StateSetter setState) async {
-    QuerySnapshot snapshot = await categoriesRef
-        .doc(professionalCategory)
-        .collection("professionalTitles")
-        .get();
+    QuerySnapshot snapshot =
+        await categoriesRef.doc(professionalCategory).collection("professionalTitles").get();
     setState(() {
       professionalTitlesList = snapshot.docs.map((doc) => doc.id).toList();
     });
@@ -774,10 +749,8 @@ class _UploadJobState extends State<UploadJob>
 
   Future<void> getAdministrativeAreasList(StateSetter setState) async {
     if (country.isNotEmpty) {
-      QuerySnapshot snapshot = await locationsRef
-          .doc(country)
-          .collection("administrativeAreas")
-          .get();
+      QuerySnapshot snapshot =
+          await locationsRef.doc(country).collection("administrativeAreas").get();
       setState(() {
         administrativeAreasList = snapshot.docs.map((doc) => doc.id).toList();
         subAdministrativeAreasList = [""];
@@ -794,8 +767,7 @@ class _UploadJobState extends State<UploadJob>
           .collection("subAdministrativeAreas")
           .get();
       setState(() {
-        subAdministrativeAreasList =
-            snapshot.docs.map((doc) => doc.id).toList();
+        subAdministrativeAreasList = snapshot.docs.map((doc) => doc.id).toList();
       });
     }
   }
@@ -834,8 +806,7 @@ class _UploadJobState extends State<UploadJob>
   // }
 }
 
-Future<bool> showUploadJobScreen(BuildContext context,
-    {AppUser currentUser}) async {
+Future<bool> showUploadJobScreen(BuildContext context, {AppUser currentUser}) async {
   return await Navigator.push(
     context,
     MaterialPageRoute(

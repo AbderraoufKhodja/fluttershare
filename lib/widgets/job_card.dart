@@ -38,8 +38,11 @@ class _JobCardState extends State<JobCard> {
     super.initState();
     applicationsCount = job.getApplicationsCount();
     isJobOwner = currentUser.uid.value == job.jobOwnerId.value;
-    isApplied = (job.applications.value[currentUserId] == null &&
-        job.applications.value.containsKey(currentUserId));
+    isApplied = job.applications.value != null
+        ? job.applications.value.containsKey(currentUserId)
+            ? job.applications.value[currentUserId] == null
+            : false
+        : false;
   }
 
   @override
@@ -116,9 +119,7 @@ class _JobCardState extends State<JobCard> {
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                isShowDetail
-                    ? cachedNetworkImage(job.jobPhotoUrl.value)
-                    : Container(),
+                isShowDetail ? cachedNetworkImage(job.jobPhotoUrl.value) : Container(),
                 CustomListTile(
                   description: job.jobTitle.value,
                   icon: Icon(
@@ -194,20 +195,17 @@ class _JobCardState extends State<JobCard> {
             ? Expanded(
                 child: CustomButton(
                   text: kManage,
-                  function: () =>
-                      showManageJob(context, jobId: job.jobId.value),
+                  function: () => showManageJob(context, jobId: job.jobId.value),
                 ),
               )
             : Expanded(
                 child: CustomButton(
                   text: isApplied ? kUnapply : kApply,
                   function: () async {
-                    if (!currentUser.isFreelancer.value)
-                      showCreateFreelanceProfile(context);
+                    if (!currentUser.isFreelancer.value) showCreateFreelanceProfile(context);
                     if (currentUser.isFreelancer.value) {
                       job.handleApplyJob(
-                          applicantName: currentUser.username.value,
-                          applicantId: currentUserId);
+                          applicantName: currentUser.username.value, applicantId: currentUserId);
                       setState(() {
                         applicationsCount += isApplied ? -1 : 1;
                         isApplied = !isApplied;
@@ -278,16 +276,13 @@ class _JobCardState extends State<JobCard> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) =>
-                                CreateFreelanceAccount(appUser: currentUser)));
+                            builder: (context) => CreateFreelanceAccount(appUser: currentUser)));
                   },
                   child: Text(
                     kCreateCard,
                     style: TextStyle(color: Colors.red),
                   )),
-              SimpleDialogOption(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(kCancel)),
+              SimpleDialogOption(onPressed: () => Navigator.pop(context), child: Text(kCancel)),
             ],
           );
         });

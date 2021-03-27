@@ -13,7 +13,7 @@ import 'package:khadamat/widgets/custom_text_form_field.dart';
 import 'package:khadamat/widgets/progress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:image/image.dart' as Im;
 
 class CreateFreelanceAccount extends StatefulWidget {
@@ -35,10 +35,8 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   TextEditingController birthDateController = TextEditingController();
   Timestamp birthDateTimestamp;
   TextEditingController genderController = TextEditingController();
-  TextEditingController professionalDescriptionController =
-      TextEditingController();
-  TextEditingController professionalCategoryController =
-      TextEditingController();
+  TextEditingController professionalDescriptionController = TextEditingController();
+  TextEditingController professionalCategoryController = TextEditingController();
   TextEditingController professionalTitleController = TextEditingController();
 
 // Init firestore and geoFlutterFire
@@ -65,7 +63,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   TextEditingController achievementController = TextEditingController();
   TextEditingController recommendationController = TextEditingController();
   TextEditingController languageController = TextEditingController();
-  final geo = GeoFlutterFire();
+  final geo = Geoflutterfire();
   final _formKey = GlobalKey<FormState>();
   final _categoryScaffoldKey = GlobalKey<ScaffoldState>();
   final picker = ImagePicker();
@@ -79,8 +77,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   GeoPoint placeMark;
 
   bool get wantKeepAlive => true;
-  get user =>
-      widget.firebaseUser != null ? widget.firebaseUser : widget.appUser;
+  get user => widget.firebaseUser != null ? widget.firebaseUser : widget.appUser;
 
   @override
   void initState() {
@@ -102,12 +99,9 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Container(padding: EdgeInsets.only(left: 25.0), child: Text(instruction)),
                 Container(
-                    padding: EdgeInsets.only(left: 25.0),
-                    child: Text(instruction)),
-                Container(
-                  margin:
-                      EdgeInsets.symmetric(vertical: 30.0, horizontal: 25.0),
+                  margin: EdgeInsets.symmetric(vertical: 30.0, horizontal: 25.0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
@@ -134,30 +128,25 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                 padding: EdgeInsets.only(right: 5.0, left: 5.0),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30.0),
-                        topRight: Radius.circular(30.0)),
+                        topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
                     color: Colors.white),
                 child: ListView(
                   physics: BouncingScrollPhysics(),
                   children: <Widget>[
                     CustomTextFormField(
-                      validator: (text) =>
-                          checkLength(text, label: kUsername, max: 40),
+                      validator: (text) => checkLength(text, label: kUsername, max: 40),
                       controller: usernameController,
                       hint: kUsername,
                       onTap: () => updateInstruction(kUsernameInstruction),
                     ),
                     CustomTextFormField(
-                        validator: (text) =>
-                            checkLength(text, label: kPersonalBio),
+                        validator: (text) => checkLength(text, label: kPersonalBio),
                         controller: personalBioController,
                         hint: kPersonalBio,
                         maxLines: null,
-                        onTap: () =>
-                            updateInstruction(kPersonalBioInstruction)),
+                        onTap: () => updateInstruction(kPersonalBioInstruction)),
                     CustomTextFormField(
-                        validator: (text) =>
-                            checkLocationAddress(text, label: kLocation),
+                        validator: (text) => checkLocationAddress(text, label: kLocation),
                         controller: locationController,
                         enableInteractiveSelection: false,
                         hint: kLocation,
@@ -168,8 +157,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                           await showLocationList(context);
                         }),
                     CustomTextFormField(
-                        validator: (text) =>
-                            checkLength(text, label: kBirthDateController),
+                        validator: (text) => checkLength(text, label: kBirthDateController),
                         controller: birthDateController,
                         hint: kBirthDateController,
                         trailing: buildBirthDateGestureDetector(),
@@ -179,8 +167,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                           showCalender();
                         }),
                     CustomTextFormField(
-                        validator: (text) =>
-                            checkLength(text, label: kGenderController),
+                        validator: (text) => checkLength(text, label: kGenderController),
                         controller: genderController,
                         hint: kGenderController,
                         readOnly: true,
@@ -193,13 +180,12 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                         Expanded(
                           child: CustomTextFormField(
                               readOnly: true,
-                              validator: (text) => checkLength(text,
-                                  label: kProfessionalCategoryController),
+                              validator: (text) =>
+                                  checkLength(text, label: kProfessionalCategoryController),
                               controller: professionalCategoryController,
                               hint: kProfessionalCategoryController,
                               onTap: () async {
-                                updateInstruction(
-                                    kProfessionalCategoryInstruction);
+                                updateInstruction(kProfessionalCategoryInstruction);
                                 await showCategoryList(context);
                               }),
                         ),
@@ -213,36 +199,30 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                         Expanded(
                           child: CustomTextFormField(
                               readOnly: true,
-                              validator: (text) =>
-                                  checkLength(text, label: kProfessionalTitle),
+                              validator: (text) => checkLength(text, label: kProfessionalTitle),
                               controller: professionalTitleController,
                               hint: kProfessionalTitleHint,
                               onTap: () async {
-                                updateInstruction(
-                                    kProfessionalTitleInstruction);
+                                updateInstruction(kProfessionalTitleInstruction);
                                 await showCategoryList(context);
                               }),
                         ),
                       ],
                     ),
                     CustomTextFormField(
-                        validator: (text) =>
-                            checkLength(text, label: kProfessionalDescription),
+                        validator: (text) => checkLength(text, label: kProfessionalDescription),
                         controller: professionalDescriptionController,
                         hint: kProfessionalDescription,
                         maxLines: null,
-                        onTap: () => updateInstruction(
-                            kProfessionalDescriptionInstruction)),
+                        onTap: () => updateInstruction(kProfessionalDescriptionInstruction)),
                     Row(
                       children: [
                         Expanded(
                           child: CustomTextFormField(
-                              validator: (text) =>
-                                  checkLength(text, label: kPreferences),
+                              validator: (text) => checkLength(text, label: kPreferences),
                               controller: keyWord1Controller,
                               hint: "$kPreferences 1",
-                              onTap: () =>
-                                  updateInstruction(kKeyWordsInstruction)),
+                              onTap: () => updateInstruction(kKeyWordsInstruction)),
                         ),
                         Container(
                           height: 30,
@@ -253,12 +233,10 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                         ),
                         Expanded(
                           child: CustomTextFormField(
-                              validator: (text) =>
-                                  checkLength(text, label: kPreferences),
+                              validator: (text) => checkLength(text, label: kPreferences),
                               controller: keyWord2Controller,
                               hint: "$kPreferences 2",
-                              onTap: () =>
-                                  updateInstruction(kKeyWordsInstruction)),
+                              onTap: () => updateInstruction(kKeyWordsInstruction)),
                         ),
                       ],
                     ),
@@ -266,12 +244,10 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                       children: [
                         Expanded(
                           child: CustomTextFormField(
-                              validator: (text) =>
-                                  checkLength(text, label: kPreferences),
+                              validator: (text) => checkLength(text, label: kPreferences),
                               controller: keyWord3Controller,
                               hint: "$kPreferences 3",
-                              onTap: () =>
-                                  updateInstruction(kKeyWordsInstruction)),
+                              onTap: () => updateInstruction(kKeyWordsInstruction)),
                         ),
                         Container(
                           height: 30,
@@ -282,12 +258,10 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                         ),
                         Expanded(
                           child: CustomTextFormField(
-                              validator: (text) =>
-                                  checkLength(text, label: kPreferences),
+                              validator: (text) => checkLength(text, label: kPreferences),
                               controller: keyWord4Controller,
                               hint: "$kPreferences 4",
-                              onTap: () =>
-                                  updateInstruction(kKeyWordsInstruction)),
+                              onTap: () => updateInstruction(kKeyWordsInstruction)),
                         ),
                       ],
                     ),
@@ -303,8 +277,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                     CustomTextFormField(
                         controller: certificationController,
                         hint: kCertification,
-                        onTap: () =>
-                            updateInstruction(kCertificationInstruction)),
+                        onTap: () => updateInstruction(kCertificationInstruction)),
                     CustomTextFormField(
                         controller: languageController,
                         hint: kLanguage,
@@ -320,23 +293,19 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                     CustomTextFormField(
                         controller: competenceController,
                         hint: kCompetences,
-                        onTap: () =>
-                            updateInstruction(kCompetencesInstruction)),
+                        onTap: () => updateInstruction(kCompetencesInstruction)),
                     CustomTextFormField(
                         controller: achievementController,
                         hint: kAchievement,
-                        onTap: () =>
-                            updateInstruction(kAchievementInstruction)),
+                        onTap: () => updateInstruction(kAchievementInstruction)),
                     CustomTextFormField(
                         controller: recommendationController,
                         hint: kRecommendation,
-                        onTap: () =>
-                            updateInstruction(kRecommendationInstruction)),
+                        onTap: () => updateInstruction(kRecommendationInstruction)),
                     GestureDetector(
                       onTap: isUploading ? null : () => handleSubmit(),
                       child: Container(
-                        margin: EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 20.0),
+                        margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
                         height: 50.0,
                         width: 350.0,
                         decoration: BoxDecoration(
@@ -347,9 +316,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                           child: Text(
                             "Submit",
                             style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15.0,
-                                fontWeight: FontWeight.bold),
+                                color: Colors.white, fontSize: 15.0, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
@@ -364,8 +331,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     );
   }
 
-  String checkLength(value,
-      {@required String label, int min = 2, int max = 1000}) {
+  String checkLength(value, {@required String label, int min = 2, int max = 1000}) {
     if (value.trim().length < min || value.isEmpty) {
       return "$label $kTooShort";
     } else if (value.trim().length > max) {
@@ -375,8 +341,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     }
   }
 
-  String checkLocationAddress(String value,
-      {@required String label, int min = 2, int max = 1000}) {
+  String checkLocationAddress(String value, {@required String label, int min = 2, int max = 1000}) {
     if (value.trim().length < min || value.isEmpty) {
       return "$label $kTooShort";
     } else if (value.trim().length > max) {
@@ -403,11 +368,9 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
       },
       widget.appUser.birthDate.name: birthDateTimestamp,
       widget.appUser.gender.name: genderController.text,
-      widget.appUser.professionalCategory.name:
-          professionalCategoryController.text,
+      widget.appUser.professionalCategory.name: professionalCategoryController.text,
       widget.appUser.professionalTitle.name: professionalTitleController.text,
-      widget.appUser.professionalDescription.name:
-          professionalDescriptionController.text,
+      widget.appUser.professionalDescription.name: professionalDescriptionController.text,
       widget.appUser.preferences.name: [
         keyWord1Controller.text,
         keyWord2Controller.text,
@@ -447,8 +410,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
         isUploading = true;
       });
       if (file != null) await compressImage();
-      String mediaUrl =
-          file == null ? kBlankProfileUrl : await uploadImage(file);
+      String mediaUrl = file == null ? kBlankProfileUrl : await uploadImage(file);
       await uploadUsersProfessionalInfo(mediaUrl);
       clearControllers();
       setState(() {
@@ -492,10 +454,8 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
         return SimpleDialog(
           title: Text(kUploadImage),
           children: <Widget>[
-            SimpleDialogOption(
-                child: Text(kFromCamera), onPressed: handleTakePhoto),
-            SimpleDialogOption(
-                child: Text(kFromGallery), onPressed: handleChooseFromGallery),
+            SimpleDialogOption(child: Text(kFromCamera), onPressed: handleTakePhoto),
+            SimpleDialogOption(child: Text(kFromGallery), onPressed: handleChooseFromGallery),
             SimpleDialogOption(
               child: Text(kCancel),
               onPressed: () => Navigator.pop(context),
@@ -707,15 +667,13 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
           ? Builder(
               builder: (context) => IconButton(
                 icon: Icon(Icons.add_circle),
-                onPressed: () => parentController?.text?.trim()?.isNotEmpty ??
-                        true
+                onPressed: () => parentController?.text?.trim()?.isNotEmpty ?? true
                     ? Scaffold.of(context).showBottomSheet(
                         (BuildContext context) => Container(
                           height: 60.0,
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(20.0)),
+                            borderRadius: BorderRadius.all(Radius.circular(20.0)),
                           ),
                           child: CustomTextFormField(
                             hint: addFieldHint,
@@ -725,8 +683,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
                                 Icons.check,
                                 color: Colors.green,
                               ),
-                              onPressed: () =>
-                                  onAddFieldIconPressed(controller),
+                              onPressed: () => onAddFieldIconPressed(controller),
                             ),
                           ),
                         ),
@@ -742,8 +699,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
     );
   }
 
-  buildProfessionalCategoryDropdownMenu(
-      BuildContext context, StateSetter setState) {
+  buildProfessionalCategoryDropdownMenu(BuildContext context, StateSetter setState) {
     return Column(
       children: [
         buildListTile(
@@ -764,8 +720,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
           addFieldHint: kAddProfessionalCategory,
           parentController: null,
           onAddFieldIconPressed: (controller) {
-            if (checkLength(controller.text, label: kCheckProfessionalTitle) ==
-                null) {
+            if (checkLength(controller.text, label: kCheckProfessionalTitle) == null) {
               handleAddProfessionalCategoriesList(
                       setState: setState, professionalCategory: controller.text)
                   .then((_) {
@@ -792,9 +747,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
           addFieldHint: kAddProfessionalTitle,
           parentController: professionalCategoryController,
           onAddFieldIconPressed: (controller) {
-            if (checkLength(controller.text,
-                    label: kCheckProfessionalCategory) ==
-                null) {
+            if (checkLength(controller.text, label: kCheckProfessionalCategory) == null) {
               handleAddProfessionalTitlesList(
                       setState: setState, professionalTitle: controller.text)
                   .then((_) {
@@ -941,10 +894,8 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   }
 
   Future<void> getProfessionalTitlesList(StateSetter setState) async {
-    QuerySnapshot snapshot = await categoriesRef
-        .doc(professionalCategory)
-        .collection("professionalTitles")
-        .get();
+    QuerySnapshot snapshot =
+        await categoriesRef.doc(professionalCategory).collection("professionalTitles").get();
     setState(() {
       professionalTitlesList = snapshot.docs.map((doc) => doc.id).toList();
     });
@@ -961,10 +912,8 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
 
   Future<void> getAdministrativeAreasList(StateSetter setState) async {
     if (country.isNotEmpty) {
-      QuerySnapshot snapshot = await locationsRef
-          .doc(country)
-          .collection("administrativeAreas")
-          .get();
+      QuerySnapshot snapshot =
+          await locationsRef.doc(country).collection("administrativeAreas").get();
       setState(() {
         administrativeAreasList = snapshot.docs.map((doc) => doc.id).toList();
         subAdministrativeAreasList = [""];
@@ -981,8 +930,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
           .collection("subAdministrativeAreas")
           .get();
       setState(() {
-        subAdministrativeAreasList =
-            snapshot.docs.map((doc) => doc.id).toList();
+        subAdministrativeAreasList = snapshot.docs.map((doc) => doc.id).toList();
       });
     }
   }

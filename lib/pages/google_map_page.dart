@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:geocode/geocode.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class GoogleMapPage extends StatefulWidget {
@@ -17,6 +19,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   Map<MarkerId, Marker> _markers = <MarkerId, Marker>{};
   Completer<GoogleMapController> _controller = Completer();
   String formattedAddress;
+  GeoCode geoCode = GeoCode(apiKey: "690695374351251687867x94033");
 
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(36.7538, 3.0588),
@@ -24,19 +27,18 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   );
 
   GeoFirePoint geoFirePoint;
-  GeoPoint geoPoint;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         shadowColor: Colors.transparent,
         automaticallyImplyLeading: true,
         leading: CircleAvatar(child: Icon(Icons.arrow_back)),
         actions: [
           IconButton(
-            onPressed: formattedAddress != null
+            onPressed: formattedAddress != null && geoFirePoint != null
                 ? () => Navigator.pop(context, {
                       "formattedAddress": formattedAddress,
                       "geoFirePoint": geoFirePoint,
@@ -51,7 +53,7 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           ),
         ],
       ),
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       body: Stack(
         children: [
           GoogleMap(
@@ -97,26 +99,38 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
         position: position,
       );
       geoFirePoint = GeoFirePoint(position.latitude, position.longitude);
-      await EasyLoading.show(status: "Loading...");
+      await EasyLoading.show(status: "Loading...", dismissOnTap: true);
       await updateAddress();
       await EasyLoading.dismiss(animation: true);
     });
   }
 
-  Future<dynamic> updateAddress() {
-    return placemarkFromCoordinates(
-            geoFirePoint.latitude, geoFirePoint.longitude,
-            localeIdentifier: "fr_")
-        .then((value) {
-      setState(() {
-        formattedAddress = checkAddressField(str: value[0].street) +
-            checkAddressField(str: value[0].subLocality) +
-            checkAddressField(str: value[0].locality) +
-            checkAddressField(str: value[0].subAdministrativeArea) +
-            checkAddressField(str: value[0].administrativeArea) +
-            checkAddressField(str: value[0].country, isLast: true);
-      });
-    });
+  Future<void> updateAddress() {
+    try {
+      if (kIsWeb)
+        return geoCode.reverseGeocoding(latitude: geoFirePoint.latitude, longitude: geoFirePoint.longitude).then((address) {
+          setState(() {
+            formattedAddress = checkAddressField(str: address.streetAddress) +
+                checkAddressField(str: address.city) +
+                checkAddressField(str: address.region) +
+                checkAddressField(str: address.countryName) +
+                checkAddressField(str: address.countryCode, isLast: true);
+          });
+        });
+      else
+        return placemarkFromCoordinates(geoFirePoint.latitude, geoFirePoint.longitude, localeIdentifier: "fr_").then((value) {
+          setState(() {
+            formattedAddress = checkAddressField(str: value[0].street) +
+                checkAddressField(str: value[0].subLocality) +
+                checkAddressField(str: value[0].locality) +
+                checkAddressField(str: value[0].subAdministrativeArea) +
+                checkAddressField(str: value[0].administrativeArea) +
+                checkAddressField(str: value[0].country, isLast: true);
+          });
+        });
+    } catch (e) {
+      print(e);
+    }
   }
 }
 

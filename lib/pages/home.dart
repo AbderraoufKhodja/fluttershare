@@ -4,12 +4,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:khadamat/authentication.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/create_account.dart';
-import 'package:khadamat/pages/create_freelance_account.dart';
 import 'package:khadamat/pages/profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:khadamat/pages/screen_four.dart';
 import 'package:khadamat/pages/screen_one.dart';
 import 'package:khadamat/pages/screen_three.dart';
 import 'package:khadamat/pages/screen_two.dart';
@@ -52,6 +51,11 @@ class _HomeState extends State<Home> {
   String professionalTitle;
 
   @override
+  Widget build(BuildContext context) {
+    return isAuth ? buildAuthScreen() : buildUnAuthScreen();
+  }
+
+  @override
   void initState() {
     super.initState();
     print("hello");
@@ -71,24 +75,6 @@ class _HomeState extends State<Home> {
     // }).catchError((err) {
     //   print('Error signing in: $err');
     // });
-  }
-
-  Future<UserCredential> signInFirbaseAuthWithGoogle() async {
-    // Trigger the authentication flow
-    final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
-
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
-
-    // Create a new credential
-    final AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    // Once signed in, return the UserCredential
-    return await auth.signInWithCredential(credential);
   }
 
   handleSignIn(User firebaseUser) async {
@@ -209,7 +195,7 @@ class _HomeState extends State<Home> {
       body: PageView(
         children: <Widget>[
           ScreenOne(),
-          CreateFreelanceAccount(),
+          // CreateFreelanceAccount(),
           ScreenTwo(),
           ScreenThree(),
           // ScreenFour(),
@@ -283,29 +269,82 @@ class _HomeState extends State<Home> {
               ),
               textAlign: TextAlign.center,
             ),
-            GestureDetector(
-              onTap: signInFirbaseAuthWithGoogle,
-              child: Container(
-                width: 260.0,
-                height: 60.0,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(
-                      'assets/images/google_signin_button.png',
-                    ),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            )
+            buildGoogleSignInButton(),
           ],
         ),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return isAuth ? buildAuthScreen() : buildUnAuthScreen();
+  Widget buildGoogleSignInButton() {
+    bool _isSigningIn = false;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: _isSigningIn
+          ? CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            )
+          : OutlinedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.white),
+                shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(40),
+                  ),
+                ),
+              ),
+              onPressed: () async {
+                setState(() {
+                  _isSigningIn = true;
+                });
+                User firebaseUser =
+                    await Authentication.signInWithGoogle(context: context);
+                print('User is signed in!');
+                print(firebaseUser.email);
+
+                setState(() {
+                  _isSigningIn = false;
+                });
+
+                if (firebaseUser != null) {
+                  setState(() async {
+                    bool isSuccessful = await createUserInFirestore();
+                    if (isSuccessful == true) {
+                      setState(() {
+                        isAuth = true;
+                      });
+                      // TODO fix firebase_messaging
+                      // configurePushNotifications();
+                    }
+                  });
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Image(
+                      image:
+                          AssetImage("assets/images/google_signin_button.png"),
+                      height: 35.0,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Text(
+                        'Sign in with Google',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.black54,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+    );
   }
 }
