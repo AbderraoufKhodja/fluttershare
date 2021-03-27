@@ -5,7 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/models/firestore_field.dart';
@@ -51,7 +51,7 @@ class _UploadJobState extends State<UploadJob>
   final _formKey = GlobalKey<FormState>();
   final _categoryScaffoldKey = GlobalKey<ScaffoldState>();
   final picker = ImagePicker();
-  final geo = GeoFlutterFire();
+  final geo = Geoflutterfire();
 
   String jobId = Uuid().v4();
   File file;

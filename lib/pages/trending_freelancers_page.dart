@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/items_horizontal_view.dart';
@@ -17,7 +17,7 @@ class _TrendingFreelancersPage extends State<TrendingFreelancersPage>
   bool get wantKeepAlive => true;
   Future<QuerySnapshot> searchResultsFuture;
   List<String> popularCategories = ["Developper"];
-  final geo = GeoFlutterFire();
+  final geo = Geoflutterfire();
 
   @override
   void initState() {

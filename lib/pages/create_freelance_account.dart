@@ -13,7 +13,7 @@ import 'package:khadamat/widgets/custom_text_form_field.dart';
 import 'package:khadamat/widgets/progress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:image/image.dart' as Im;
 
 class CreateFreelanceAccount extends StatefulWidget {
@@ -65,7 +65,7 @@ class _CreateFreelanceAccountState extends State<CreateFreelanceAccount>
   TextEditingController achievementController = TextEditingController();
   TextEditingController recommendationController = TextEditingController();
   TextEditingController languageController = TextEditingController();
-  final geo = GeoFlutterFire();
+  final geo = Geoflutterfire();
   final _formKey = GlobalKey<FormState>();
   final _categoryScaffoldKey = GlobalKey<ScaffoldState>();
   final picker = ImagePicker();
