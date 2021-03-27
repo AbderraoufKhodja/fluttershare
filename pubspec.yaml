@@ -24,6 +24,7 @@ dependencies:
   cached_network_image: null
   chips_choice: null
   cloud_firestore: ^1.0.0
+  country_state_city_picker: null
   cupertino_icons: null
   eva_icons_flutter: null
   firebase_auth: ^1.0.0
@@ -35,6 +36,7 @@ dependencies:
   flutter_rating_bar: null
   flutter_svg: null
   geocoding: null
+  geocode: null
   geoflutterfire: null
   geolocator: null
   google_fonts: ^2.0.0

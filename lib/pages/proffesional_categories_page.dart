@@ -4,15 +4,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/pages/professional_titles_screen.dart';
 import 'package:khadamat/pages/upload_job.dart';
-import 'package:khadamat/widgets/category_button.dart';
+import 'package:khadamat/widgets/job_category_tile.dart';
 import 'package:khadamat/widgets/progress.dart';
 
 class ProfessionalCategoriesPage extends StatefulWidget {
   ProfessionalCategoriesPage();
 
   @override
-  _ProfessionalCategoriesPageState createState() =>
-      _ProfessionalCategoriesPageState();
+  _ProfessionalCategoriesPageState createState() => _ProfessionalCategoriesPageState();
 }
 
 class _ProfessionalCategoriesPageState extends State<ProfessionalCategoriesPage>
@@ -148,8 +147,7 @@ class _ProfessionalCategoriesPageState extends State<ProfessionalCategoriesPage>
     } else {
       List<GridTile> gridTiles = [];
       professionalCategoriesList.forEach((category) {
-        gridTiles.add(
-            GridTile(child: CategoryButton(professionalCategory: category)));
+        gridTiles.add(GridTile(child: JobCategoryTile(professionalCategory: category)));
       });
       return ListView(
         physics: BouncingScrollPhysics(),
@@ -206,8 +204,7 @@ class _ProfessionalCategoriesPageState extends State<ProfessionalCategoriesPage>
                     ))
                 .toList()),
         floatingActionButton: FloatingActionButton(
-          onPressed: () =>
-              showUploadJobScreen(context, currentUser: currentUser),
+          onPressed: () => showUploadJobScreen(context, currentUser: currentUser),
           child: Icon(Icons.add),
         ),
       ),

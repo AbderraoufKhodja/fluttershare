@@ -99,6 +99,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.15.0"
+  country_state_city_picker:
+    dependency: "direct main"
+    description:
+      name: country_state_city_picker
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.2.7"
   crypto:
     dependency: transitive
     description:
@@ -310,6 +317,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  geocode:
+    dependency: "direct main"
+    description:
+      name: geocode
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0-nullsafety.0"
   geocoding:
     dependency: "direct main"
     description:

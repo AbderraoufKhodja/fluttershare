@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import "package:flutter/material.dart";
+import 'package:khadamat/authentication.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/home.dart';
@@ -91,7 +92,7 @@ class _EditProfileState extends State<EditProfile> {
                       Padding(
                         padding: EdgeInsets.all(16.0),
                         child: TextButton.icon(
-                          onPressed: logout,
+                          onPressed: signOut,
                           icon: Icon(Icons.cancel, color: Colors.red),
                           label: Text(
                             "Logout",
@@ -184,9 +185,9 @@ class _EditProfileState extends State<EditProfile> {
     }
   }
 
-  logout() async {
-    await googleSignIn.signOut();
-    await auth.signOut();
+  signOut() async {
+    await Authentication.signOut(context: context);
+    Navigator.pop(context);
     Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
   }
 }

@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/pages/professional_titles_screen.dart';
 
-class CategoryButton extends StatelessWidget {
+class JobCategoryTile extends StatelessWidget {
   final String professionalCategory;
-  CategoryButton({this.professionalCategory});
+  JobCategoryTile({this.professionalCategory});
 
   @override
   Widget build(BuildContext context) {

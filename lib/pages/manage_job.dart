@@ -32,8 +32,7 @@ class _ManageJobState extends State<ManageJob> {
   Job job;
   bool isLoading = false;
 
-  bool get hasRequest =>
-      job.hasOwnerUpdateRequest.value || job.hasFreelancerUpdateRequest.value;
+  bool get hasRequest => job.hasOwnerUpdateRequest.value || job.hasFreelancerUpdateRequest.value;
 
   bool get isJobOwner => currentUser.uid.value == job.jobOwnerId.value;
   bool get hasJobFreelancer =>
@@ -57,7 +56,7 @@ class _ManageJobState extends State<ManageJob> {
               title: Text(kManageJob),
               backgroundColor: Theme.of(context).backgroundColor,
             ),
-            endDrawer: buildDrawer(context),
+            // endDrawer: buildDrawer(context),
             body: buildJobInfoListView(),
           );
         }
@@ -79,7 +78,7 @@ class _ManageJobState extends State<ManageJob> {
                 label: kNewJobDescription,
               ),
               CustomField(
-                text: job.location.value.toString(),
+                text: job.location.value?.toString(),
                 label: kNewLocation,
               ),
               CustomField(
@@ -99,23 +98,25 @@ class _ManageJobState extends State<ManageJob> {
 
   String jobStatus() {
     // job owner completed
-    if (job.isOwnerCompleted.value) return kOwnerCompleted;
+    if (job.isOwnerCompleted.value == true) return kOwnerCompleted;
 
     // job freelancer completed
-    if (job.isFreelancerCompleted.value) return kFreelancerCompleted;
+    if (job.isFreelancerCompleted.value == true) return kFreelancerCompleted;
 
     // job freelancer dismissed
     if (job.jobFreelancerId.value != currentUser.uid.value &&
-        job.jobOwnerId.value != currentUser.uid.value)
-      return kFreelancerDismissed;
+        job.jobOwnerId.value != currentUser.uid.value) return kFreelancerDismissed;
 
     // job on going
-    if (job.jobState.value == "onGoing" &&
-        job.applications.value.containsValue(true)) return kJobOnGoing;
+    if (job.jobState.value == "onGoing" && job.applications.value != null
+        ? job.applications.value.containsValue(true)
+        : false) return kJobOnGoing;
 
     //job has no freelancer
     if (job.jobState.value == "open" &&
-        job.applications.value.containsValue(true) == false &&
+        (job.applications.value != null
+            ? job.applications.value.containsValue(true) == false
+            : true) &&
         job.jobFreelancerId.value == null) return kHasNoJobFreelancer;
 
     // job closed
@@ -145,9 +146,7 @@ class _ManageJobState extends State<ManageJob> {
                     color: Colors.amberAccent,
                   ),
                 ),
-                isJobOwner
-                    ? buildOwnerDrawer(context)
-                    : buildFreelancerDrawer(context),
+                isJobOwner ? buildOwnerDrawer(context) : buildFreelancerDrawer(context),
               ],
             ),
           ),
@@ -338,8 +337,7 @@ class _ManageJobState extends State<ManageJob> {
       title: Text(kShowChat),
       onTap: () {
         if (hasJobFreelancer) {
-          final String jobChatId =
-              job.jobOwnerId.value + "&&" + job.jobFreelancerId.value;
+          final String jobChatId = job.jobOwnerId.value + "&&" + job.jobFreelancerId.value;
           showMessages(
             context,
             jobChatId: jobChatId,
@@ -351,8 +349,7 @@ class _ManageJobState extends State<ManageJob> {
           );
         } else {
           buildShowDialog(context,
-              title: kHasNoJobFreelancer,
-              contentText: kHasNoJobFreelancerDialogInstruction);
+              title: kHasNoJobFreelancer, contentText: kHasNoJobFreelancerDialogInstruction);
         }
       },
     );
@@ -360,9 +357,7 @@ class _ManageJobState extends State<ManageJob> {
 
   ListTile buildDismissFreelancerDrawerItem(BuildContext parentContext) {
     return ListTile(
-      title: Text(isJobOwner
-          ? kDismissCurrentFreelancerAndPostJobAgain
-          : kFreelancerQuitJob),
+      title: Text(isJobOwner ? kDismissCurrentFreelancerAndPostJobAgain : kFreelancerQuitJob),
       onTap: () {
         if (hasJobFreelancer) {
           showDialog(
@@ -381,15 +376,13 @@ class _ManageJobState extends State<ManageJob> {
                           style: TextStyle(color: Colors.red),
                         )),
                     SimpleDialogOption(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text(kCancel)),
+                        onPressed: () => Navigator.pop(context), child: Text(kCancel)),
                   ],
                 );
               });
         } else {
           buildShowDialog(context,
-              title: kHasNoJobFreelancer,
-              contentText: kHasNoJobFreelancerDialogInstruction);
+              title: kHasNoJobFreelancer, contentText: kHasNoJobFreelancerDialogInstruction);
         }
       },
     );
@@ -450,13 +443,11 @@ class _ManageJobState extends State<ManageJob> {
             showCompleteJobScreen(context, job: job);
           } else {
             buildShowDialog(context,
-                title: kLessThan24Hours,
-                contentText: kLessThan24HoursInstruction);
+                title: kLessThan24Hours, contentText: kLessThan24HoursInstruction);
           }
         } else {
           buildShowDialog(context,
-              title: kHasNoJobFreelancer,
-              contentText: kHasNoJobFreelancerDialogInstruction);
+              title: kHasNoJobFreelancer, contentText: kHasNoJobFreelancerDialogInstruction);
         }
       },
     );
@@ -474,8 +465,7 @@ class _ManageJobState extends State<ManageJob> {
               contentText: kHasUnresolvedUpdateRequestInstruction);
         } else if (!hasJobFreelancer)
           buildShowDialog(context,
-              title: kHasNoJobFreelancer,
-              contentText: kHasNoJobFreelancerDialogInstruction);
+              title: kHasNoJobFreelancer, contentText: kHasNoJobFreelancerDialogInstruction);
       },
     );
   }
