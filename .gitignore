@@ -71,3 +71,6 @@
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 firebase-tools
+.firebase/hosting.YnVpbGRcd2Vi.cache
+.flutter-plugins-dependencies
+.flutter-plugins-dependencies

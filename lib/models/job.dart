@@ -87,50 +87,71 @@ class Job {
     //TODO read GeofirePoint object from firebase
     return Job(
       jobId: FirestoreField<String>.fromDocument(doc: doc, name: "jobId"),
-      jobOwnerId: FirestoreField<String>.fromDocument(doc: doc, name: "jobOwnerId"),
-      jobOwnerName: FirestoreField<String>.fromDocument(doc: doc, name: "jobOwnerName"),
-      jobOwnerEmail: FirestoreField<String>.fromDocument(doc: doc, name: "jobOwnerEmail"),
-      jobFreelancerId: FirestoreField<String>.fromDocument(doc: doc, name: "jobFreelancerId"),
-      jobFreelancerName: FirestoreField<String>.fromDocument(doc: doc, name: "jobFreelancerName"),
-      jobFreelancerEmail: FirestoreField<String>.fromDocument(doc: doc, name: "jobFreelancerEmail"),
-      jobFreelancerEnrollmentDate:
-          FirestoreField<Timestamp>.fromDocument(doc: doc, name: "jobFreelancerEnrollmentDate"),
-      isOwnerFreelancer: FirestoreField<bool>.fromDocument(doc: doc, name: "isOwnerFreelancer"),
+      jobOwnerId:
+          FirestoreField<String>.fromDocument(doc: doc, name: "jobOwnerId"),
+      jobOwnerName:
+          FirestoreField<String>.fromDocument(doc: doc, name: "jobOwnerName"),
+      jobOwnerEmail:
+          FirestoreField<String>.fromDocument(doc: doc, name: "jobOwnerEmail"),
+      jobFreelancerId: FirestoreField<String>.fromDocument(
+          doc: doc, name: "jobFreelancerId"),
+      jobFreelancerName: FirestoreField<String>.fromDocument(
+          doc: doc, name: "jobFreelancerName"),
+      jobFreelancerEmail: FirestoreField<String>.fromDocument(
+          doc: doc, name: "jobFreelancerEmail"),
+      jobFreelancerEnrollmentDate: FirestoreField<Timestamp>.fromDocument(
+          doc: doc, name: "jobFreelancerEnrollmentDate"),
+      isOwnerFreelancer: FirestoreField<bool>.fromDocument(
+          doc: doc, name: "isOwnerFreelancer"),
       jobTitle: FirestoreField<String>.fromDocument(doc: doc, name: "jobTitle"),
-      jobPhotoUrl: FirestoreField<String>.fromDocument(doc: doc, name: "jobPhotoUrl"),
-      professionalCategory:
-          FirestoreField<String>.fromDocument(doc: doc, name: "professionalCategory"),
-      professionalTitle: FirestoreField<String>.fromDocument(doc: doc, name: "professionalTitle"),
-      jobDescription: FirestoreField<String>.fromDocument(doc: doc, name: "jobDescription"),
+      jobPhotoUrl:
+          FirestoreField<String>.fromDocument(doc: doc, name: "jobPhotoUrl"),
+      professionalCategory: FirestoreField<String>.fromDocument(
+          doc: doc, name: "professionalCategory"),
+      professionalTitle: FirestoreField<String>.fromDocument(
+          doc: doc, name: "professionalTitle"),
+      jobDescription:
+          FirestoreField<String>.fromDocument(doc: doc, name: "jobDescription"),
       location: FirestoreField<Map>.fromDocument(doc: doc, name: "location"),
-      dateRange: FirestoreField<String>.fromDocument(doc: doc, name: "dateRange"),
+      dateRange:
+          FirestoreField<String>.fromDocument(doc: doc, name: "dateRange"),
       price: FirestoreField<String>.fromDocument(doc: doc, name: "price"),
-      newJobDescription: FirestoreField<String>.fromDocument(doc: doc, name: "newJobDescription"),
-      newLocation: FirestoreField<Map>.fromDocument(doc: doc, name: "newLocation"),
-      newDateRange: FirestoreField<String>.fromDocument(doc: doc, name: "newDateRange"),
+      newJobDescription: FirestoreField<String>.fromDocument(
+          doc: doc, name: "newJobDescription"),
+      newLocation:
+          FirestoreField<Map>.fromDocument(doc: doc, name: "newLocation"),
+      newDateRange:
+          FirestoreField<String>.fromDocument(doc: doc, name: "newDateRange"),
       newPrice: FirestoreField<String>.fromDocument(doc: doc, name: "newPrice"),
-      ownerReview: FirestoreField<String>.fromDocument(doc: doc, name: "ownerReview"),
-      ownerAttitudeRate: FirestoreField<double>.fromDocument(doc: doc, name: "ownerAttitudeRate"),
-      freelancerReview: FirestoreField<String>.fromDocument(doc: doc, name: "freelancerReview"),
-      freelancerQualityRate:
-          FirestoreField<double>.fromDocument(doc: doc, name: "freelancerQualityRate"),
-      freelancerAttitudeRate:
-          FirestoreField<double>.fromDocument(doc: doc, name: "freelancerAttitudeRate"),
-      freelancerTimeManagementRate:
-          FirestoreField<double>.fromDocument(doc: doc, name: "freelancerTimeManagementRate"),
-      applications: FirestoreField<Map>.fromDocument(doc: doc, name: "applications"),
-      hasFreelancerUpdateRequest:
-          FirestoreField<bool>.fromDocument(doc: doc, name: "hasFreelancerUpdateRequest"),
-      hasOwnerUpdateRequest:
-          FirestoreField<bool>.fromDocument(doc: doc, name: "hasOwnerUpdateRequest"),
+      ownerReview:
+          FirestoreField<String>.fromDocument(doc: doc, name: "ownerReview"),
+      ownerAttitudeRate: FirestoreField<double>.fromDocument(
+          doc: doc, name: "ownerAttitudeRate"),
+      freelancerReview: FirestoreField<String>.fromDocument(
+          doc: doc, name: "freelancerReview"),
+      freelancerQualityRate: FirestoreField<double>.fromDocument(
+          doc: doc, name: "freelancerQualityRate"),
+      freelancerAttitudeRate: FirestoreField<double>.fromDocument(
+          doc: doc, name: "freelancerAttitudeRate"),
+      freelancerTimeManagementRate: FirestoreField<double>.fromDocument(
+          doc: doc, name: "freelancerTimeManagementRate"),
+      applications:
+          FirestoreField<Map>.fromDocument(doc: doc, name: "applications"),
+      hasFreelancerUpdateRequest: FirestoreField<bool>.fromDocument(
+          doc: doc, name: "hasFreelancerUpdateRequest"),
+      hasOwnerUpdateRequest: FirestoreField<bool>.fromDocument(
+          doc: doc, name: "hasOwnerUpdateRequest"),
       jobState: FirestoreField<String>.fromDocument(doc: doc, name: "jobState"),
-      isOwnerCompleted: FirestoreField<bool>.fromDocument(doc: doc, name: "isOwnerCompleted"),
-      isFreelancerCompleted:
-          FirestoreField<bool>.fromDocument(doc: doc, name: "isFreelancerCompleted"),
-      ownerCompletedAt: FirestoreField<Timestamp>.fromDocument(doc: doc, name: "ownerCompletedAt"),
-      freelancerCompletedAt:
-          FirestoreField<Timestamp>.fromDocument(doc: doc, name: "freelancerCompletedAt"),
-      createdAt: FirestoreField<Timestamp>.fromDocument(doc: doc, name: "createdAt"),
+      isOwnerCompleted:
+          FirestoreField<bool>.fromDocument(doc: doc, name: "isOwnerCompleted"),
+      isFreelancerCompleted: FirestoreField<bool>.fromDocument(
+          doc: doc, name: "isFreelancerCompleted"),
+      ownerCompletedAt: FirestoreField<Timestamp>.fromDocument(
+          doc: doc, name: "ownerCompletedAt"),
+      freelancerCompletedAt: FirestoreField<Timestamp>.fromDocument(
+          doc: doc, name: "freelancerCompletedAt"),
+      createdAt:
+          FirestoreField<Timestamp>.fromDocument(doc: doc, name: "createdAt"),
     );
   }
   int getApplicationsCount() {
@@ -152,13 +173,15 @@ class Job {
     if (isJobOwner) {
       jobsRef.doc(this.jobId.value).update({this.jobState.name: "closed"});
       usersRef.doc(this.jobOwnerId.value).update({
-        "${currentUser.jobs.name}.${this.jobId.value}.${this.jobState.name}": "closed",
+        "${currentUser.jobs.name}.${this.jobId.value}.${this.jobState.name}":
+            "closed",
       });
       addDeleteJobFeed(uid: this.jobOwnerId.value);
 
       storageRef.child("job_${this.jobId.value}.jpg").delete();
 
-      uploadTeamNotification(messageText: closingReason, type: "deletJustification");
+      uploadTeamNotification(
+          messageText: closingReason, type: "deletJustification");
 
       if (jobFreelancerId != null)
         usersRef.doc(jobFreelancerId.value).update({
@@ -183,7 +206,8 @@ class Job {
         type: "dismissFreelancer",
         jobFreelancerId: this.jobFreelancerId.value,
         jobFreelancerName: this.jobFreelancerName.value);
-    uploadTeamNotification(messageText: freelancerReview, type: "dismissJustification");
+    uploadTeamNotification(
+        messageText: freelancerReview, type: "dismissJustification");
     // Update on firestore
     clearJobFreelancerAndMakeJobVaccant();
     addUserReviewAndUpdateUserJob(
@@ -201,18 +225,23 @@ class Job {
     @required String applicantName,
   }) {
     // TODO add jobState sanity check
-    bool _isApplied =
-        applications.value.containsKey(applicantId) && applications.value[applicantId] == null;
+    bool _isApplied = applications.value != null
+        ? applications.value.containsKey(applicantId) &&
+            applications.value[applicantId] == null
+        : false;
     if (_isApplied) {
+      jobsRef.doc(this.jobId.value).update({
+        '${this.applications.name}.$applicantId': FieldValue.delete()
+      }).then((value) => applications.value.remove(applicantId));
+      removeApplyFromActivityFeed(
+          applicantId: applicantId, applicantName: applicantName);
+    } else if (!_isApplied) {
       jobsRef
           .doc(this.jobId.value)
-          .update({'${this.applications.name}.$applicantId': FieldValue.delete()}).then(
-              (value) => applications.value.remove(applicantId));
-      removeApplyFromActivityFeed(applicantId: applicantId, applicantName: applicantName);
-    } else if (!_isApplied) {
-      jobsRef.doc(this.jobId.value).update({'${this.applications.name}.$applicantId': null}).then(
-          (value) => applications.value[applicantId] = null);
-      addApplyToActivityFeed(applicantId: applicantId, applicantName: applicantName);
+          .update({'${this.applications.name}.$applicantId': null}).then(
+              (value) => applications.value[applicantId] = null);
+      addApplyToActivityFeed(
+          applicantId: applicantId, applicantName: applicantName);
     }
   }
 
@@ -228,7 +257,10 @@ class Job {
         applicantId: applicantId,
         applicantName: applicantName);
     addApplicationFeed(
-        uid: applicantId, type: "apply", applicantId: applicantId, applicantName: applicantName);
+        uid: applicantId,
+        type: "apply",
+        applicantId: applicantId,
+        applicantName: applicantName);
   }
 
   Future<void> removeApplyFromActivityFeed({
@@ -299,7 +331,10 @@ class Job {
     @required String applicantName,
   }) {
     updateJobApplicationStatue(
-        applicantName: null, applicantId: null, applicantEmail: null, isAccept: false);
+        applicantName: null,
+        applicantId: null,
+        applicantEmail: null,
+        isAccept: false);
     addApplicationFeed(
         uid: this.jobOwnerId.value,
         type: "rejectApplication",
@@ -428,7 +463,10 @@ class Job {
   }
 
   Future<void> openChat({@required String applicantId}) async {
-    messagesRef.doc(this.jobId.value).collection(this.jobOwnerId.value + "&&" + applicantId).add({
+    messagesRef
+        .doc(this.jobId.value)
+        .collection(this.jobOwnerId.value + "&&" + applicantId)
+        .add({
       "type": "open",
       this.professionalTitle.name: this.professionalTitle.value,
       this.jobTitle.name: this.jobTitle.value,
@@ -566,7 +604,8 @@ class Job {
       this.freelancerReview.name: this.freelancerReview.value,
       this.freelancerQualityRate.name: this.freelancerQualityRate.value,
       this.freelancerAttitudeRate.name: this.freelancerAttitudeRate.value,
-      this.freelancerTimeManagementRate.name: this.freelancerTimeManagementRate.value,
+      this.freelancerTimeManagementRate.name:
+          this.freelancerTimeManagementRate.value,
       "read": false,
       this.createdAt.name: FieldValue.serverTimestamp(),
     });
@@ -724,7 +763,8 @@ class Job {
       newDateRange: newDateRange,
     );
 
-    final bool isJobFreelancer = this.jobFreelancerId.value == currentUser.uid.value;
+    final bool isJobFreelancer =
+        this.jobFreelancerId.value == currentUser.uid.value;
     final bool isJobOwner = this.jobOwnerId.value == currentUser.uid.value;
     jobsRef.doc(this.jobId.value).update({
       this.newJobDescription.name: newJobDescription,
@@ -779,9 +819,11 @@ class Job {
       this.freelancerReview.name: this.freelancerReview.value,
       this.freelancerQualityRate.name: this.freelancerQualityRate.value,
       this.freelancerAttitudeRate.name: this.freelancerAttitudeRate.value,
-      this.freelancerTimeManagementRate.name: this.freelancerTimeManagementRate.value,
+      this.freelancerTimeManagementRate.name:
+          this.freelancerTimeManagementRate.value,
       this.applications.name: this.applications.value,
-      this.hasFreelancerUpdateRequest.name: this.hasFreelancerUpdateRequest.value,
+      this.hasFreelancerUpdateRequest.name:
+          this.hasFreelancerUpdateRequest.value,
       this.hasOwnerUpdateRequest.name: this.hasOwnerUpdateRequest.value,
       this.jobState.name: this.jobState.value,
       this.isOwnerCompleted.name: this.isOwnerCompleted.value,
@@ -828,7 +870,8 @@ class Job {
     });
   }
 
-  Future<void> uploadTeamNotification({@required String messageText, @required String type}) async {
+  Future<void> uploadTeamNotification(
+      {@required String messageText, @required String type}) async {
     complaintRef.doc(currentUser.uid.value).set({
       "type": type,
       "messageText": messageText,
@@ -859,17 +902,22 @@ class Job {
       double jobsCount = user.jobs.value.length.toDouble();
       double newCompletedJobsCount = 0;
       user.jobs.value.values.forEach((job) {
-        if (job[this.jobState.name] == "jobCompleted") newCompletedJobsCount += 1.0;
+        if (job[this.jobState.name] == "jobCompleted")
+          newCompletedJobsCount += 1.0;
       });
       double newCompletionRate = newCompletedJobsCount / jobsCount;
-      double newQualityRateAverage =
-          computeNewAverage(user.qualityRate.value, reviewsCount, freelancerQualityRate);
-      double newAttitudeRateAverage =
-          computeNewAverage(user.attitudeRate.value, reviewsCount, freelancerAttitudeRate);
+      double newQualityRateAverage = computeNewAverage(
+          user.qualityRate.value, reviewsCount, freelancerQualityRate);
+      double newAttitudeRateAverage = computeNewAverage(
+          user.attitudeRate.value, reviewsCount, freelancerAttitudeRate);
       double newTimeManagementRateAverage = computeNewAverage(
-          user.timeManagementRate.value, reviewsCount, freelancerTimeManagementRate);
-      double newGlobalRateAverage =
-          (newQualityRateAverage + newAttitudeRateAverage + newTimeManagementRateAverage) / 3;
+          user.timeManagementRate.value,
+          reviewsCount,
+          freelancerTimeManagementRate);
+      double newGlobalRateAverage = (newQualityRateAverage +
+              newAttitudeRateAverage +
+              newTimeManagementRateAverage) /
+          3;
       usersRef.doc(uid).update({
         user.qualityRate.name: newQualityRateAverage,
         user.attitudeRate.name: newAttitudeRateAverage,
@@ -897,7 +945,8 @@ class Job {
     });
   }
 
-  double computeNewAverage(double currentValue, double length, double newValue) {
+  double computeNewAverage(
+      double currentValue, double length, double newValue) {
     return ((currentValue * length) + newValue) / (length + 1);
   }
 }
