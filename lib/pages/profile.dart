@@ -29,8 +29,7 @@ class Profile extends StatefulWidget {
   _ProfileState createState() => _ProfileState();
 }
 
-class _ProfileState extends State<Profile>
-    with AutomaticKeepAliveClientMixin<Profile> {
+class _ProfileState extends State<Profile> with AutomaticKeepAliveClientMixin<Profile> {
   AppUser user;
   String selectedTab = "info";
   String formattedAddress = "";
@@ -38,6 +37,11 @@ class _ProfileState extends State<Profile>
   bool isLoading = false;
   int postCount = 0;
   List<Post> posts = [];
+
+  Job get job => widget.job;
+
+  @override
+  bool get wantKeepAlive => true;
 
   bool get isApplicationResponse {
     return job != null &&
@@ -47,11 +51,6 @@ class _ProfileState extends State<Profile>
         job.jobState.value == "open" &&
         job.isOwnerCompleted.value == false;
   }
-
-  Job get job => widget.job;
-
-  @override
-  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -85,13 +84,11 @@ class _ProfileState extends State<Profile>
             width: double.infinity,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30.0),
-                    topRight: Radius.circular(30.0)),
+                    topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
                 color: Colors.white),
             child: buildButton(
                 text: kCreateCard,
-                function: () =>
-                    showCreateFreelanceAccount(context, appUser: currentUser)),
+                function: () => showCreateFreelanceAccount(context, appUser: currentUser)),
           ),
         ],
       ),
@@ -110,8 +107,7 @@ class _ProfileState extends State<Profile>
                 width: double.infinity,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30.0),
-                        topRight: Radius.circular(30.0)),
+                        topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
                     color: Colors.blueGrey),
                 child: Column(
                   children: [
@@ -141,8 +137,7 @@ class _ProfileState extends State<Profile>
                   children: <Widget>[
                     CircleAvatar(
                       radius: 40.0,
-                      backgroundImage:
-                          CachedNetworkImageProvider(kBlankProfileUrl),
+                      backgroundImage: CachedNetworkImageProvider(kBlankProfileUrl),
                     ),
                     Expanded(
                       flex: 1,
@@ -263,27 +258,19 @@ class _ProfileState extends State<Profile>
       physics: BouncingScrollPhysics(),
       children: [
         buildProfileInfoField(label: kUsername, text: user.username.value),
-        buildProfileInfoField(
-            label: kPersonalBio, text: user.personalBio.value),
+        buildProfileInfoField(label: kPersonalBio, text: user.personalBio.value),
         buildProfileInfoField(label: kLocation, text: formattedAddress),
         buildProfileInfoField(
             label: kBirthDate,
-            text: timeago.format(
-                user.birthDate.value?.toDate() ?? Timestamp.now().toDate())),
+            text: timeago.format(user.birthDate.value?.toDate() ?? Timestamp.now().toDate())),
+        buildProfileInfoField(label: kProfessionalCategory, text: user.professionalCategory.value),
+        buildProfileInfoField(label: kProfessionalTitle, text: user.professionalTitle.value),
         buildProfileInfoField(
-            label: kProfessionalCategory,
-            text: user.professionalCategory.value),
-        buildProfileInfoField(
-            label: kProfessionalTitle, text: user.professionalTitle.value),
-        buildProfileInfoField(
-            label: kProfessionalDescription,
-            text: user.professionalDescription.value),
-        buildProfileInfoField(
-            label: kPreferences, text: user.preferences.value.toString()),
+            label: kProfessionalDescription, text: user.professionalDescription.value),
+        buildProfileInfoField(label: kPreferences, text: user.preferences.value.toString()),
         buildProfileInfoField(
             label: kCreatedAt,
-            text: timeago.format(
-                user.createdAt.value?.toDate() ?? Timestamp.now().toDate())),
+            text: timeago.format(user.createdAt.value?.toDate() ?? Timestamp.now().toDate())),
         // buildProfileInfoField(label: kGender, text: user.gender.value),
         // buildProfileInfoField(label: kEmail, text: user.email.value),
         // buildProfileInfoField(label: kDiploma, text: user.diploma.value),
@@ -309,8 +296,7 @@ class _ProfileState extends State<Profile>
     );
   }
 
-  Column buildProfileInfoField(
-      {@required String label, @required String text}) {
+  Column buildProfileInfoField({@required String label, @required String text}) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,16 +323,13 @@ class _ProfileState extends State<Profile>
     List<Review> reviews = [];
     if (user.reviews.value != null)
       user.reviews.value.values.forEach((review) {
-        if (review is Map<String, dynamic>)
-          reviews.add(Review.fromDocument(review));
+        if (review is Map<String, dynamic>) reviews.add(Review.fromDocument(review));
       });
     return reviews.isNotEmpty
         ? Center(
             child: Column(
-              children: reviews
-                  .map(
-                      (review) => Text(review.freelancerReview ?? kMissingData))
-                  .toList(),
+              children:
+                  reviews.map((review) => Text(review.freelancerReview ?? kMissingData)).toList(),
             ),
           )
         : Center(child: Text(kHasNoReview));
@@ -431,7 +414,7 @@ class _ProfileState extends State<Profile>
     if (selectedTab == "gallery") return buildProfileGallery();
   }
 
-  Widget buildAcceptRejectButtons() {
+  Column buildAcceptRejectButtons() {
     return Column(
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -501,7 +484,7 @@ class _ProfileState extends State<Profile>
         function: handleHireUser,
       );
     else if (!isHired && isApplicationResponse)
-      buildAcceptRejectButtons();
+      return buildAcceptRejectButtons();
     else
       return Container();
   }
@@ -552,11 +535,7 @@ class _ProfileState extends State<Profile>
       isHired = true;
     });
     // Make auth user hire of THAT user (update THEIR hires collection)
-    hiresRef
-        .doc(widget.profileId)
-        .collection('userHires')
-        .doc(currentUser.uid.value)
-        .set({});
+    hiresRef.doc(widget.profileId).collection('userHires').doc(currentUser.uid.value).set({});
 
     jobsRef
         .doc(currentUser.uid.value)
@@ -574,11 +553,7 @@ class _ProfileState extends State<Profile>
 //        .doc(widget.profileId)
 //        .set({});
     // add activity feed item for that user to notify about new hire (us)
-    activityFeedRef
-        .doc(widget.profileId)
-        .collection('feedItems')
-        .doc(currentUser.uid.value)
-        .set({
+    activityFeedRef.doc(widget.profileId).collection('feedItems').doc(currentUser.uid.value).set({
       "type": "accepted",
       "jobOwnerId": widget.profileId,
       "username": currentUser.username.value,
@@ -587,11 +562,7 @@ class _ProfileState extends State<Profile>
       "createdAt": FieldValue.serverTimestamp(),
     });
 
-    activityFeedRef
-        .doc(currentUser.uid.value)
-        .collection('feedItems')
-        .doc(widget.profileId)
-        .set({
+    activityFeedRef.doc(currentUser.uid.value).collection('feedItems').doc(widget.profileId).set({
       "type": "accept",
       "jobOwnerId": widget.profileId,
       "username": currentUser.username.value,
@@ -624,11 +595,8 @@ class _ProfileState extends State<Profile>
   }
 
   Future<void> checkIfHired() async {
-    DocumentSnapshot doc = await jobsRef
-        .doc(widget.profileId)
-        .collection("userJobs")
-        .doc("jobId")
-        .get();
+    DocumentSnapshot doc =
+        await jobsRef.doc(widget.profileId).collection("userJobs").doc("jobId").get();
     setState(() {
       isHired = doc.exists;
     });
@@ -676,8 +644,7 @@ class _ProfileState extends State<Profile>
     });
   }
 
-  Container buildButton(
-      {String text, Color fillColor = Colors.blue, Function function}) {
+  Container buildButton({String text, Color fillColor = Colors.blue, Function function}) {
     return Container(
       padding: EdgeInsets.only(top: 2.0),
       child: TextButton(
@@ -707,8 +674,8 @@ class _ProfileState extends State<Profile>
 
   Future<void> formatLocation() async {
     List<Placemark> placemarks = await placemarkFromCoordinates(
-        currentUser.location.value.geoFiredata["geopoint"].latitude,
-        currentUser.location.value.geoFiredata["geopoint"].longitude);
+        currentUser.location.value["geopoint.latitude"],
+        currentUser.location.value["geopoint.longitude"]);
     Placemark placemark = placemarks[0];
     String formattedAddress =
         " ${placemark.subAdministrativeArea}, ${placemark.administrativeArea},"
@@ -719,8 +686,7 @@ class _ProfileState extends State<Profile>
   }
 }
 
-showProfile(BuildContext context,
-    {@required String profileId, @required String profileName, Job job}) {
+showProfile(BuildContext context, {@required String profileId, Job job}) {
   Navigator.push(
     context,
     MaterialPageRoute(
