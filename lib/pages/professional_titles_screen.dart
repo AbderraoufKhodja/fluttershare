@@ -11,8 +11,7 @@ class ProfessionalTitlesScreen extends StatefulWidget {
   ProfessionalTitlesScreen({@required this.professionalTitle});
 
   @override
-  _ProfessionalTitlesScreenState createState() =>
-      _ProfessionalTitlesScreenState();
+  _ProfessionalTitlesScreenState createState() => _ProfessionalTitlesScreenState();
 }
 
 class _ProfessionalTitlesScreenState extends State<ProfessionalTitlesScreen> {
@@ -31,12 +30,9 @@ class _ProfessionalTitlesScreenState extends State<ProfessionalTitlesScreen> {
   }
 
   getProfessionalTitlesList() async {
-    QuerySnapshot snapshot = await categoriesRef
-        .doc(widget.professionalTitle)
-        .collection("professionalTitles")
-        .get();
-    List<String> professionalTitle =
-        snapshot.docs.map((doc) => doc.id).toList();
+    QuerySnapshot snapshot =
+        await categoriesRef.doc(widget.professionalTitle).collection("professionalTitles").get();
+    List<String> professionalTitle = snapshot.docs.map((doc) => doc.id).toList();
     setState(() {
       professionalTitlesList = professionalTitle;
     });
@@ -140,8 +136,7 @@ class _ProfessionalTitlesScreenState extends State<ProfessionalTitlesScreen> {
     } else if (true) {
       List<GridTile> gridTiles = [];
       professionalTitlesList.forEach((professionalTitle) {
-        gridTiles.add(
-            GridTile(child: TitleButton(professionalTitle: professionalTitle)));
+        gridTiles.add(GridTile(child: TitleButton(professionalTitle: professionalTitle)));
       });
       return ListView(
         physics: BouncingScrollPhysics(),

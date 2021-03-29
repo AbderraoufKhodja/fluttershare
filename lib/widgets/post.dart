@@ -108,9 +108,7 @@ class _PostState extends State<Post> {
             backgroundColor: Theme.of(context).primaryColor,
           ),
           title: GestureDetector(
-            onTap: () => showProfile(context,
-                profileId: appUser.uid.value,
-                profileName: appUser.username.value),
+            onTap: () => showProfile(context, profileId: appUser.uid.value),
             child: Text(
               appUser.username.value,
               style: TextStyle(
@@ -147,9 +145,7 @@ class _PostState extends State<Post> {
                     'Delete',
                     style: TextStyle(color: Colors.red),
                   )),
-              SimpleDialogOption(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Cancel')),
+              SimpleDialogOption(onPressed: () => Navigator.pop(context), child: Text('Cancel')),
             ],
           );
         });
@@ -158,12 +154,7 @@ class _PostState extends State<Post> {
   // Note: To delete post, jobOwnerId and currentUserId must be equal, so they can be used interchangeably
   deletePost() async {
     // delete post itself
-    postsRef
-        .doc(jobOwnerId)
-        .collection('userPosts')
-        .doc(postId)
-        .get()
-        .then((doc) {
+    postsRef.doc(jobOwnerId).collection('userPosts').doc(postId).get().then((doc) {
       if (doc.exists) {
         doc.reference.delete();
       }
@@ -182,8 +173,7 @@ class _PostState extends State<Post> {
       }
     });
     // then delete all comments
-    QuerySnapshot commentsSnapshot =
-        await commentsRef.doc(postId).collection('comments').get();
+    QuerySnapshot commentsSnapshot = await commentsRef.doc(postId).collection('comments').get();
     commentsSnapshot.docs.forEach((doc) {
       if (doc.exists) {
         doc.reference.delete();
@@ -246,12 +236,7 @@ class _PostState extends State<Post> {
   removeLikeFromActivityFeed() {
     bool isNotPostOwner = currentUserId != jobOwnerId;
     if (isNotPostOwner) {
-      activityFeedRef
-          .doc(jobOwnerId)
-          .collection("feedItems")
-          .doc(postId)
-          .get()
-          .then((doc) {
+      activityFeedRef.doc(jobOwnerId).collection("feedItems").doc(postId).get().then((doc) {
         if (doc.exists) {
           doc.reference.delete();
         }
@@ -358,11 +343,7 @@ class _PostState extends State<Post> {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        buildPostHeader(),
-        buildPostImage(),
-        buildPostFooter()
-      ],
+      children: <Widget>[buildPostHeader(), buildPostImage(), buildPostFooter()],
     );
   }
 }

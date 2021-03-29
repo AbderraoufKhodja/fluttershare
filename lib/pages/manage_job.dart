@@ -56,7 +56,7 @@ class _ManageJobState extends State<ManageJob> {
               title: Text(kManageJob),
               backgroundColor: Theme.of(context).backgroundColor,
             ),
-            // endDrawer: buildDrawer(context),
+            endDrawer: buildDrawer(context),
             body: buildJobInfoListView(),
           );
         }

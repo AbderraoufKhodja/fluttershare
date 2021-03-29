@@ -82,8 +82,7 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
                   ),
                   buildRateBar(
                     title: kFreelancerTimeManagement,
-                    onRateUpdate: (rating) =>
-                        freelancerTimeManagement = rating,
+                    onRateUpdate: (rating) => freelancerTimeManagement = rating,
                   ),
                 ],
               )
@@ -95,8 +94,7 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
     );
   }
 
-  Column buildRateBar(
-      {String title, Function(double Rate) onRateUpdate}) {
+  Column buildRateBar({String title, Function(double Rate) onRateUpdate}) {
     return Column(
       children: [
         Container(
@@ -127,8 +125,7 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(10.0),
-                      bottomRight: Radius.circular(10.0)),
+                      bottomLeft: Radius.circular(10.0), bottomRight: Radius.circular(10.0)),
                   color: Colors.white,
                 ),
                 child: RatingBar.builder(
@@ -161,7 +158,7 @@ class _CompleteJobScreenState extends State<CompleteJobScreen> {
             freelancerTimeManagementRate: freelancerTimeManagement)
         : await job.freelancerCompleteAndReviewJob(
             ownerReview: reviewController.text,
-            ownerRate: ownerRate,
+            ownerAttitudeRate: ownerRate,
           );
     Navigator.pop(context);
   }

@@ -108,7 +108,9 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
   Future<void> updateAddress() {
     try {
       if (kIsWeb)
-        return geoCode.reverseGeocoding(latitude: geoFirePoint.latitude, longitude: geoFirePoint.longitude).then((address) {
+        return geoCode
+            .reverseGeocoding(latitude: geoFirePoint.latitude, longitude: geoFirePoint.longitude)
+            .then((address) {
           setState(() {
             formattedAddress = checkAddressField(str: address.streetAddress) +
                 checkAddressField(str: address.city) +
@@ -118,7 +120,9 @@ class _GoogleMapPageState extends State<GoogleMapPage> {
           });
         });
       else
-        return placemarkFromCoordinates(geoFirePoint.latitude, geoFirePoint.longitude, localeIdentifier: "fr_").then((value) {
+        return placemarkFromCoordinates(geoFirePoint.latitude, geoFirePoint.longitude,
+                localeIdentifier: "fr_")
+            .then((value) {
           setState(() {
             formattedAddress = checkAddressField(str: value[0].street) +
                 checkAddressField(str: value[0].subLocality) +

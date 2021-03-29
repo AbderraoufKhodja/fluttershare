@@ -15,7 +15,6 @@ class FreelancerCard extends StatelessWidget {
       onTap: () => showProfile(
         context,
         profileId: user.uid.value,
-        profileName: user.username.value,
       ),
       child: Padding(
         padding: const EdgeInsets.only(right: 10.0, bottom: 10),
@@ -31,8 +30,7 @@ class FreelancerCard extends StatelessWidget {
                   image: DecorationImage(
                     fit: BoxFit.cover,
                     alignment: Alignment.centerRight,
-                    image: CachedNetworkImageProvider(
-                        user.photoURL.value ?? kBlankProfileUrl),
+                    image: CachedNetworkImageProvider(user.photoURL.value ?? kBlankProfileUrl),
                   ),
                 ),
               ),
@@ -57,8 +55,7 @@ class FreelancerCard extends StatelessWidget {
                       children: <Widget>[
                         Row(
                           children: [
-                            Text(user.globalRate.value?.toString() ??
-                                kMissingData),
+                            Text(user.globalRate.value?.toString() ?? kMissingData),
                             Icon(
                               Icons.star,
                               color: Colors.amber[600],
@@ -84,8 +81,7 @@ class FreelancerCard extends StatelessWidget {
                               height: 1,
                             ),
                             Text(
-                              user.professionalTitle.value?.toUpperCase() ??
-                                  kMissingData,
+                              user.professionalTitle.value?.toUpperCase() ?? kMissingData,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 14,

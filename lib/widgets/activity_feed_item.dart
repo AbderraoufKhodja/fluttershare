@@ -107,7 +107,6 @@ class ActivityFeedItem extends StatelessWidget {
             showProfile(
               context,
               profileId: feed.applicantId.value,
-              profileName: feed.applicantName.value,
               job: job,
             );
         } else

@@ -20,9 +20,8 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage>
   bool get wantKeepAlive => true;
   Future<QuerySnapshot> searchResultsFuture;
   final geo = Geoflutterfire();
-  List<dynamic> get preferences => widget.preferences != null
-      ? widget.preferences
-      : currentUser.preferences.value;
+  List<dynamic> get preferences =>
+      widget.preferences != null ? widget.preferences : currentUser.preferences.value;
 
   final int limit = 10;
   @override
@@ -51,8 +50,7 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage>
           futureItems: getRecommendedForYouSection(),
         ),
         ItemsHorizontalView(
-            title: kSuggestedForYouSection,
-            futureItems: getSuggestedForYouSection()),
+            title: kSuggestedForYouSection, futureItems: getSuggestedForYouSection()),
         ItemsHorizontalView(
           title: kRecentlyReviewdSection,
           futureItems: getRecentlyReviewdSection(),
@@ -146,22 +144,20 @@ class _FreelancerForYouPage extends State<FreelancerForYouPage>
     // Create a geoFirePoint
     GeoPoint usersLocation;
     if (currentUser.location?.value != null) {
-      if (currentUser.location.value?.geoFiredata["geopoint"] != null)
-        usersLocation = currentUser.location.value.geoFiredata["geopoint"];
+      if (currentUser.location?.value["geopoint"] != null)
+        usersLocation = currentUser.location?.value["geopoint"];
       else
         usersLocation = GeoPoint(0, 0);
     } else
       usersLocation = GeoPoint(0, 0);
-    GeoFirePoint center = geo.point(
-        latitude: usersLocation.latitude, longitude: usersLocation.longitude);
+    GeoFirePoint center =
+        geo.point(latitude: usersLocation.latitude, longitude: usersLocation.longitude);
 
     double radius = 80;
     String field = 'location';
 
     Stream<List<DocumentSnapshot>> stream = geo
-        .collection(
-            collectionRef:
-                usersRef.where("professionalCategory", whereIn: preferences))
+        .collection(collectionRef: usersRef.where("professionalCategory", whereIn: preferences))
         .within(center: center, radius: radius, field: field);
 
     return stream.first;

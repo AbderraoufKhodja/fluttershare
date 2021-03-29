@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:khadamat/models/app_location.dart';
 
@@ -20,15 +22,25 @@ class FirestoreField<T> {
       print("missing field: $name");
       return FirestoreField(name: name, value: null);
     }
-    if (data[name].runtimeType != T) {
-      print(
-          "Type error: recieved ${data[name].runtimeType} type while $name is $T type");
+    final field = data[name];
+    if (field.runtimeType == Null) {
+      print("$name is null");
       return FirestoreField(name: name, value: null);
     }
-    if (name == "location") {
-      dynamic appLocation = AppLocation.fromMap(data[name]);
-      return FirestoreField(name: "location", value: appLocation);
+    if (field.runtimeType == int && T == double) {
+      return FirestoreField(name: name, value: data[name].toDouble());
     }
-    return FirestoreField(name: name, value: data[name]);
+    if (field.runtimeType == data.runtimeType) {
+      return FirestoreField(name: name, value: field);
+    }
+    // if (name == "location") {
+    //   dynamic appLocation = AppLocation.fromMap(field);
+    //   return FirestoreField(name: "location", value: appLocation);
+    // }
+    if (field.runtimeType != T) {
+      print("Type error: recieved ${field.runtimeType} type while $name is $T type");
+      return FirestoreField(name: name, value: null);
+    }
+    return FirestoreField(name: name, value: field);
   }
 }

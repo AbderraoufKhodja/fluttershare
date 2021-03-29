@@ -13,7 +13,7 @@ class AppUser {
   FirestoreField<String> professionalPhotoUrl;
   FirestoreField<String> personalBio;
   FirestoreField<String> gender;
-  FirestoreField<AppLocation> location;
+  FirestoreField<Map> location;
   FirestoreField<Timestamp> birthDate;
   FirestoreField<String> professionalCategory;
   FirestoreField<String> professionalTitle;
@@ -83,66 +83,44 @@ class AppUser {
     return AppUser(
       uid: FirestoreField<String>.fromDocument(doc: doc, name: "uid"),
       username: FirestoreField<String>.fromDocument(doc: doc, name: "username"),
-      displayName:
-          FirestoreField<String>.fromDocument(doc: doc, name: "displayName"),
+      displayName: FirestoreField<String>.fromDocument(doc: doc, name: "displayName"),
       photoURL: FirestoreField<String>.fromDocument(doc: doc, name: "photoURL"),
       email: FirestoreField<String>.fromDocument(doc: doc, name: "email"),
-      isFreelancer:
-          FirestoreField<bool>.fromDocument(doc: doc, name: "isFreelancer"),
-      teamChoice:
-          FirestoreField<bool>.fromDocument(doc: doc, name: "teamChoice"),
-      professionalPhotoUrl: FirestoreField<String>.fromDocument(
-          doc: doc, name: "professionalPhotoUrl"),
-      personalBio:
-          FirestoreField<String>.fromDocument(doc: doc, name: "personalBio"),
+      isFreelancer: FirestoreField<bool>.fromDocument(doc: doc, name: "isFreelancer"),
+      teamChoice: FirestoreField<bool>.fromDocument(doc: doc, name: "teamChoice"),
+      professionalPhotoUrl:
+          FirestoreField<String>.fromDocument(doc: doc, name: "professionalPhotoUrl"),
+      personalBio: FirestoreField<String>.fromDocument(doc: doc, name: "personalBio"),
       gender: FirestoreField<String>.fromDocument(doc: doc, name: "gender"),
-      location:
-          FirestoreField<AppLocation>.fromDocument(doc: doc, name: "location"),
-      birthDate:
-          FirestoreField<Timestamp>.fromDocument(doc: doc, name: "birthDate"),
-      professionalCategory: FirestoreField<String>.fromDocument(
-          doc: doc, name: "professionalCategory"),
-      professionalTitle: FirestoreField<String>.fromDocument(
-          doc: doc, name: "professionalTitle"),
-      professionalDescription: FirestoreField<String>.fromDocument(
-          doc: doc, name: "professionalDescription"),
-      jobsCount:
-          FirestoreField<double>.fromDocument(doc: doc, name: "jobsCount"),
-      globalRate:
-          FirestoreField<double>.fromDocument(doc: doc, name: "globalRate"),
-      completionRate:
-          FirestoreField<double>.fromDocument(doc: doc, name: "completionRate"),
-      popularityRate:
-          FirestoreField<double>.fromDocument(doc: doc, name: "popularityRate"),
-      qualityRate:
-          FirestoreField<double>.fromDocument(doc: doc, name: "qualityRate"),
-      attitudeRate:
-          FirestoreField<double>.fromDocument(doc: doc, name: "attitudeRate"),
-      lastReviewTimestamp: FirestoreField<Timestamp>.fromDocument(
-          doc: doc, name: "lastReviewTimestamp"),
-      timeManagementRate: FirestoreField<double>.fromDocument(
-          doc: doc, name: "timeManagementRate"),
-      preferences: FirestoreField<List<String>>.fromDocument(
-          doc: doc, name: "preferences"),
+      location: FirestoreField<Map>.fromDocument(doc: doc, name: "location"),
+      birthDate: FirestoreField<Timestamp>.fromDocument(doc: doc, name: "birthDate"),
+      professionalCategory:
+          FirestoreField<String>.fromDocument(doc: doc, name: "professionalCategory"),
+      professionalTitle: FirestoreField<String>.fromDocument(doc: doc, name: "professionalTitle"),
+      professionalDescription:
+          FirestoreField<String>.fromDocument(doc: doc, name: "professionalDescription"),
+      jobsCount: FirestoreField<double>.fromDocument(doc: doc, name: "jobsCount"),
+      globalRate: FirestoreField<double>.fromDocument(doc: doc, name: "globalRate"),
+      completionRate: FirestoreField<double>.fromDocument(doc: doc, name: "completionRate"),
+      popularityRate: FirestoreField<double>.fromDocument(doc: doc, name: "popularityRate"),
+      qualityRate: FirestoreField<double>.fromDocument(doc: doc, name: "qualityRate"),
+      attitudeRate: FirestoreField<double>.fromDocument(doc: doc, name: "attitudeRate"),
+      lastReviewTimestamp:
+          FirestoreField<Timestamp>.fromDocument(doc: doc, name: "lastReviewTimestamp"),
+      timeManagementRate: FirestoreField<double>.fromDocument(doc: doc, name: "timeManagementRate"),
+      preferences: FirestoreField<List>.fromDocument(doc: doc, name: "preferences"),
       reviews: FirestoreField<Map>.fromDocument(doc: doc, name: "reviews"),
       jobs: FirestoreField<Map>.fromDocument(doc: doc, name: "jobs"),
       diploma: FirestoreField<String>.fromDocument(doc: doc, name: "diploma"),
       licence: FirestoreField<String>.fromDocument(doc: doc, name: "licence"),
-      certification:
-          FirestoreField<String>.fromDocument(doc: doc, name: "certification"),
+      certification: FirestoreField<String>.fromDocument(doc: doc, name: "certification"),
       language: FirestoreField<String>.fromDocument(doc: doc, name: "language"),
-      experience:
-          FirestoreField<String>.fromDocument(doc: doc, name: "experience"),
-      internship:
-          FirestoreField<String>.fromDocument(doc: doc, name: "internship"),
-      competence:
-          FirestoreField<String>.fromDocument(doc: doc, name: "competence"),
-      achievement:
-          FirestoreField<String>.fromDocument(doc: doc, name: "achievement"),
-      recommendation:
-          FirestoreField<String>.fromDocument(doc: doc, name: "recommendation"),
-      createdAt:
-          FirestoreField<Timestamp>.fromDocument(doc: doc, name: "createdAt"),
+      experience: FirestoreField<String>.fromDocument(doc: doc, name: "experience"),
+      internship: FirestoreField<String>.fromDocument(doc: doc, name: "internship"),
+      competence: FirestoreField<String>.fromDocument(doc: doc, name: "competence"),
+      achievement: FirestoreField<String>.fromDocument(doc: doc, name: "achievement"),
+      recommendation: FirestoreField<String>.fromDocument(doc: doc, name: "recommendation"),
+      createdAt: FirestoreField<Timestamp>.fromDocument(doc: doc, name: "createdAt"),
     );
   }
 }
