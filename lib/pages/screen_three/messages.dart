@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
-import 'package:khadamat/pages/manage_job.dart';
+import 'package:khadamat/pages/screen_three/manage_job.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/header.dart';
 import 'package:khadamat/widgets/message_bubble.dart';
@@ -66,7 +66,9 @@ class MessagesState extends State<Messages> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(context),
+      appBar: buildAppBar(
+        context,
+      ),
       body: Container(
         padding: EdgeInsets.all(5.0),
         child: Column(
@@ -104,7 +106,8 @@ class MessagesState extends State<Messages> {
   AppBar buildAppBar(BuildContext context) {
     return header(
       context,
-      titleText: "messages",
+      titleText: kMessages,
+      implyBackButton: true,
     );
   }
 
@@ -152,11 +155,7 @@ class MessagesState extends State<Messages> {
         feedId = jobFreelancerId;
       else if (currentUser.uid.value == jobFreelancerId) feedId = jobOwnerId;
       print(feedId);
-      activityFeedRef
-          .doc(feedId)
-          .collection('feedItems')
-          .doc(currentUser.uid.value + jobId)
-          .set({
+      activityFeedRef.doc(feedId).collection('feedItems').doc(currentUser.uid.value + jobId).set({
         "type": "message",
         "messageText": messageController.text,
         "jobId": jobId,
@@ -254,12 +253,8 @@ class Message extends StatelessWidget {
   Widget build(BuildContext context) {
     final isCurrentUser = currentUser.uid.value == userId;
     return type == "open"
-        ? MessageBubble(
-            isCurrentUser: null, message: kOpenChat, createdAt: createdAt)
-        : MessageBubble(
-            isCurrentUser: isCurrentUser,
-            message: message,
-            createdAt: createdAt);
+        ? MessageBubble(isCurrentUser: null, message: kOpenChat, createdAt: createdAt)
+        : MessageBubble(isCurrentUser: isCurrentUser, message: message, createdAt: createdAt);
   }
 }
 

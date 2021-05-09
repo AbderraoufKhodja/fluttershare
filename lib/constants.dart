@@ -67,8 +67,7 @@ const String kPriceHintText = "kPriceHintText";
 const String kDateRangeText = "kDateRangeText";
 const String kRequestUpdateJobTerms = "kRequestUpdateJobTerms";
 const String kContactTeam = "kContactTeam";
-const String kDisposeCurrentFreelancerAndRepostJob =
-    "kDisposeCurrentFreelancerAndRepostJob";
+const String kDisposeCurrentFreelancerAndRepostJob = "kDisposeCurrentFreelancerAndRepostJob";
 const String kProfessionalTitleHint = "kProfessionalTitleHint";
 const String kLessThan24Hours = "kLessThan24Hours";
 const String kJobDescriptionHint = "kJobDescriptionHint";
@@ -120,8 +119,7 @@ const String kPriceHint = "kPriceHint";
 const String kPriceInstruction = "kPriceInstruction";
 const String kCreateCard = "kCreateCard";
 const String kHasNoFreelanceAccount = "kHasNoFreelanceAccount";
-const String kDismissCurrentFreelancerAndPostJobAgain =
-    "kDismissCurrentFreelancerAndPostJobAgain";
+const String kDismissCurrentFreelancerAndPostJobAgain = "kDismissCurrentFreelancerAndPostJobAgain";
 const String kConnectivityProblem = "kConnectivityProblem";
 const String kWelcome = "kWelcome";
 const String kDateRangeHint = "kDateRangeHint";
@@ -139,12 +137,10 @@ const String kJobComplete = "kJobComplete";
 const String kFreelancerQuitJob = "kFreelancerQuitJob";
 const String kEvaluation = "KEvaluation";
 const String kOk = "kOk";
-const String kHasNoJobFreelancerDialogInstruction =
-    "kHasNoJobFreelancerDialogInstruction";
+const String kHasNoJobFreelancerDialogInstruction = "kHasNoJobFreelancerDialogInstruction";
 const String kEditProfile = "kEditProfile";
 const String kLessThan24HoursInstruction = "kLessThan24HoursInstruction";
-const String kHasUnresolvedUpdateRequestInstruction =
-    "kHasUnresolvedUpdateRequestInstruction";
+const String kHasUnresolvedUpdateRequestInstruction = "kHasUnresolvedUpdateRequestInstruction";
 const String kHire = "kHire";
 const String kErrorHasOccurred = "kErrorHasOccurred";
 const String kDismissFreelancerBeforeCancel = "kDismissFreelancerBeforeCancel";
@@ -200,8 +196,7 @@ const String kGenderController = "kGenderController";
 const String kMale = "kMale";
 const String kFemale = "kFemale";
 const String kCountry = "kCountry";
-const String kProfessionalCategoryController =
-    "kProfessionalCategoryController";
+const String kProfessionalCategoryController = "kProfessionalCategoryController";
 const String kAddProfessionalCategory = "kAddProfessionalCategory";
 const String kAddProfessionalTitle = "kAddProfessionalTitle";
 const String kCheckProfessionalTitle = "kCheckProfessionalTitle";
@@ -214,10 +209,8 @@ const String kPersonalBioInstruction = "kPersonalBioInstruction";
 const String kLocationInstruction = "kLocationInstruction";
 const String kBirthDateInstruction = "kBirthDateInstruction";
 const String kGenderInstruction = "kGenderInstruction";
-const String kProfessionalDescriptionInstruction =
-    "kProfessionalDescriptionInstruction";
-const String kProfessionalCategoryInstruction =
-    "kProfessionalCategoryInstruction";
+const String kProfessionalDescriptionInstruction = "kProfessionalDescriptionInstruction";
+const String kProfessionalCategoryInstruction = "kProfessionalCategoryInstruction";
 const String kKeyWordsInstruction = "kKeyWordsInstruction";
 const String kDiplomaInstruction = "kDiplomaInstruction";
 const String kLicenceInstruction = "kLicenceInstruction";
@@ -230,16 +223,38 @@ const String kAchievementInstruction = "kAchievementInstruction";
 const String kRecommendationInstruction = "kRecommendationInstruction";
 const String kTrendingTopRatedSection = "kTrendingTopRatedSection";
 const String kTrendingExperiencedSection = "kTrendingExperiencedSection";
-const String kTrendingHighestCompletionRateSection =
-    "kTrendingHighestCompletionRateSection";
-const String kTrendingPopularAdvisorsSection =
-    "kTrendingPopularAdvisorsSection";
-const String kTrendingHighQualityFreelancersSection =
-    "kTrendingHighQualityFreelancersSection";
-const String kTrendingTopTeamChoiceFreelancersSection =
-    "kTrendingTopTeamChoiceFreelancersSection";
-const String kTrendingTopFreelancersAroundMeSection =
-    "kTrendingTopFreelancersAroundMeSection";
+const String kTrendingHighestCompletionRateSection = "kTrendingHighestCompletionRateSection";
+const String kTrendingPopularAdvisorsSection = "kTrendingPopularAdvisorsSection";
+const String kTrendingHighQualityFreelancersSection = "kTrendingHighQualityFreelancersSection";
+const String kTrendingTopTeamChoiceFreelancersSection = "kTrendingTopTeamChoiceFreelancersSection";
+const String kTrendingTopFreelancersAroundMeSection = "kTrendingTopFreelancersAroundMeSection";
+const String kForums = "kForums";
+const String kProfile = "kProfile";
+const String kMessages = "kMessages";
 
 const String kBlankProfileUrl =
     "https://firebasestorage.googleapis.com/v0/b/khadamat-2dbbb.appspot.com/o/freelancer_105303619841718040097.jpg?alt=media&token=cee059e4-bbf9-48ad-b668-88b5282d2339";
+
+// Copyright 2019 The Flutter team. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// Only put constants shared between files here.
+
+// height of the 'Gallery' header
+const double kGalleryHeaderHeight = 64;
+
+// The font size delta for headline4 font.
+const double kDesktopDisplay1FontDelta = 16;
+
+// The width of the settingsDesktop.
+const double kDesktopSettingsWidth = 520;
+
+// Sentinel value for the system text scale factor option.
+const double kSystemTextScaleFactorOption = -1;
+
+// The splash page animation duration.
+const kSplashPageAnimationDurationInMilliseconds = 300;
+
+// The desktop top padding for a page's first header (e.g. Gallery, Settings)
+const kFirstHeaderDesktopTopPadding = 5.0;

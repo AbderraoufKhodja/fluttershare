@@ -4,14 +4,14 @@ import "package:flutter/material.dart";
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/activity_feed.dart';
 import 'package:khadamat/models/job.dart';
-import 'package:khadamat/pages/messages.dart';
-import 'package:khadamat/pages/signal_abuse_screen.dart';
-import 'package:khadamat/pages/update_job_terms_request_screen.dart';
-import 'package:khadamat/pages/complete_job_screen.dart';
-import 'package:khadamat/pages/delete_job_screen.dart';
-import 'package:khadamat/pages/dismiss_freelancer_screen.dart';
+import 'package:khadamat/pages/screen_three/messages.dart';
+import 'package:khadamat/pages/screen_three/signal_abuse_screen.dart';
+import 'package:khadamat/pages/screen_three/update_job_terms_request_screen.dart';
+import 'package:khadamat/pages/authentification_screen/complete_job_screen.dart';
+import 'package:khadamat/pages/screen_three/delete_job_screen.dart';
+import 'package:khadamat/pages/screen_three/dismiss_freelancer_screen.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/update_job_terms_dialogue_screen.dart';
+import 'package:khadamat/pages/screen_three/update_job_terms_dialogue_screen.dart';
 import 'package:khadamat/widgets/activity_feed_item.dart';
 import 'package:khadamat/widgets/custom_field.dart';
 import 'package:khadamat/widgets/progress.dart';
@@ -53,6 +53,10 @@ class _ManageJobState extends State<ManageJob> {
           return Scaffold(
             key: _scaffoldKey,
             appBar: AppBar(
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () => Navigator.pop(context),
+              ),
               title: Text(kManageJob),
               backgroundColor: Theme.of(context).backgroundColor,
             ),

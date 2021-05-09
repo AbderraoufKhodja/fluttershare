@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/app_user.dart';
-import 'package:khadamat/pages/profile.dart';
+import 'package:khadamat/pages/screen_five/profile.dart';
 
 class FreelancerCard extends StatelessWidget {
   final AppUser user;

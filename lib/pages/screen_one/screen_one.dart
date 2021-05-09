@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
-import 'package:khadamat/pages/freelancer_categories_page.dart';
-import 'package:khadamat/pages/freelancer_for_you_page.dart';
-import 'package:khadamat/pages/team_choice_freelancers_page.dart';
-import 'package:khadamat/pages/top_freelancer_page.dart';
-import 'package:khadamat/pages/trending_freelancers_page.dart';
+import 'package:khadamat/pages/screen_one/freelancer_categories_page.dart';
+import 'package:khadamat/pages/screen_one/freelancer_for_you_page.dart';
+import 'package:khadamat/pages/screen_one/team_choice_freelancers_page.dart';
+import 'package:khadamat/pages/screen_one/top_freelancer_page.dart';
+import 'package:khadamat/pages/screen_one/trending_freelancers_page.dart';
 import 'package:khadamat/widgets/screen_layout.dart';
 
 class ScreenOne extends StatefulWidget {

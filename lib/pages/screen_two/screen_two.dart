@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
-import 'package:khadamat/pages/proffesional_categories_page.dart';
+import 'package:khadamat/pages/screen_two/proffesional_categories_page.dart';
 import 'package:khadamat/widgets/screen_layout.dart';
 
 class ScreenTwo extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:khadamat/pages/jobs_screen.dart';
+import 'package:khadamat/pages/screen_two/jobs_screen.dart';
 
 class TitleButton extends StatelessWidget {
   final String professionalTitle;

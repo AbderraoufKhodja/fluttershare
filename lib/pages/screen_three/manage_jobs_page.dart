@@ -1,18 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/manage_job.dart';
-import 'package:khadamat/widgets/progress.dart';
+import 'package:khadamat/pages/screen_three/manage_job.dart';
 
 class ManageJobsPage extends StatefulWidget {
   @override
   _JobsScreen createState() => _JobsScreen();
 }
 
-class _JobsScreen extends State<ManageJobsPage>
-    with AutomaticKeepAliveClientMixin<ManageJobsPage> {
+class _JobsScreen extends State<ManageJobsPage> with AutomaticKeepAliveClientMixin<ManageJobsPage> {
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
@@ -25,25 +22,20 @@ class _JobsScreen extends State<ManageJobsPage>
 }
 
 buildListJobs() {
-  return FutureBuilder<QuerySnapshot>(
-      future: usersRef
-          .doc(currentUser.uid.value)
-          .collection('userJobs')
-          .orderBy("createdAt", descending: false)
-          .get(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return circularProgress();
-        }
-        List<JobContainer> job = [];
-        snapshot.data.docs.forEach((doc) {
-          job.add(JobContainer.fromDocument(doc));
-        });
-        return ListView(
-          physics: BouncingScrollPhysics(),
-          children: job,
-        );
-      });
+  List<JobContainer> jobContainers = [];
+  currentUser.jobs.value.forEach((key, value) {
+    jobContainers.add(JobContainer.fromDocument(value));
+  });
+  return ListView(
+    physics: BouncingScrollPhysics(),
+    children: jobContainers.isEmpty
+        ? [
+            Center(
+              child: Text(kEmpty),
+            )
+          ]
+        : jobContainers,
+  );
 }
 
 class JobContainer extends StatelessWidget {
@@ -65,15 +57,15 @@ class JobContainer extends StatelessWidget {
     this.applications,
   });
 
-  factory JobContainer.fromDocument(DocumentSnapshot doc) {
+  factory JobContainer.fromDocument(Map map) {
     return JobContainer(
-      jobId: doc['jobId'],
-      jobOwnerId: doc['jobOwnerId'],
-      jobOwnerName: doc['jobOwnerName'],
-      jobFreelancerId: doc['jobFreelancerId'],
-      jobFreelancerName: doc['jobFreelancerName'],
-      professionalTitle: doc['professionalTitle'],
-      applications: doc['applications'],
+      jobId: map['jobId'],
+      jobOwnerId: map['jobOwnerId'],
+      jobOwnerName: map['jobOwnerName'],
+      jobFreelancerId: map['jobFreelancerId'],
+      jobFreelancerName: map['jobFreelancerName'],
+      professionalTitle: map['professionalTitle'],
+      applications: map['applications'],
     );
   }
 

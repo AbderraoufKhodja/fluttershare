@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/professional_titles_screen.dart';
-import 'package:khadamat/pages/upload_job.dart';
+import 'package:khadamat/pages/screen_two/professional_titles_screen.dart';
+import 'package:khadamat/pages/screen_one/upload_job.dart';
 import 'package:khadamat/widgets/job_category_tile.dart';
 import 'package:khadamat/widgets/progress.dart';
 

@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
-import 'package:khadamat/pages/create_client_account.dart';
-import 'package:khadamat/pages/create_freelance_account.dart';
+import 'package:khadamat/pages/authentification_screen/create_client_account.dart';
+import 'package:khadamat/pages/authentification_screen/create_freelance_account.dart';
 import 'package:khadamat/widgets/custom_button.dart';
 
 class CreateAccount extends StatefulWidget {
@@ -26,8 +26,8 @@ class _CreateAccountState extends State<CreateAccount> {
               heightFactor: 2,
               widthFactor: 2,
               function: () async {
-                final isSuccessful = await showCreateClientAccount(context,
-                    firebaseUser: widget.firebaseUser);
+                final isSuccessful =
+                    await showCreateClientAccount(context, firebaseUser: widget.firebaseUser);
                 if (isSuccessful == true) {
                   Navigator.pop(context, isSuccessful);
                 }
@@ -40,8 +40,8 @@ class _CreateAccountState extends State<CreateAccount> {
               heightFactor: 2,
               widthFactor: 2,
               function: () async {
-                final isSuccessful = await showCreateFreelanceAccount(context,
-                    firebaseUser: widget.firebaseUser);
+                final isSuccessful =
+                    await showCreateFreelanceAccount(context, firebaseUser: widget.firebaseUser);
                 if (isSuccessful == true) {
                   Navigator.pop(context, isSuccessful);
                 }

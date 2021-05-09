@@ -4,10 +4,10 @@ import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/activity_feed.dart';
 import 'package:khadamat/models/job.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/manage_job.dart';
-import 'package:khadamat/pages/manage_jobs_page.dart';
-import 'package:khadamat/pages/messages.dart';
-import 'package:khadamat/pages/profile.dart';
+import 'package:khadamat/pages/screen_three/manage_job.dart';
+import 'package:khadamat/pages/screen_three/manage_jobs_page.dart';
+import 'package:khadamat/pages/screen_three/messages.dart';
+import 'package:khadamat/pages/screen_five/profile.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 import 'package:timeago/timeago.dart' as timeago;
 

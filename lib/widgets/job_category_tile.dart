@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:khadamat/pages/professional_titles_screen.dart';
+import 'package:khadamat/pages/screen_two/professional_titles_screen.dart';
 
 class JobCategoryTile extends StatelessWidget {
   final String professionalCategory;

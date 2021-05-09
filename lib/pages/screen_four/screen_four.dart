@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/manage_jobs_page.dart';
-import 'package:khadamat/pages/messages_page.dart';
-import 'package:khadamat/pages/my_forum_subscribtions_page.dart';
+import 'package:khadamat/pages/screen_three/manage_jobs_page.dart';
+import 'package:khadamat/pages/screen_three/messages_page.dart';
+import 'package:khadamat/pages/screen_four/my_forum_subscribtions_page.dart';
 import 'package:khadamat/widgets/screen_layout.dart';
 
 class ScreenFour extends StatefulWidget {
@@ -33,7 +33,6 @@ class _ScreenFour extends State<ScreenFour> {
     categoriesRef
         .where("field", isLessThan: "AbdErraouf")
         .get(GetOptions(source: Source.serverAndCache))
-        .then((value) => print(value.docs.first.id),
-            onError: (value) => print(value));
+        .then((value) => print(value.docs.first.id), onError: (value) => print(value));
   }
 }

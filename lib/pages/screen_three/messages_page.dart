@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/messages.dart';
+import 'package:khadamat/pages/screen_three/messages.dart';
 import 'package:khadamat/widgets/progress.dart';
 
 class MessagesPage extends StatefulWidget {

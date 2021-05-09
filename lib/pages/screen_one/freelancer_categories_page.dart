@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
-import 'package:khadamat/pages/freelancer_for_you_page.dart';
+import 'package:khadamat/pages/screen_one/freelancer_for_you_page.dart';
 import 'package:khadamat/pages/home.dart';
 import 'package:khadamat/widgets/progress.dart';
 
@@ -28,9 +28,7 @@ class _FreelancerCategoriesPage extends State<FreelancerCategoriesPage>
           } else {
             return ListView(
               physics: BouncingScrollPhysics(),
-              children: snapshot.data.docs
-                  .map((doc) => categoryListTile(context, doc))
-                  .toList(),
+              children: snapshot.data.docs.map((doc) => categoryListTile(context, doc)).toList(),
             );
           }
         });
@@ -44,8 +42,8 @@ class _FreelancerCategoriesPage extends State<FreelancerCategoriesPage>
             image: DecorationImage(
               fit: BoxFit.fill,
               alignment: Alignment.centerRight,
-              image: CachedNetworkImageProvider(
-                  doc.data()['categoryBannerURL'] ?? kBlankCategoryUrl),
+              image:
+                  CachedNetworkImageProvider(doc.data()['categoryBannerURL'] ?? kBlankCategoryUrl),
             ),
           ),
           child: Container(
@@ -58,8 +56,7 @@ class _FreelancerCategoriesPage extends State<FreelancerCategoriesPage>
             ),
             child: ListTile(
               title: Text(doc.id),
-              onTap: () =>
-                  showFreelancerForYouPage(context, preferences: [doc.id]),
+              onTap: () => showFreelancerForYouPage(context, preferences: [doc.id]),
             ),
           ),
         ),

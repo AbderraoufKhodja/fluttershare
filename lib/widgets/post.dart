@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/profile.dart';
+import 'package:khadamat/pages/screen_five/profile.dart';
 import 'package:khadamat/widgets/custom_image.dart';
 import 'package:khadamat/widgets/progress.dart';
 

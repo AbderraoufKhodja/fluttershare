@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:khadamat/constants.dart';
-import 'package:khadamat/pages/activity_feed_page.dart';
-import 'package:khadamat/pages/manage_jobs_page.dart';
-import 'package:khadamat/pages/messages_page.dart';
+import 'package:khadamat/pages/screen_three/activity_feed_page.dart';
+import 'package:khadamat/pages/screen_three/manage_jobs_page.dart';
+import 'package:khadamat/pages/screen_three/messages_page.dart';
 import 'package:khadamat/widgets/screen_layout.dart';
 
 class ScreenThree extends StatefulWidget {

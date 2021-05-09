@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:khadamat/models/app_user.dart';
 import 'package:khadamat/models/firestore_field.dart';
 import 'package:khadamat/pages/home.dart';
-import 'package:khadamat/pages/manage_job.dart';
+import 'package:khadamat/pages/screen_three/manage_job.dart';
 
 class Job {
   final FirestoreField<String> jobId;

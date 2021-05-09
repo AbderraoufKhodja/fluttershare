@@ -1,6 +1,6 @@
 name: khadamat
 description: A new Flutter project.
-
+repository: https://github.com/AbderraoufKhodja/fluttershare
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
 # followed by an optional build number separated by a +.
@@ -19,6 +19,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  adaptive_breakpoints: ^0.0.4
+  animations: ^2.0.0
   animator: null
   bubble: null
   cached_network_image: null
@@ -35,8 +39,8 @@ dependencies:
   flutter_easyloading: null
   flutter_rating_bar: null
   flutter_svg: null
-  geocoding: null
   geocode: null
+  geocoding: null
   geoflutterfire: null
   geolocator: null
   google_fonts: ^2.0.0
@@ -48,6 +52,7 @@ dependencies:
   image_picker_for_web: null
   outline_material_icons: null
   path_provider: null
+  provider: null
   shimmer: null
   timeago: null
   timeline_tile: null
@@ -78,3 +83,5 @@ flutter:
     - assets/images/search.svg
     - assets/images/activity_feed.svg
     - assets/images/no_content.svg
+    
+  generate: true

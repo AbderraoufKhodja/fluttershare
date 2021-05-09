@@ -5,24 +5,24 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:khadamat/authentication.dart';
+import 'package:khadamat/constants.dart';
 import 'package:khadamat/models/app_user.dart';
-import 'package:khadamat/pages/create_account.dart';
-import 'package:khadamat/pages/profile.dart';
+import 'package:khadamat/pages/authentification_screen/create_account.dart';
+import 'package:khadamat/pages/screen_five/profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:khadamat/pages/screen_one.dart';
-import 'package:khadamat/pages/screen_three.dart';
-import 'package:khadamat/pages/screen_two.dart';
+import 'package:khadamat/pages/screen_four/screen_four.dart';
+import 'package:khadamat/pages/screen_one/screen_one.dart';
+import 'package:khadamat/pages/screen_three/screen_three.dart';
+import 'package:khadamat/pages/screen_two/screen_two.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final Reference storageRef = FirebaseStorage.instance.ref();
 final FirebaseAuth auth = FirebaseAuth.instance;
 final usersRef = FirebaseFirestore.instance.collection('users');
-final cardsRef = FirebaseFirestore.instance.collection('cards');
 final postsRef = FirebaseFirestore.instance.collection('posts');
 final jobsRef = FirebaseFirestore.instance.collection('jobs');
-final popularCategoriesRef =
-    FirebaseFirestore.instance.collection('popularCategories');
+final popularCategoriesRef = FirebaseFirestore.instance.collection('popularCategories');
 final categoriesRef = FirebaseFirestore.instance.collection('categories');
 final locationsRef = FirebaseFirestore.instance.collection('locations');
 final commentsRef = FirebaseFirestore.instance.collection('comments');
@@ -39,12 +39,13 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with RestorationMixin {
+  final RestorableInt _selectedIndex = RestorableInt(0);
+
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   bool isAuth = false;
   PageController pageController;
-  int pageIndex = 0;
   bool isFreelancer = false;
   String category;
   String subCategory;
@@ -53,6 +54,14 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return isAuth ? buildAuthScreen() : buildUnAuthScreen();
+  }
+
+  @override
+  String get restorationId => 'nav_rail';
+
+  @override
+  void restoreState(RestorationBucket oldBucket, bool initialRestore) {
+    registerForRestoration(_selectedIndex, 'selected_index');
   }
 
   @override
@@ -181,7 +190,7 @@ class _HomeState extends State<Home> {
 
   onPageChanged(int pageIndex) {
     setState(() {
-      this.pageIndex = pageIndex;
+      _selectedIndex.value = pageIndex;
     });
   }
 
@@ -192,13 +201,62 @@ class _HomeState extends State<Home> {
   Scaffold buildAuthScreen() {
     return Scaffold(
       key: _scaffoldKey,
-      body: PageView(
+      body: Row(
+        children: [
+          MediaQuery.of(context).orientation == Orientation.landscape
+              ? buildNavigationRail()
+              : Container(),
+          buildPageView(),
+        ],
+      ),
+      bottomNavigationBar: MediaQuery.of(context).orientation != Orientation.landscape
+          ? buildCupertinoTabBar()
+          : null,
+    );
+  }
+
+  CupertinoTabBar buildCupertinoTabBar() {
+    return CupertinoTabBar(
+      backgroundColor: Colors.white,
+      inactiveColor: Theme.of(context).primaryColor,
+      currentIndex: _selectedIndex.value,
+      onTap: onTap,
+      activeColor: Colors.black,
+      items: [
+        BottomNavigationBarItem(
+          icon: const Icon(OMIcons.whatshot),
+          activeIcon: const Icon(Icons.whatshot, size: 40.0),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(OMIcons.cardTravel),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(OMIcons.cardTravel),
+          activeIcon: const Icon(Icons.card_travel, size: 40.0),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(OMIcons.forum),
+          activeIcon: const Icon(Icons.forum, size: 40.0),
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(OMIcons.accountCircle),
+          activeIcon: const Icon(Icons.account_circle, size: 40.0),
+        ),
+      ],
+    );
+  }
+
+  Expanded buildPageView() {
+    return Expanded(
+      child: PageView(
+        restorationId: restorationId,
         children: <Widget>[
+          // ReplyApp(),
           ScreenOne(),
           // CreateFreelanceAccount(),
           ScreenTwo(),
           ScreenThree(),
-          // ScreenFour(),
+          ScreenFour(),
           Profile(
             profileId: currentUser?.uid.value,
           ),
@@ -207,35 +265,62 @@ class _HomeState extends State<Home> {
         onPageChanged: onPageChanged,
         physics: NeverScrollableScrollPhysics(),
       ),
-      bottomNavigationBar: CupertinoTabBar(
-        backgroundColor: Colors.white,
-        inactiveColor: Theme.of(context).primaryColor,
-        currentIndex: pageIndex,
-        onTap: onTap,
-        activeColor: Colors.black,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(OMIcons.whatshot),
-            activeIcon: Icon(Icons.whatshot, size: 40.0),
+    );
+  }
+
+  NavigationRail buildNavigationRail() {
+    return NavigationRail(
+      // leading: FloatingActionButton(
+      //   child: const Icon(Icons.add),
+      //   onPressed: () {},
+      // ),
+      elevation: 10,
+      selectedIndex: _selectedIndex.value,
+      groupAlignment: 0,
+      onDestinationSelected: (index) {
+        onTap(index);
+        setState(() {
+          _selectedIndex.value = index;
+        });
+      },
+      labelType: NavigationRailLabelType.selected,
+      destinations: [
+        NavigationRailDestination(
+          icon: const Icon(OMIcons.whatshot),
+          selectedIcon: const Icon(Icons.whatshot, size: 40.0),
+          label: Text(
+            kFreelancers,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(OMIcons.category),
-            activeIcon: Icon(Icons.category_rounded, size: 40.0),
+        ),
+        NavigationRailDestination(
+          icon: const Icon(OMIcons.category),
+          selectedIcon: const Icon(Icons.category_rounded, size: 40.0),
+          label: Text(
+            kJobs,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(OMIcons.cardTravel),
-            activeIcon: Icon(Icons.card_travel, size: 40.0),
+        ),
+        NavigationRailDestination(
+          icon: const Icon(OMIcons.cardTravel),
+          selectedIcon: const Icon(Icons.card_travel, size: 40.0),
+          label: Text(
+            kManageJob,
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(OMIcons.forum),
-          //   activeIcon: Icon(Icons.forum, size: 40.0),
-          // ),
-          BottomNavigationBarItem(
-            icon: Icon(OMIcons.accountCircle),
-            activeIcon: Icon(Icons.account_circle, size: 40.0),
+        ),
+        NavigationRailDestination(
+          icon: const Icon(OMIcons.forum),
+          selectedIcon: const Icon(Icons.forum, size: 40.0),
+          label: Text(
+            kForums,
           ),
-        ],
-      ),
+        ),
+        NavigationRailDestination(
+          icon: const Icon(OMIcons.accountCircle),
+          selectedIcon: const Icon(Icons.account_circle, size: 40.0),
+          label: Text(
+            kProfile,
+          ),
+        ),
+      ],
     );
   }
 
@@ -243,9 +328,8 @@ class _HomeState extends State<Home> {
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
-          image: DecorationImage(
-              image: AssetImage("assets/images/freelancer.jpg"),
-              fit: BoxFit.fill),
+          image:
+              DecorationImage(image: AssetImage("assets/images/freelancer.jpg"), fit: BoxFit.fill),
           gradient: LinearGradient(
             begin: Alignment.topRight,
             end: Alignment.bottomLeft,
@@ -297,8 +381,7 @@ class _HomeState extends State<Home> {
                 setState(() {
                   _isSigningIn = true;
                 });
-                User firebaseUser =
-                    await Authentication.signInWithGoogle(context: context);
+                User firebaseUser = await Authentication.signInWithGoogle(context: context);
                 print('User is signed in!');
                 print(firebaseUser.email);
 
@@ -326,8 +409,7 @@ class _HomeState extends State<Home> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Image(
-                      image:
-                          AssetImage("assets/images/google_signin_button.png"),
+                      image: AssetImage("assets/images/google_signin_button.png"),
                       height: 35.0,
                     ),
                     Padding(

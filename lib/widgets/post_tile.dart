@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:khadamat/pages/post_screen.dart';
+import 'package:khadamat/pages/screen_five/post_screen.dart';
 import 'package:khadamat/widgets/custom_image.dart';
 import 'package:khadamat/widgets/post.dart';
 
